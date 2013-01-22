@@ -387,26 +387,45 @@ bg:
   MemberAuthenticator:
     TITLE: 'email и парола'
   MemberDatetimeOptionsetField:
-    AMORPM: 'АМ (преди обед) или РМ (следобед)'
+    AMORPM:
+      - null
     'APPLY FILTER': 'Приложи филтър'
-    Custom: Произволно
-    DATEFORMATBAD: 'Невалиден формат на датата'
-    DAYNOLEADING: 'Ден от месеца без водеща нула'
-    DIGITSDECFRACTIONSECOND: 'Една или повече цифри, представляващи десетичната част на секундата'
-    FOURDIGITYEAR: 'Четирицифрена година'
-    FULLNAMEMONTH: 'Пълно наименование на месец (напр. Януари)'
-    HOURNOLEADING: 'Час без водеща нула'
-    MINUTENOLEADING: 'Минути без водеща нула'
-    MONTHNOLEADING: 'Месец без водеща нула'
-    Preview: Преглед
-    SHORTMONTH: 'Кратко изписване на месеца (напр. Яну)'
-    TOGGLEHELP: 'Помощ за форматирането'
-    TWODIGITDAY: 'Двуцифрен ден от месеца'
-    TWODIGITHOUR: 'Час с водеща нула (00 до 23)'
-    TWODIGITMINUTE: 'Минути с водеща нула (00 до 59)'
-    TWODIGITMONTH: 'Месец с водеща нула (01=Януари, и т.н.)'
-    TWODIGITSECOND: 'Секунди с водеща нула (00 до 59)'
-    TWODIGITYEAR: 'Двуцифрена година'
+    Custom:
+      - null
+    DATEFORMATBAD:
+      - null
+    DAYNOLEADING:
+      - null
+    DIGITSDECFRACTIONSECOND:
+      - null
+    FOURDIGITYEAR:
+      - null
+    FULLNAMEMONTH:
+      - null
+    HOURNOLEADING:
+      - null
+    MINUTENOLEADING:
+      - null
+    MONTHNOLEADING:
+      - null
+    Preview:
+      - null
+    SHORTMONTH:
+      - null
+    TOGGLEHELP:
+      - null
+    TWODIGITDAY:
+      - null
+    TWODIGITHOUR:
+      - null
+    TWODIGITMINUTE:
+      - null
+    TWODIGITMONTH:
+      - null
+    TWODIGITSECOND:
+      - null
+    TWODIGITYEAR:
+      - null
   MemberImportForm:
     Help1: '<p>Внасяне на потебители в <em>CSV формат</em> (comma-separated values). <small><a href="#" class="toggle-advanced">Покажи начин на употреба</a></small></p>'
     Help2: '<div class="advanced">	<h4>Advanced usage</h4>	<ul>	<li>Allowed columns: <em>%s</em></li>	<li>Existing users are matched by their unique <em>Code</em> property, and updated with any new values from	the imported file.</li>	<li>Groups can be assigned by the <em>Groups</em> column. Groups are identified by their <em>Code</em> property,	multiple groups can be separated by comma. Existing group memberships are not cleared.</li>	</ul></div>'
@@ -419,16 +438,20 @@ bg:
     SINGULARNAME: 'Member Password'
   MemberTableField: null
   ModelAdmin:
-    DELETE: Изтрий
+    DELETE:
+      - null
     DELETEDRECORDS: 'Бяха изтрити {count} записа.'
     EMPTYBEFOREIMPORT: 'Clear Database before import'
-    IMPORT: 'Внасяне от CSV'
+    IMPORT:
+      - null
     IMPORTEDRECORDS: 'Бяха внесени {count} записа.'
-    NOCSVFILE: 'Преглед на CSV файл за внасяне'
+    NOCSVFILE:
+      - null
     NOIMPORT: 'Нищо за внасяне'
     RESET: Нулиране
     Title: 'Data Models'
-    UPDATEDRECORDS: 'Бяха обновени {count} записа.'
+    UPDATEDRECORDS:
+      - null
   ModelAdmin_ImportSpec.ss:
     IMPORTSPECFIELDS: 'Database columns'
     IMPORTSPECLINK: 'Show Specification for %s'
