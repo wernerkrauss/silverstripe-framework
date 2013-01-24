@@ -387,45 +387,26 @@ af:
   MemberAuthenticator:
     TITLE: 'Epos &amp; Wagwoord'
   MemberDatetimeOptionsetField:
-    AMORPM:
-      - null
+    AMORPM: 'AM (Oggend) of PM (Middag)'
     'APPLY FILTER': 'Wend filter aan'
-    Custom:
-      - null
-    DATEFORMATBAD:
-      - null
-    DAYNOLEADING:
-      - null
-    DIGITSDECFRACTIONSECOND:
-      - null
-    FOURDIGITYEAR:
-      - null
-    FULLNAMEMONTH:
-      - null
-    HOURNOLEADING:
-      - null
-    MINUTENOLEADING:
-      - null
-    MONTHNOLEADING:
-      - null
-    Preview:
-      - null
-    SHORTMONTH:
-      - null
-    TOGGLEHELP:
-      - null
-    TWODIGITDAY:
-      - null
-    TWODIGITHOUR:
-      - null
-    TWODIGITMINUTE:
-      - null
-    TWODIGITMONTH:
-      - null
-    TWODIGITSECOND:
-      - null
-    TWODIGITYEAR:
-      - null
+    Custom: 'Maak pas'
+    DATEFORMATBAD: 'Die datum formaat is ongeldig'
+    DAYNOLEADING: 'Dag van die maand sonder ''n zero vooraan'
+    DIGITSDECFRACTIONSECOND: 'Een of meer syfers wat ''n desimale fraksie van ''n sekonde aan dui'
+    FOURDIGITYEAR: 'View syfer jaar'
+    FULLNAMEMONTH: 'Volle naam van maand (bv Junie)'
+    HOURNOLEADING: 'Uur sonder die aanvangs nul'
+    MINUTENOLEADING: 'Minuut sonder die aanvangs nul'
+    MONTHNOLEADING: 'Maand syfers sonder aanvangs-zero'
+    Preview: Voorskou
+    SHORTMONTH: 'Kort naam van die maan (bv Jun)'
+    TOGGLEHELP: 'Skakel formateringshelp aan'
+    TWODIGITDAY: 'Twee syfer dag van die maand'
+    TWODIGITHOUR: 'Twee syfers van uur (00 tot 23)'
+    TWODIGITMINUTE: 'Two syfers van minute (00 tot 59)'
+    TWODIGITMONTH: 'Twee syfer maand (01=Januarie etc)'
+    TWODIGITSECOND: 'Twee syfers van sekondes (00 to 59)'
+    TWODIGITYEAR: 'Twee syfer jaar'
   MemberImportForm:
     Help1: '<p> Voer gebruikers in <em>CSV</em>formaat (komma geskeide waardes).<small> <a href="#" class="toggle-advanced">Wys gevorderde gebruike</a></small></p>'
     Help2: '<div class="advanced">	<h4>Advanced usage</h4>	<ul>	<li>Allowed columns: <em>%s</em></li>	<li>Existing users are matched by their unique <em>Code</em> property, and updated with any new values from	the imported file.</li>	<li>Groups can be assigned by the <em>Groups</em> column. Groups are identified by their <em>Code</em> property,	multiple groups can be separated by comma. Existing group memberships are not cleared.</li>	</ul></div>'
@@ -438,8 +419,7 @@ af:
     SINGULARNAME: 'Lid Wagwoord'
   MemberTableField: null
   ModelAdmin:
-    DELETE:
-      - null
+    DELETE: Verwyder
     DELETEDRECORDS: 'Verwyder {count} rekords'
     EMPTYBEFOREIMPORT: 'Maak databasis skoon voordat data ingevoer word'
     IMPORT: 'Voer in van CSV'

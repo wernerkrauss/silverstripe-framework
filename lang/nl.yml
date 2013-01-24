@@ -387,45 +387,26 @@ nl:
   MemberAuthenticator:
     TITLE: 'Email &amp; Wachtwoord'
   MemberDatetimeOptionsetField:
-    AMORPM:
-      - null
+    AMORPM: 'AM (Ante meridiem) or PM (Post meridiem)'
     'APPLY FILTER': 'Filter toepassen'
-    Custom:
-      - null
-    DATEFORMATBAD:
-      - null
-    DAYNOLEADING:
-      - null
-    DIGITSDECFRACTIONSECOND:
-      - null
-    FOURDIGITYEAR:
-      - null
-    FULLNAMEMONTH:
-      - null
-    HOURNOLEADING:
-      - null
-    MINUTENOLEADING:
-      - null
-    MONTHNOLEADING:
-      - null
-    Preview:
-      - null
-    SHORTMONTH:
-      - null
-    TOGGLEHELP:
-      - null
-    TWODIGITDAY:
-      - null
-    TWODIGITHOUR:
-      - null
-    TWODIGITMINUTE:
-      - null
-    TWODIGITMONTH:
-      - null
-    TWODIGITSECOND:
-      - null
-    TWODIGITYEAR:
-      - null
+    Custom: Aangepast
+    DATEFORMATBAD: 'Datum is niet correct opgegeven'
+    DAYNOLEADING: 'Dag van de maand zonder voorloop-nul'
+    DIGITSDECFRACTIONSECOND: 'One or more digits representing a decimal fraction of a second'
+    FOURDIGITYEAR: 'jaar (yyyy)'
+    FULLNAMEMONTH: 'Full name of month (e.g. June)'
+    HOURNOLEADING: 'Hour without leading zero'
+    MINUTENOLEADING: 'Minute without leading zero'
+    MONTHNOLEADING: 'Dag van de maand zonder voorloop-nul'
+    Preview: Voorbeeld
+    SHORTMONTH: 'Short name of month (e.g. Jun)'
+    TOGGLEHELP: 'Hulp weergeven / verbergen'
+    TWODIGITDAY: 'Dag van de maand (met voorloop-nul)'
+    TWODIGITHOUR: 'Twee cijfer van het uur (00 tot 23)'
+    TWODIGITMINUTE: 'Minuten met voorloop-nul (00 tot 59)'
+    TWODIGITMONTH: 'Two-digit month (01=January, etc.)'
+    TWODIGITSECOND: 'Two digits of second (00 through 59)'
+    TWODIGITYEAR: 'Twee-cijferig jaar'
   MemberImportForm:
     Help1: '<p>Importeer leden in <em>CSV</em> formaat (Kommagescheiden bestandsformaat). <small><a href="#" class="toggle-advanced">Toon geavanceerd gebruik</a></small></p>'
     Help2: '<div class="advanced">	<h4>Advanced usage</h4>	<ul>	<li>Allowed columns: <em>%s</em></li>	<li>Existing users are matched by their unique <em>Code</em> property, and updated with any new values from	the imported file.</li>	<li>Groups can be assigned by the <em>Groups</em> column. Groups are identified by their <em>Code</em> property,	multiple groups can be separated by comma. Existing group memberships are not cleared.</li>	</ul></div>'
@@ -438,8 +419,7 @@ nl:
     SINGULARNAME: 'Member Password'
   MemberTableField: null
   ModelAdmin:
-    DELETE:
-      - null
+    DELETE: Verwijderen
     DELETEDRECORDS: 'Deleted {count} records.'
     EMPTYBEFOREIMPORT: 'Database legen voor importeren'
     IMPORT: 'Importeren vanuit CSV'
