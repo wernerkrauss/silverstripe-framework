@@ -387,26 +387,45 @@ fr:
   MemberAuthenticator:
     TITLE: 'Email &amp; Mot de passe'
   MemberDatetimeOptionsetField:
-    AMORPM: 'AM (Ante meridiem) ou PM (Post meridiem)'
+    AMORPM:
+      - null
     'APPLY FILTER': 'Appliquer le filtre'
-    Custom: Personnalisé
-    DATEFORMATBAD: 'Format de date incorrect'
-    DAYNOLEADING: 'Le jour du mois sans zéro initial'
-    DIGITSDECFRACTIONSECOND: 'Un ou plusieurs chiffres représentant la fraction décimale d’une seconde'
-    FOURDIGITYEAR: 'L’année sur 4 chiffres'
-    FULLNAMEMONTH: 'Le nom complet du mois (p. ex. janvier)'
-    HOURNOLEADING: 'L’heure sans zéro initial'
-    MINUTENOLEADING: 'La minute sans zéro initial'
-    MONTHNOLEADING: 'Le chiffre du mois sans zéro initial'
-    Preview: Aperçu
-    SHORTMONTH: 'Le nom abrégé du mois (p. ex. : jan.)'
-    TOGGLEHELP: 'Afficher l’aide de mise en forme'
-    TWODIGITDAY: 'Le jour du mois sur deux chiffres'
-    TWODIGITHOUR: 'L’heure sur deux chiffres (de 00 à 23)'
-    TWODIGITMINUTE: 'La minute sur deux chiffres (de 00 à 59)'
-    TWODIGITMONTH: 'Le mois sur deux chiffres (p. ex. 01=janvier)'
-    TWODIGITSECOND: 'La seconde sur deux chiffres (de 00 à 59)'
-    TWODIGITYEAR: 'L’année sur deux chiffres'
+    Custom:
+      - null
+    DATEFORMATBAD:
+      - null
+    DAYNOLEADING:
+      - null
+    DIGITSDECFRACTIONSECOND:
+      - null
+    FOURDIGITYEAR:
+      - null
+    FULLNAMEMONTH:
+      - null
+    HOURNOLEADING:
+      - null
+    MINUTENOLEADING:
+      - null
+    MONTHNOLEADING:
+      - null
+    Preview:
+      - null
+    SHORTMONTH:
+      - null
+    TOGGLEHELP:
+      - null
+    TWODIGITDAY:
+      - null
+    TWODIGITHOUR:
+      - null
+    TWODIGITMINUTE:
+      - null
+    TWODIGITMONTH:
+      - null
+    TWODIGITSECOND:
+      - null
+    TWODIGITYEAR:
+      - null
   MemberImportForm:
     Help1: '<p>Importer les membres au format<em>CSV format</em> (comma-separated values). <small><a href="#" class="toggle-advanced">Afficher l''usage avancé.</a></small></p>'
     Help2: "<div class=\"advanced\">\\n<h4>Utilisation avancée</h4>\\n<ul>\\n<li>Colonnes autorisées&nbsp;: <em>%s</em></li>\\n<li>Les utilisateurs existants sont retrouvés avec leur <em>Code</em> unique et les registres sont mis à jour avec les nouvelles valeurs du fichier importé.</li>\\n<li>Des groupes peuvent être assignés à l’aide de la colonne <em>Groups</em>. Les groupes sont identifiés par leur <em>Code</em>, plusieurs groupes peuvent être indiqués en les séparant par des virgules. L’appartenance actuelle aux groupes n’est pas modifiée.</li>\\n</ul>\\n</div>"
@@ -419,7 +438,8 @@ fr:
     SINGULARNAME: 'Mot de passe du membre'
   MemberTableField: null
   ModelAdmin:
-    DELETE: Supprime
+    DELETE:
+      - null
     DELETEDRECORDS: '{count} enregistrements supprimés.'
     EMPTYBEFOREIMPORT: 'Vider la base de données avant d’importer'
     IMPORT: 'Importer de CSV'

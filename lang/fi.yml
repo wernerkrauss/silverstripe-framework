@@ -387,26 +387,45 @@ fi:
   MemberAuthenticator:
     TITLE: 'Sähköposti &amp; Salasana'
   MemberDatetimeOptionsetField:
-    AMORPM: 'AM (aamupäivä) tai PM (iltapäivä)'
+    AMORPM:
+      - null
     'APPLY FILTER': Suodata
-    Custom: Muokattu
-    DATEFORMATBAD: 'Päivämäärän muoto on virheellinen'
-    DAYNOLEADING: 'Kuukausi ilman ensimmäistä nollaa (0)'
-    DIGITSDECFRACTIONSECOND: 'Yksi tai useampi desimaali osoittamaan sekunnin osia'
-    FOURDIGITYEAR: 'Nelinumeroinen vuosiluku'
-    FULLNAMEMONTH: 'Kuukausi kirjoitettuna (esim. kesäkuu)'
-    HOURNOLEADING: 'Tunti ilman edessä olevaa nollaa'
-    MINUTENOLEADING: 'Minuutti ilman edessä olevaa nollaa'
-    MONTHNOLEADING: 'Kuukausi ilman ensimmäistä nollaa (0)'
-    Preview: Esikatselu
-    SHORTMONTH: 'Kuukauden lyhyt nimi (esim. kesä)'
-    TOGGLEHELP: 'Vaihda muotoilu apuun'
-    TWODIGITDAY: 'Kaksinumeroinen päivämäärä (01–31)'
-    TWODIGITHOUR: 'Kaksinumeroinen tuntinäyttö (00–23)'
-    TWODIGITMINUTE: 'Kaksinumeroinen minuuttinäyttö (00–59)'
-    TWODIGITMONTH: 'Kaksinumeroinen kuukausi (01=tammikuu, jne.)'
-    TWODIGITSECOND: 'Kaksinumeroinen sekunti (00–59)'
-    TWODIGITYEAR: 'Kaksinumeroinen vuosiluku'
+    Custom:
+      - null
+    DATEFORMATBAD:
+      - null
+    DAYNOLEADING:
+      - null
+    DIGITSDECFRACTIONSECOND:
+      - null
+    FOURDIGITYEAR:
+      - null
+    FULLNAMEMONTH:
+      - null
+    HOURNOLEADING:
+      - null
+    MINUTENOLEADING:
+      - null
+    MONTHNOLEADING:
+      - null
+    Preview:
+      - null
+    SHORTMONTH:
+      - null
+    TOGGLEHELP:
+      - null
+    TWODIGITDAY:
+      - null
+    TWODIGITHOUR:
+      - null
+    TWODIGITMINUTE:
+      - null
+    TWODIGITMONTH:
+      - null
+    TWODIGITSECOND:
+      - null
+    TWODIGITYEAR:
+      - null
   MemberImportForm:
     Help1: '<p>Tuo käyttäjät <em>CSV-muodossa</em> (arvot pilkulla erotettuina). <small><a href="#" class="toggle-advanced">Näytä edistyksellinen käyttö</a></small></p>'
     Help2: "<div class=\"advanced\">\\n<h4>Edistynyt käyttö</h4>\\n<ul>\\n<li>Sallitut palstat: <em>%s</em></li>\\n<li>Olemassa olevat käyttäjät kohdistetaan uniikilla <em>Code</em>-arvolla, ja päivitetään uudet arvot tuodusta tiedostosta.</li>\\n<li>Ryhmät voidaan kohdistaa <em>Ryhmät</em>-palstaan. Ryhmät tunnistetaan <em>Code</em>-arvosta, useat ryhmät voidaan erottaa pilkulla. Olemassa olevat ryhmäjäsenyydet säilytetään.</li>\\n</ul>\\n</div>"
@@ -419,7 +438,8 @@ fi:
     SINGULARNAME: 'Käyttäjän salasana'
   MemberTableField: null
   ModelAdmin:
-    DELETE: Poista
+    DELETE:
+      - null
     DELETEDRECORDS: 'Poistettiin {count} tietuetta'
     EMPTYBEFOREIMPORT: 'Tyhjennä tietokanta ennen tuonti'
     IMPORT: 'Tuo CSV:stä'
