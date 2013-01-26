@@ -387,26 +387,45 @@ sv:
   MemberAuthenticator:
     TITLE: 'E-post &amp; Lösenord'
   MemberDatetimeOptionsetField:
-    AMORPM: 'AM (Ante meridiem) eller PM (Post meridiem)'
+    AMORPM:
+      - null
     'APPLY FILTER': 'Använd filter'
-    Custom: Anpassad
-    DATEFORMATBAD: 'Datumformatet är ogiltigt'
-    DAYNOLEADING: 'Dag i månad utan inledande nolla'
-    DIGITSDECFRACTIONSECOND: 'En eller fler delar som representerar en decimaldel av en sekund.'
-    FOURDIGITYEAR: 'Fyrsiffrigt år'
-    FULLNAMEMONTH: 'Helt namn för månad (t ex juni)'
-    HOURNOLEADING: 'Timme utan inledande nolla'
-    MINUTENOLEADING: 'Minut utan inledande nolla'
-    MONTHNOLEADING: 'Dag i månad utan inledande nolla'
-    Preview: Förhandsgranska
-    SHORTMONTH: 'Kortnamn för månad (t ex jun)'
-    TOGGLEHELP: 'Växla formatteringshjälp'
-    TWODIGITDAY: 'Två siffror för dag i månad'
-    TWODIGITHOUR: 'Två siffror för timme (00 till 23)'
-    TWODIGITMINUTE: 'Två siffror för minut (00 till 59)'
-    TWODIGITMONTH: 'Tvåsiffrig månad (01 = januari osv)'
-    TWODIGITSECOND: 'Två siffror för sekund (00 till 59)'
-    TWODIGITYEAR: 'Två siffror för år'
+    Custom:
+      - null
+    DATEFORMATBAD:
+      - null
+    DAYNOLEADING:
+      - null
+    DIGITSDECFRACTIONSECOND:
+      - null
+    FOURDIGITYEAR:
+      - null
+    FULLNAMEMONTH:
+      - null
+    HOURNOLEADING:
+      - null
+    MINUTENOLEADING:
+      - null
+    MONTHNOLEADING:
+      - null
+    Preview:
+      - null
+    SHORTMONTH:
+      - null
+    TOGGLEHELP:
+      - null
+    TWODIGITDAY:
+      - null
+    TWODIGITHOUR:
+      - null
+    TWODIGITMINUTE:
+      - null
+    TWODIGITMONTH:
+      - null
+    TWODIGITSECOND:
+      - null
+    TWODIGITYEAR:
+      - null
   MemberImportForm:
     Help1: '<p>Importera användare i <em>CSV-format</em> (kommaseparerade värden). <small><a href="#" class="toggle-advanced">Visa avancerat</a></small></p>'
     Help2: "<div class=\"advanced\">\\n<h4>Avancerat </h4>\\n<ul>\\n<li>Tillåtna kolumner: <em>%s</em></li>\\n<li>Existerade användare matchas av deras unika <em>kod</em>-attribut och uppdateras med alla nya värden från den importerade filen</li>\\n<li>Grupper kan anges i <em>Grupp</em>-kolumnen. Grupper identiferas av deras <em>Code</em>-attribut. Anges flera grupper separeras dessa med kommatecken. Existerande användarrättigheter till grupperna tas inte bort.</li>\\n</ul>\\n</div>"
@@ -419,16 +438,21 @@ sv:
     SINGULARNAME: 'Användares lösenord'
   MemberTableField: null
   ModelAdmin:
-    DELETE: Radera
-    DELETEDRECORDS: 'Raderade {count} poster.'
+    DELETE:
+      - null
+    DELETEDRECORDS:
+      - null
     EMPTYBEFOREIMPORT: 'Töm databasen före import'
-    IMPORT: 'Importera från CSV'
+    IMPORT:
+      - null
     IMPORTEDRECORDS: 'Importerade {count} poster.'
-    NOCSVFILE: 'Var god och bläddra efter en CSV-fil för import'
+    NOCSVFILE:
+      - null
     NOIMPORT: 'Inget att importera'
     RESET: Rensa
     Title: Datamodeller
-    UPDATEDRECORDS: 'Uppdaterade {count} poster.'
+    UPDATEDRECORDS:
+      - null
   ModelAdmin_ImportSpec.ss:
     IMPORTSPECFIELDS: Databaskolumner
     IMPORTSPECLINK: 'Visa specifikation för %s'
