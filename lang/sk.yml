@@ -387,25 +387,39 @@ sk:
   MemberAuthenticator:
     TITLE: 'E-mail &amp; Heslo'
   MemberDatetimeOptionsetField:
-    AMORPM: 'AM (pred poludním) alebo PM (popoludní)'
+    AMORPM:
+      - null
     'APPLY FILTER': 'Použiť filter'
-    Custom: Vlastné
+    Custom:
+      - null
     DATEFORMATBAD: 'Formát dátumu je neplatný'
     DAYNOLEADING: 'Deň mesiaca bez úvodnej nuly'
-    DIGITSDECFRACTIONSECOND: 'Jedna alebo viac číslic zastupujúcich desatinný zlomok sekundy'
-    FOURDIGITYEAR: 'Štvorčíslie roka'
-    FULLNAMEMONTH: 'Celý názov mesiaca (napr. jún)'
-    HOURNOLEADING: 'Hodina bez úvodnej nuly'
-    MINUTENOLEADING: 'Minúta bez úvodnej nuly'
-    MONTHNOLEADING: 'Číslo mesiaca bez úvodnej nuly'
-    Preview: Náhľad
-    SHORTMONTH: 'Krátky názov mesiaca (napr. jún)'
+    DIGITSDECFRACTIONSECOND:
+      - null
+    FOURDIGITYEAR:
+      - null
+    FULLNAMEMONTH:
+      - null
+    HOURNOLEADING:
+      - null
+    MINUTENOLEADING:
+      - null
+    MONTHNOLEADING:
+      - null
+    Preview:
+      - null
+    SHORTMONTH:
+      - null
     TOGGLEHELP: 'Prepnúť nápovedu formátovania'
-    TWODIGITDAY: 'Dvojčíslie dňa mesiaca'
+    TWODIGITDAY:
+      - null
     TWODIGITHOUR: 'Dvojčíslie hodiny (00 až 23)'
-    TWODIGITMINUTE: 'Dvojčíslie minúty (00 až 59)'
-    TWODIGITMONTH: 'Dvojčíslie mesiaca (01=január, atď.)'
-    TWODIGITSECOND: 'Dvojčíslie sekundy (00 až 59)'
+    TWODIGITMINUTE:
+      - null
+    TWODIGITMONTH:
+      - null
+    TWODIGITSECOND:
+      - null
     TWODIGITYEAR: 'Dvojčíslie roka'
   MemberImportForm:
     Help1: 'Importovať členov v <em>CSV formáte</em> (čiarkov oddelené hodnoty). Zobraziť pokročile použitie'
