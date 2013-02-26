@@ -1,30 +1,18 @@
 nl:
   AssetAdmin:
-    ALLOWEDEXTS:
-      - null
-    NEWFOLDER:
-      - null
+    ALLOWEDEXTS: 'Toegestane extensies'
+    NEWFOLDER: 'Nieuwe Map'
   AssetTableField:
-    CREATED:
-      - null
-    DIM:
-      - null
-    FILENAME:
-      - null
-    FOLDER:
-      - null
-    LASTEDIT:
-      - null
-    OWNER:
-      - null
-    SIZE:
-      - null
-    TITLE:
-      - null
-    TYPE:
-      - null
-    URL:
-      - null
+    CREATED: 'Eerste upload'
+    DIM: Dimensies
+    FILENAME: Bestandsnaam
+    FOLDER: Map
+    LASTEDIT: 'Laatste wijziging'
+    OWNER: Eigenaar
+    SIZE: Grootte
+    TITLE: Titel
+    TYPE: Type
+    URL: URL
   AssetUploadField:
     ChooseFiles: 'Selecteer bestanden'
     DRAGFILESHERE: 'Sleep bestanden hiernaar toe'
@@ -71,27 +59,19 @@ nl:
     ERRORNOTADMIN: 'Die gebruiker is geen beheerder.'
     ERRORNOTREC: 'De gebruikersnaam en/of wachtwoord wordt niet herkend'
   Boolean:
-    0:
-      - null
-    ANY:
-      - null
-    1:
-      - null
+    0: Nee
+    ANY: Elke
+    1: Ja
   CMSLoadingScreen.ss:
     LOADING: 'Bezig met laden...'
     REQUIREJS: 'Het CMS heeft JavaScript nodig om te werken.'
   CMSMain:
-    ACCESS:
-      - null
-    ACCESSALLINTERFACES:
-      - null
-    ACCESSALLINTERFACESHELP:
-      - null
-    SAVE:
-      - null
+    ACCESS: 'Toegang tot het ''{title}'' gedeelte'
+    ACCESSALLINTERFACES: 'Toegang tot alle CMS onderdelen'
+    ACCESSALLINTERFACESHELP: 'Overstemt meer specifieke toegangsinstellingen'
+    SAVE: Bewaar
   CMSProfileController:
-    MENUTITLE:
-      - null
+    MENUTITLE: 'Mijn Profiel'
   ChangePasswordEmail.ss:
     CHANGEPASSWORDTEXT1: 'U heeft het wachtwoord veranderd voor'
     CHANGEPASSWORDTEXT2: 'U kunt nu onderstaande gegevens gebruiken om in te loggen:'
@@ -99,48 +79,35 @@ nl:
     HELLO: Hallo
     PASSWORD: Wachtwoord
   CheckboxField:
-    -
-      - null
-    -
-      - null
+    - Nee
+    - Ja
   ComplexTableField:
     CLOSEPOPUP: 'Sluit Popup'
     SUCCESSADD2: 'Toegevoegd {name}'
     SUCCESSEDIT: '%s %s %s Opgeslagen'
   ComplexTableField.ss:
-    ADDITEM:
-      - null
-    NOITEMSFOUND:
-      - null
-    SORTASC:
-      - null
-    SORTDESC:
-      - null
+    ADDITEM: 'Voeg %s toe'
+    NOITEMSFOUND: 'Geen items gevonden.'
+    SORTASC: 'Sorteer oplopend'
+    SORTDESC: 'Sorteer aflopend'
   ComplexTableField_popup.ss:
     NEXT: Volgende
     PREVIOUS: Vorige
   ConfirmedPasswordField:
-    ATLEAST:
-      - null
-    BETWEEN:
-      - null
-    MAXIMUM:
-      - null
-    SHOWONCLICKTITLE:
-      - null
+    ATLEAST: 'Een wachtwoord moet tenminste {min} karakters hebben.'
+    BETWEEN: 'Een wachtwoord moet tussen de {min} en {max} karakters hebben'
+    MAXIMUM: 'Een wachtwoord mag maximaal {max} karakters hebben.'
+    SHOWONCLICKTITLE: 'Verander wachtwoord'
   CreditCardField:
     FIRST: eerste
     FOURTH: vierde
     SECOND: tweede
     THIRD: derde
   CurrencyField:
-    CURRENCYSYMBOL:
-      - null
+    CURRENCYSYMBOL: $
   DataObject:
-    PLURALNAME:
-      - null
-    SINGULARNAME:
-      - null
+    PLURALNAME: 'Gegeven Objecten'
+    SINGULARNAME: 'Gegeven Object'
   Date:
     DAY: dag
     DAYS: dagen
@@ -163,148 +130,89 @@ nl:
     VALIDDATEMAXDATE: 'De datum moet nieuwer of gelijk zijn aan de minimale datum ({date})'
     VALIDDATEMINDATE: 'De datum moet nieuwer of gelijk zijn aan de minimale datum ({date})'
   DatetimeField:
-    NOTSET:
-      - null
+    NOTSET: 'Niet ingesteld'
   Director:
     INVALID_REQUEST: 'Fout bij verwerken'
   DropdownField:
-    CHOOSE:
-      - null
+    CHOOSE: (Kies)
   EmailField:
-    VALIDATION:
-      - null
+    VALIDATION: 'Gelieve een email adres in te voeren.'
   Email_BounceRecord:
     PLURALNAME: 'Onbezorgbare emails'
     SINGULARNAME: 'Onbezorgbare email'
   Enum:
     ANY: Elke
   File:
-    AviType:
-      - null
-    Content:
-      - null
-    CssType:
-      - null
-    DmgType:
-      - null
-    DocType:
-      - null
-    Filename:
-      - null
-    GifType:
-      - null
-    GzType:
-      - null
-    HtlType:
-      - null
-    HtmlType:
-      - null
-    INVALIDEXTENSION:
-      - null
-    INVALIDEXTENSIONSHORT:
-      - null
-    IcoType:
-      - null
-    JpgType:
-      - null
-    JsType:
-      - null
-    Mp3Type:
-      - null
-    MpgType:
-      - null
-    NOFILESIZE:
-      - null
-    NOVALIDUPLOAD:
-      - null
-    Name:
-      - null
-    PLURALNAME:
-      - null
-    PdfType:
-      - null
-    PngType:
-      - null
-    SINGULARNAME:
-      - null
-    TOOLARGE:
-      - null
-    TOOLARGESHORT:
-      - null
-    TiffType:
-      - null
-    Title:
-      - null
-    WavType:
-      - null
-    XlsType:
-      - null
-    ZipType:
-      - null
+    AviType: 'AVI video bestand'
+    Content: Inhoud
+    CssType: 'CSS bestand'
+    DmgType: 'Apple disk image'
+    DocType: 'Word document'
+    Filename: 'Bestandsnaam '
+    GifType: 'GIF afbeelding - voor diagrammen'
+    GzType: 'GZIP gecomprimeerd bestand'
+    HtlType: 'HTML bestand'
+    HtmlType: 'HTML bestand'
+    INVALIDEXTENSION: 'Extensie is niet toegestaan (Toegestaan: {extensions})'
+    INVALIDEXTENSIONSHORT: 'Extensie is niet toegestaan'
+    IcoType: 'Icoon bestand'
+    JpgType: 'JPG afbeelding - voor foto'
+    JsType: 'Javascript bestand'
+    Mp3Type: 'MP3 audio bestand'
+    MpgType: 'MPEG video bestand'
+    NOFILESIZE: 'Bestandsgrootte is nul bytes.'
+    NOVALIDUPLOAD: 'Geen geldig bestand'
+    Name: Naam
+    PLURALNAME: Bestanden
+    PdfType: 'Adobe Acrobat PDF bestand'
+    PngType: 'PNG adbeelding - voor allerlei afbeeldingen'
+    SINGULARNAME: Bestand
+    TOOLARGE: 'Bestandsgrootte is te groot, maximaal {size} toegestaan'
+    TOOLARGESHORT: 'Bestandsgrootte is hoger dan {size}'
+    TiffType: 'Tagged beeldformaat'
+    Title: 'Titel '
+    WavType: 'WAV audio bestand'
+    XlsType: 'Excel document'
+    ZipType: 'ZIP bestand'
   FileIFrameField:
-    ATTACH:
-      - null
-    ATTACHONCESAVED:
-      - null
-    ATTACHONCESAVED2:
-      - null
-    DELETE:
-      - null
-    DISALLOWEDFILETYPE:
-      - null
-    FILE:
-      - null
-    FROMCOMPUTER:
-      - null
-    FROMFILESTORE:
-      - null
-    NOSOURCE:
-      - null
-    REPLACE:
-      - null
+    ATTACH: 'Toevoegen {type}'
+    ATTACHONCESAVED: '{type}en kunnen worden toegevoegd na het voor het eerst opslaan.'
+    ATTACHONCESAVED2: 'Bestanden kunnen worden toegevoegd na het voor het eerst opslaan.'
+    DELETE: 'Verwijderen {type}'
+    DISALLOWEDFILETYPE: 'Dit type bestand mag niet worden opgeslagen'
+    FILE: Bestand
+    FROMCOMPUTER: 'Vanaf computer'
+    FROMFILESTORE: 'Vanaf de website''s bestandsopslag'
+    NOSOURCE: 'Selecteer een bron bestand om toe te voegen'
+    REPLACE: 'Vervang {type}'
   FileIFrameField_iframe.ss:
     TITLE: 'Afbeelding uploaden'
   Filesystem:
     SYNCRESULTS: 'Synchroniseren compleet: {createdcount} bestanden aangemaakt, {deletedcount} bestanden verwijderd.'
   Folder:
-    PLURALNAME:
-      - null
-    SINGULARNAME:
-      - null
+    PLURALNAME: Mappen
+    SINGULARNAME: Map
   ForgotPasswordEmail.ss:
     HELLO: Hallo
     TEXT1: 'Hier is uw'
     TEXT2: 'wachtwoord reset link'
     TEXT3: voor
   Form:
-    FIELDISREQUIRED:
-      - null
-    SubmitBtnLabel:
-      - null
-    VALIDATIONCREDITNUMBER:
-      - null
-    VALIDATIONNOTUNIQUE:
-      - null
-    VALIDATIONPASSWORDSDONTMATCH:
-      - null
-    VALIDATIONPASSWORDSNOTEMPTY:
-      - null
-    VALIDATIONSTRONGPASSWORD:
-      - null
-    VALIDATOR:
-      - null
-    VALIDCURRENCY:
-      - null
+    FIELDISREQUIRED: '%s is verplicht'
+    SubmitBtnLabel: Gaan
+    VALIDATIONCREDITNUMBER: 'Gelieve uw credit card number {number} juist in te vullen'
+    VALIDATIONNOTUNIQUE: 'De ingevoerde waarde is niet uniek'
+    VALIDATIONPASSWORDSDONTMATCH: 'Wachtwoorden komen niet overeen'
+    VALIDATIONPASSWORDSNOTEMPTY: 'Wachtwoorden mogen niet leeg zijn'
+    VALIDATIONSTRONGPASSWORD: 'Wachtwoorden moeten bestaan uit minstens één cijfer en één alfanumeriek karakter.'
+    VALIDATOR: Controleur
+    VALIDCURRENCY: 'Vul een geldige valuta in'
   FormField:
-    NONE:
-      - null
+    NONE: geen
   GridAction:
-    DELETE_DESCRIPTION:
-      - null
-    Delete:
-      - null
-    UnlinkRelation:
-      - null
+    DELETE_DESCRIPTION: Verwijderen
+    Delete: Verwijder
+    UnlinkRelation: Ontkoppelen
   GridField:
     Add: '{name} toevoegen'
     Filter: Filter
@@ -321,8 +229,7 @@ nl:
     RelationSearch: 'Zoek relatie'
     ResetFilter: Herstellen
   GridFieldAction_Delete:
-    DeletePermissionsFailure:
-      - null
+    DeletePermissionsFailure: 'Onvoldoende rechten om te verwijderen'
   GridFieldDetailForm:
     CancelBtn: Annuleren
     Create: Creëren
@@ -333,181 +240,101 @@ nl:
     Saved: '%s %s opgeslagen'
   GridFieldItemEditView.ss: null
   Group:
-    AddRole:
-      - null
-    Code:
-      - null
-    DefaultGroupTitleAdministrators:
-      - null
-    DefaultGroupTitleContentAuthors:
-      - null
-    Description:
-      - null
-    GroupReminder:
-      - null
-    Locked:
-      - null
-    NoRoles:
-      - null
-    PLURALNAME:
-      - null
-    Parent:
-      - null
-    RolesAddEditLink:
-      - null
-    SINGULARNAME:
-      - null
-    Sort:
-      - null
-    has_many_Permissions:
-      - null
-    many_many_Members:
-      - null
+    AddRole: 'Voeg een rol toe aan deze groep'
+    Code: 'Groep code'
+    DefaultGroupTitleAdministrators: Beheerders
+    DefaultGroupTitleContentAuthors: 'Inhoud Auteurs'
+    Description: 'Omschrijving '
+    GroupReminder: 'Als je de bovenliggende groep selecteert, neemt deze groep alle rollen over'
+    Locked: 'Gesloten?'
+    NoRoles: 'Geen rollen gevonden'
+    PLURALNAME: Groepen
+    Parent: 'Bovenliggende groep'
+    RolesAddEditLink: 'Toevoegen/wijzigingen rollen'
+    SINGULARNAME: Groep
+    Sort: Sorteer-richting
+    has_many_Permissions: Rechten
+    many_many_Members: Leden
   GroupImportForm:
-    Help1:
-      - null
-    Help2:
-      - null
-    ResultCreated:
-      - null
-    ResultDeleted:
-      - null
-    ResultUpdated:
-      - null
+    Help1: '<p>Importeer en of meerdere groepen in <em>CSV</em> formaat (Kommagescheiden bestandsformaat). <small><a href="#" class="toggle-advanced">Toon geavanceerd gebruik</a></small></p>'
+    Help2: '<div class="advanced">	<h4>Advanced usage</h4>	<ul>	<li>Allowed columns: <em>%s</em></li>	<li>Existing groups are matched by their unique <em>Code</em> value, and updated with any new values from the 	imported file</li>	<li>Group hierarchies can be created by using a <em>ParentCode</em> column.</li>	<li>Permission codes can be assigned by the <em>PermissionCode</em> column. Existing permission codes are not	cleared.</li>	</ul></div>'
+    ResultCreated: '{count} groepen aangemaakt'
+    ResultDeleted: '%d groepen verwijderd'
+    ResultUpdated: '%d groepen aangepast'
   Hierarchy:
-    InfiniteLoopNotAllowed:
-      - null
+    InfiniteLoopNotAllowed: 'Oneindige lus gevonden in "{type}" hiërarchie. Wijzig de niveau hoger om dit op te lossen'
   HtmlEditorField:
-    ADDURL:
-      - null
-    ADJUSTDETAILSDIMENSIONS:
-      - null
-    ANCHORVALUE:
-      - null
+    ADDURL: 'Voeg URL toe'
+    ADJUSTDETAILSDIMENSIONS: 'Details $amp; afmeting'
+    ANCHORVALUE: Anker
     BUTTONINSERT: Invoegen
     BUTTONINSERTLINK: 'Link invoegen'
     BUTTONREMOVELINK: 'Link verwijderen'
-    BUTTONUpdate:
-      - null
-    CAPTIONTEXT:
-      - null
-    CSSCLASS:
-      - null
-    CSSCLASSCENTER:
-      - null
-    CSSCLASSLEFT:
-      - null
-    CSSCLASSLEFTALONE:
-      - null
+    BUTTONUpdate: Bijwerken
+    CAPTIONTEXT: Onderschrift
+    CSSCLASS: 'Uitlijning / stijl'
+    CSSCLASSCENTER: 'Gecentreerd, op zichzelf staand.'
+    CSSCLASSLEFT: 'Aan de linkerkant, met tekst eromheen.'
+    CSSCLASSLEFTALONE: 'Links, losstaand.'
     CSSCLASSRIGHT: 'Aan de rechterkant, met tekst eromheen.'
-    DETAILS:
-      - null
-    EMAIL:
-      - null
-    FILE:
-      - null
-    FOLDER:
-      - null
-    FROMCMS:
-      - null
-    FROMCOMPUTER:
-      - null
-    FROMWEB:
-      - null
-    FindInFolder:
-      - null
-    IMAGEALT:
-      - null
-    IMAGEALTTEXT:
-      - null
-    IMAGEALTTEXTDESC:
-      - null
-    IMAGEDIMENSIONS:
-      - null
-    IMAGEHEIGHTPX:
-      - null
-    IMAGETITLE:
-      - null
-    IMAGETITLETEXT:
-      - null
-    IMAGETITLETEXTDESC:
-      - null
-    IMAGEWIDTHPX:
-      - null
-    INSERTMEDIA:
-      - null
-    LINK:
-      - null
-    LINKANCHOR:
-      - null
-    LINKDESCR:
-      - null
-    LINKEMAIL:
-      - null
+    DETAILS: Details
+    EMAIL: Emailadres
+    FILE: Bestand
+    FOLDER: Map
+    FROMCMS: 'Vanaf CMS'
+    FROMCOMPUTER: 'Vanaf computer'
+    FROMWEB: 'Vanaf een website'
+    FindInFolder: 'Zoek in map'
+    IMAGEALT: 'Alternatieve tekst (alt tekst) - wordt getoond als de afbeelding niet kan worden geladen'
+    IMAGEALTTEXT: 'Alternatieve tekst (alt tekst) - wordt getoond als de afbeelding niet kan worden geladen'
+    IMAGEALTTEXTDESC: 'Shown to screen readers or if image can not be displayed'
+    IMAGEDIMENSIONS: Dimensies
+    IMAGEHEIGHTPX: Hoogte
+    IMAGETITLE: 'Titel tekst (tooltip) - Toon extra informatie over de afbeelding'
+    IMAGETITLETEXT: 'Titel tekst (tooltip) - Toon extra informatie over de afbeelding'
+    IMAGETITLETEXTDESC: 'Titel tekst (tooltip) - Toon extra informatie over de afbeelding'
+    IMAGEWIDTHPX: Breedte
+    INSERTMEDIA: Invoegen
+    LINK: Link
+    LINKANCHOR: 'Anker op deze pagina'
+    LINKDESCR: 'Link omschrijving'
+    LINKEMAIL: Emailadres
     LINKEXTERNAL: 'Een andere website'
-    LINKFILE:
-      - null
-    LINKINTERNAL:
-      - null
-    LINKOPENNEWWIN:
-      - null
-    LINKTO:
-      - null
-    PAGE:
-      - null
-    URL:
-      - null
-    URLNOTANOEMBEDRESOURCE:
-      - null
-    UpdateMEDIA:
-      - null
+    LINKFILE: 'Een bestand downloaden'
+    LINKINTERNAL: 'Pagina op deze site'
+    LINKOPENNEWWIN: 'Link in een nieuw venster openen?'
+    LINKTO: 'Verwijs naar'
+    PAGE: Pagina
+    URL: URL
+    URLNOTANOEMBEDRESOURCE: '{url} kon niet worden omgezet in een media-bron.'
+    UpdateMEDIA: 'Update Media'
   Image:
-    PLURALNAME:
-      - null
-    SINGULARNAME:
-      - null
+    PLURALNAME: Bestanden
+    SINGULARNAME: Bestand
   ImageField:
-    IMAGE:
-      - null
+    IMAGE: Afbeelding
   Image_Cached:
-    PLURALNAME:
-      - null
-    SINGULARNAME:
-      - null
+    PLURALNAME: Bestanden
+    SINGULARNAME: Bestand
   Image_iframe.ss:
     TITLE: 'Afbeelding uploaden'
   LeftAndMain:
-    CANT_REORGANISE:
-      - null
-    DELETED:
-      - null
-    DropdownBatchActionsDefault:
-      - null
-    HELP:
-      - null
-    PAGETYPE:
-      - null
-    PERMAGAIN:
-      - null
-    PERMALREADY:
-      - null
-    PERMDEFAULT:
-      - null
-    PLEASESAVE:
-      - null
-    PreviewButton:
-      - null
-    REORGANISATIONSUCCESSFUL:
-      - null
-    SAVEDUP:
-      - null
-    VersionUnknown:
-      - null
+    CANT_REORGANISE: 'Je hebt geen rechten hiervoor'
+    DELETED: Verwijderd.
+    DropdownBatchActionsDefault: Acties
+    HELP: Help
+    PAGETYPE: 'Pagina type: '
+    PERMAGAIN: 'U bent uitgelogd uit het CMS.  Als U weer wilt inloggen vul dan uw gebruikersnaam en wachtwoord hier beneden in.'
+    PERMALREADY: 'Helaas, dat deel van het CMS is niet toegankelijk voor U. Hieronder kunt U als iemand anders inloggen.'
+    PERMDEFAULT: 'Geef uw e-mailadres en wachtwoord voor toegang tot het CMS.'
+    PLEASESAVE: 'Deze pagina kon niet bijgewerkt worden, omdat deze nog niet is bewaard.'
+    PreviewButton: Preview
+    REORGANISATIONSUCCESSFUL: 'Menu-indeling is aangepast'
+    SAVEDUP: 'Succesvol opgeslagen'
+    VersionUnknown: onbekend
   LeftAndMain_Menu.ss:
-    Hello:
-      - null
-    LOGOUT:
-      - null
+    Hello: Hallo
+    LOGOUT: Uitloggen
   LoginAttempt:
     Email: 'Email adres '
     IP: 'IP Adres'
@@ -558,97 +385,55 @@ nl:
     db_Password: Wachtwoord
     db_PasswordExpiry: 'Wachtwoord Vervaldatum'
   MemberAuthenticator:
-    TITLE:
-      - null
+    TITLE: 'Email &amp; Wachtwoord'
   MemberDatetimeOptionsetField:
-    AMORPM:
-      - null
+    AMORPM: 'AM (Ante meridiem) of PM (Post meridiem)'
     'APPLY FILTER': 'Filter toepassen'
-    Custom:
-      - null
-    DATEFORMATBAD:
-      - null
-    DAYNOLEADING:
-      - null
-    DIGITSDECFRACTIONSECOND:
-      - null
-    FOURDIGITYEAR:
-      - null
-    FULLNAMEMONTH:
-      - null
-    HOURNOLEADING:
-      - null
-    MINUTENOLEADING:
-      - null
-    MONTHNOLEADING:
-      - null
-    Preview:
-      - null
-    SHORTMONTH:
-      - null
-    TOGGLEHELP:
-      - null
-    TWODIGITDAY:
-      - null
-    TWODIGITHOUR:
-      - null
-    TWODIGITMINUTE:
-      - null
-    TWODIGITMONTH:
-      - null
-    TWODIGITSECOND:
-      - null
-    TWODIGITYEAR:
-      - null
+    Custom: Aangepast
+    DATEFORMATBAD: 'Datum is niet correct opgegeven'
+    DAYNOLEADING: 'Dag van de maand zonder voorloop-nul'
+    DIGITSDECFRACTIONSECOND: 'One or more digits representing a decimal fraction of a second'
+    FOURDIGITYEAR: 'jaar (yyyy)'
+    FULLNAMEMONTH: 'Volledige naam van de maand (Bijv. Juni)'
+    HOURNOLEADING: 'Uur zonder voorloopnul'
+    MINUTENOLEADING: 'Minuut zonder voorloopnul'
+    MONTHNOLEADING: 'Dag van de maand zonder voorloop-nul'
+    Preview: Voorbeeld
+    SHORTMONTH: 'Korte naam van de maand (Bijv. Jun)'
+    TOGGLEHELP: 'Hulp weergeven / verbergen'
+    TWODIGITDAY: 'Dag van de maand (met voorloop-nul)'
+    TWODIGITHOUR: 'Twee cijfer van het uur (00 tot 23)'
+    TWODIGITMINUTE: 'Minuten met voorloop-nul (00 tot 59)'
+    TWODIGITMONTH: 'Maand in twee cijfers (01 = januari, enz.)'
+    TWODIGITSECOND: 'Twee cijfer van het uur (00 tot 23)'
+    TWODIGITYEAR: 'Twee-cijferig jaar'
   MemberImportForm:
-    Help1:
-      - null
-    Help2:
-      - null
-    ResultCreated:
-      - null
-    ResultDeleted:
-      - null
-    ResultNone:
-      - null
-    ResultUpdated:
-      - null
+    Help1: '<p>Importeer leden in <em>CSV</em> formaat (Kommagescheiden bestandsformaat). <small><a href="#" class="toggle-advanced">Toon geavanceerd gebruik</a></small></p>'
+    Help2: '<div class="advanced">	<h4>Advanced usage</h4>	<ul>	<li>Allowed columns: <em>%s</em></li>	<li>Existing users are matched by their unique <em>Code</em> property, and updated with any new values from	the imported file.</li>	<li>Groups can be assigned by the <em>Groups</em> column. Groups are identified by their <em>Code</em> property,	multiple groups can be separated by comma. Existing group memberships are not cleared.</li>	</ul></div>'
+    ResultCreated: '{count} leden aangemaakt'
+    ResultDeleted: '%d leden verwijderd'
+    ResultNone: 'Geen wijzingen'
+    ResultUpdated: '{count} leden bijgewerkt'
   MemberPassword:
-    PLURALNAME:
-      - null
-    SINGULARNAME:
-      - null
+    PLURALNAME: Gebruikerswachtwoorden
+    SINGULARNAME: Gebruikerswachtwoord
   MemberTableField: null
   ModelAdmin:
-    DELETE:
-      - null
-    DELETEDRECORDS:
-      - null
-    EMPTYBEFOREIMPORT:
-      - null
-    IMPORT:
-      - null
-    IMPORTEDRECORDS:
-      - null
-    NOCSVFILE:
-      - null
-    NOIMPORT:
-      - null
-    RESET:
-      - null
-    Title:
-      - null
-    UPDATEDRECORDS:
-      - null
+    DELETE: Verwijderen
+    DELETEDRECORDS: '{count} records verwijderd'
+    EMPTYBEFOREIMPORT: 'Database legen voor importeren'
+    IMPORT: 'Importeren vanuit CSV'
+    IMPORTEDRECORDS: '{count} records geïmporteerd'
+    NOCSVFILE: 'Selecteer een CSV bestand op uw computer om te importeren'
+    NOIMPORT: 'Niks om te importeren'
+    RESET: Herstel
+    Title: 'Gegevens modellen'
+    UPDATEDRECORDS: '{count} records bijgewerkt'
   ModelAdmin_ImportSpec.ss:
-    IMPORTSPECFIELDS:
-      - null
-    IMPORTSPECLINK:
-      - null
-    IMPORTSPECRELATIONS:
-      - null
-    IMPORTSPECTITLE:
-      - null
+    IMPORTSPECFIELDS: 'Database kolommen'
+    IMPORTSPECLINK: 'Toon specificaties van %s'
+    IMPORTSPECRELATIONS: Relaties
+    IMPORTSPECTITLE: 'Specificaties van %s'
   ModelAdmin_Tools.ss:
     FILTER: Filter
     IMPORT: Importeer
@@ -656,32 +441,22 @@ nl:
     IMPORT_TAB_HEADER: Importeer
     SEARCHLISTINGS: Zoeken
   MoneyField:
-    FIELDLABELAMOUNT:
-      - null
-    FIELDLABELCURRENCY:
-      - null
+    FIELDLABELAMOUNT: Aantal
+    FIELDLABELCURRENCY: Valuta
   NullableField:
     IsNullLabel: 'is nul'
   NumericField:
     VALIDATION: '''{value}'' is geen getal. Dit velt accepteert alleen getallen.'
   Pagination:
-    Page:
-      - null
-    View:
-      - null
+    Page: Pagina
+    View: Bekijk
   Permission:
-    AdminGroup:
-      - null
-    CMS_ACCESS_CATEGORY:
-      - null
-    FULLADMINRIGHTS:
-      - null
-    FULLADMINRIGHTS_HELP:
-      - null
-    PLURALNAME:
-      - null
-    SINGULARNAME:
-      - null
+    AdminGroup: Beheerder
+    CMS_ACCESS_CATEGORY: 'CMS Toegang'
+    FULLADMINRIGHTS: 'Volledige admin rechten'
+    FULLADMINRIGHTS_HELP: 'Impliceert en overstemt alle andere toegewezen rechten.'
+    PLURALNAME: Machtigingen
+    SINGULARNAME: Machtiging
   PermissionCheckboxSetField:
     AssignedTo: 'toegewezen aan "{title}"'
     FromGroup: 'inherited from group "{title}"'
@@ -693,10 +468,8 @@ nl:
     SINGULARNAME: Rol
     Title: Titel
   PermissionRoleCode:
-    PLURALNAME:
-      - null
-    SINGULARNAME:
-      - null
+    PLURALNAME: 'Machtigingen rol codes'
+    SINGULARNAME: 'Machtigingen rol code'
   Permissions:
     PERMISSIONS_CATEGORY: 'Rollen en toegangsrechten'
     UserPermissionsIntro: 'Assigning groups to this user will adjust the permissions they have. See the groups section for details of permissions on individual groups.'
@@ -707,32 +480,19 @@ nl:
     CSVEXPORT: 'Exporteren naar CSV'
     NOTFOUND: 'Geen items gevonden.'
   Security:
-    ALREADYLOGGEDIN:
-      - null
-    BUTTONSEND:
-      - null
-    CHANGEPASSWORDBELOW:
-      - null
-    CHANGEPASSWORDHEADER:
-      - null
-    ENTERNEWPASSWORD:
-      - null
-    ERRORPASSWORDPERMISSION:
-      - null
-    LOGGEDOUT:
-      - null
-    LOGIN:
-      - null
-    NOTEPAGESECURED:
-      - null
-    NOTERESETLINKINVALID:
-      - null
-    NOTERESETPASSWORD:
-      - null
-    PASSWORDSENTHEADER:
-      - null
-    PASSWORDSENTTEXT:
-      - null
+    ALREADYLOGGEDIN: 'Je hebt niet de juiste rechten, om deze pagina te kunnen bekijken.  Als je een ander account met de juiste rechten hebt, kun je hier <a href="%s">opnieuw inloggen</a>.'
+    BUTTONSEND: 'Zend mij de link om mijn wachtwoord opnieuw aan te maken'
+    CHANGEPASSWORDBELOW: 'U kunt Uw wachtwoord hier beneden veranderen.'
+    CHANGEPASSWORDHEADER: 'Verander Uw wachtwoord'
+    ENTERNEWPASSWORD: 'Voer een nieuw wachtwoord in.'
+    ERRORPASSWORDPERMISSION: 'U moet ingelogd zijn om Uw wachtwoord te kunnen veranderen!'
+    LOGGEDOUT: 'U bent uitgelogd.  Als U weer wilt inloggen kunt U Uw gegevens hier beneden invoeren.'
+    LOGIN: 'Meld aan'
+    NOTEPAGESECURED: 'Deze pagina is beveiligd. Voer Uw gegevens in en U wordt automatisch doorgestuurd.'
+    NOTERESETLINKINVALID: '<p>De link om uw wachtwoord te kunnen wijzigen is niet meer geldig.</p><p>U kunt het <a href="{link1}">opnieuw proberen</a> of uw wachtwoord aanpassen door <a href="{link2}">in te loggen</a>.</p>'
+    NOTERESETPASSWORD: 'Voer Uw emailadres in en we zenden U een link waarmee U Uw wachtwoord opnieuw kunt aanmaken'
+    PASSWORDSENTHEADER: 'Wachtwoord herstel link verzonden naar {email}'
+    PASSWORDSENTTEXT: 'Bedankt! Er is een link verstuurt naar {email} om uw wachtwoord te herstellen.'
   SecurityAdmin:
     ACCESS_HELP: 'Bevoegdheid voor bekijken, toevoegen en bewerken van leden, en toewijzen van rechten en rollen aan hen.'
     APPLY_ROLES: 'Pas rollen toe aan groepen'
@@ -752,37 +512,28 @@ nl:
     TABROLES: Rollen
     Users: Gebruikers
   SecurityAdmin_MemberImportForm:
-    BtnImport:
-      - null
-    FileFieldLabel:
-      - null
+    BtnImport: Importeer
+    FileFieldLabel: 'CSV Bestand <small>(Toegestane extensies: *.csv)</small>'
   SilverStripeNavigator:
     Edit: Bewerken
   SimpleImageField:
     NOUPLOAD: 'Geen afbeeldingen ontvangen'
   SiteTree:
-    TABMAIN:
-      - null
+    TABMAIN: Hoofdgedeelte
   TableField:
-    ISREQUIRED:
-      - null
+    ISREQUIRED: 'In %s ''%s'' is verplicht'
   TableField.ss:
-    ADD:
-      - null
-    ADDITEM:
-      - null
+    ADD: 'Nieuwe rij toevoegen'
+    ADDITEM: '%s toevoegen'
   TableListField:
     CSVEXPORT: 'Exporteer naar CSV'
     PRINT: Afdrukken
     Print: Afdrukken
     SELECT: 'Selecteer:'
   TableListField.ss:
-    NOITEMSFOUND:
-      - null
-    SORTASC:
-      - null
-    SORTDESC:
-      - null
+    NOITEMSFOUND: 'Geen items gevonden.'
+    SORTASC: 'Sorteer in oplopende volgorde'
+    SORTDESC: 'Sorteer in aflopende volgorde'
   TableListField_PageControls.ss:
     DISPLAYING: Tonen
     OF: van
@@ -792,8 +543,7 @@ nl:
     VIEWNEXT: 'Bekijk volgende'
     VIEWPREVIOUS: 'Bekijk vorige'
   TimeField:
-    VALIDATEFORMAT:
-      - null
+    VALIDATEFORMAT: 'Vul een geldige datumformaat in ({format})'
   ToggleField:
     LESS: minder
     MORE: meer
@@ -823,5 +573,4 @@ nl:
     STARTALLINFO: 'Start alle'
     Saved: Opgeslagen
   Versioned:
-    has_many_Versions:
-      - null
+    has_many_Versions: Versies
