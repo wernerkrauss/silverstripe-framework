@@ -387,26 +387,44 @@ cs:
   MemberAuthenticator:
     TITLE: 'E-mail a Heslo'
   MemberDatetimeOptionsetField:
-    AMORPM: 'AM (před polednem) nebo PM (odpoledne)'
+    AMORPM:
+      - null
     'APPLY FILTER': 'Použít filtr'
-    Custom: Uživatelské
+    Custom:
+      - null
     DATEFORMATBAD: 'Formát datumu je neplatný'
-    DAYNOLEADING: 'Den měsíce bez úvodní nuly'
-    DIGITSDECFRACTIONSECOND: 'Jedna nebo více číslic zastupující desetinný zlomek vteřiny'
-    FOURDIGITYEAR: 'Čtyřčíslí roku'
-    FULLNAMEMONTH: 'Celý název měsíce (např. Červen)'
-    HOURNOLEADING: 'Hodina bez úvodní nuly'
-    MINUTENOLEADING: 'Minuta bez úvodní nuly'
-    MONTHNOLEADING: 'Číslo měsíce bez úvodní nuly'
-    Preview: Náhled
-    SHORTMONTH: 'Krátký název měsíce (např. Čer)'
-    TOGGLEHELP: 'Přepni nápovědu formátování'
-    TWODIGITDAY: 'Dvojčíslí dne měsíce'
-    TWODIGITHOUR: 'Dvojčíslí hodiny (00 až 23)'
-    TWODIGITMINUTE: 'Dvojčíslí minuty (00 až 59)'
-    TWODIGITMONTH: 'Dvojčíslí měsíce (01=Leden, atď.)'
-    TWODIGITSECOND: 'Dvojčíslí vteřiny (00 až 59)'
-    TWODIGITYEAR: 'Dvojčíslí roku'
+    DAYNOLEADING:
+      - null
+    DIGITSDECFRACTIONSECOND:
+      - null
+    FOURDIGITYEAR:
+      - null
+    FULLNAMEMONTH:
+      - null
+    HOURNOLEADING:
+      - null
+    MINUTENOLEADING:
+      - null
+    MONTHNOLEADING:
+      - null
+    Preview:
+      - null
+    SHORTMONTH:
+      - null
+    TOGGLEHELP:
+      - null
+    TWODIGITDAY:
+      - null
+    TWODIGITHOUR:
+      - null
+    TWODIGITMINUTE:
+      - null
+    TWODIGITMONTH:
+      - null
+    TWODIGITSECOND:
+      - null
+    TWODIGITYEAR:
+      - null
   MemberImportForm:
     Help1: '<p>Import členů v <em>CSV formátu</em> (čárkou-oddělené hodnoty). <small><a href="#" class="toggle-advanced">Zobrazit rozšířené použití</a></small></p>'
     Help2: "<div class=\"advanced\">\\n<h4>Pokročilé použití</h4>\\n<ul>\\n<li>Povolené sloupce: <em>%s</em></li>\\n<li>Existující uživatelé jsou porovnáni jejich unikátní vlastností <em>Code</em>, a aktualizováni s novými hodnotami z importovaného souboru.</li>\\n<li>Skupiny mohou být přiřazeny sloupcem <em>Groups</em>. Skupiny jsou identifikovány svojí vlastností <em>Code</em>, více skupin může být odděleno čárkou. Existující členství ve skupině nejsou smazána.</li>\\n</ul>\\n</div>"
