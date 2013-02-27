@@ -387,7 +387,8 @@ pt_BR:
   MemberAuthenticator:
     TITLE: 'E-mail &amp; Senha'
   MemberDatetimeOptionsetField:
-    AMORPM: 'AM (Ante meridiem) or PM (Post meridiem)'
+    AMORPM:
+      - null
     'APPLY FILTER': 'Apply Filter'
     Custom: Custom
     DATEFORMATBAD: 'Date format is invalid'

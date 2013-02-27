@@ -387,7 +387,8 @@ ro:
   MemberAuthenticator:
     TITLE: 'E-mail si Parolă'
   MemberDatetimeOptionsetField:
-    AMORPM: 'AM (Ante meridiem) or PM (Post meridiem)'
+    AMORPM:
+      - null
     'APPLY FILTER': 'Aplica filtru'
     Custom: Custom
     DATEFORMATBAD: 'Date format is invalid'

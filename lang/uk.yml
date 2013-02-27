@@ -387,7 +387,8 @@ uk:
   MemberAuthenticator:
     TITLE: 'Е-пошта та Пароль'
   MemberDatetimeOptionsetField:
-    AMORPM: 'AM (Ante meridiem) or PM (Post meridiem)'
+    AMORPM:
+      - null
     'APPLY FILTER': 'Apply Filter'
     Custom: Custom
     DATEFORMATBAD: 'Date format is invalid'

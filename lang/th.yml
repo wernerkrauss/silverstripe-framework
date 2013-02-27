@@ -387,7 +387,8 @@ th:
   MemberAuthenticator:
     TITLE: 'อีเมล &amp; รหัสผ่าน'
   MemberDatetimeOptionsetField:
-    AMORPM: 'AM (Ante meridiem) or PM (Post meridiem)'
+    AMORPM:
+      - null
     'APPLY FILTER': ประยุกต์ใช้ตัวกรองข้อมูล
     Custom: Custom
     DATEFORMATBAD: รูปแบบวันที่ไม่ถูกต้อง

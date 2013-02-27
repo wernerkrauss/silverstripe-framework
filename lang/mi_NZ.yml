@@ -387,7 +387,8 @@ mi_NZ:
   MemberAuthenticator:
     TITLE: 'Īmērā &amp; Kupuhipa'
   MemberDatetimeOptionsetField:
-    AMORPM: 'AM (Ante meridiem), PM (Post meridiem) rānei'
+    AMORPM:
+      - null
     'APPLY FILTER': 'Hoatu Tātari'
     Custom: Ritenga
     DATEFORMATBAD: 'He muhu te hōputu rā'

@@ -387,7 +387,8 @@ sv:
   MemberAuthenticator:
     TITLE: 'E-post &amp; Lösenord'
   MemberDatetimeOptionsetField:
-    AMORPM: 'AM (Ante meridiem) eller PM (Post meridiem)'
+    AMORPM:
+      - null
     'APPLY FILTER': 'Använd filter'
     Custom: Anpassad
     DATEFORMATBAD: 'Datumformatet är ogiltigt'

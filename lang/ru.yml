@@ -387,7 +387,8 @@ ru:
   MemberAuthenticator:
     TITLE: 'Email и Пароль'
   MemberDatetimeOptionsetField:
-    AMORPM: 'AM (Ante meridiem) или PM (Post meridiem)'
+    AMORPM:
+      - null
     'APPLY FILTER': 'Применить фильтр'
     Custom: Пользовательский
     DATEFORMATBAD: 'Неверный формат даты'

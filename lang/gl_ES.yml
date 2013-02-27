@@ -387,7 +387,8 @@ gl_ES:
   MemberAuthenticator:
     TITLE: 'Correo-e e Contrasinal'
   MemberDatetimeOptionsetField:
-    AMORPM: 'AM (Ante meridiem) ou PM (Post meridiem)'
+    AMORPM:
+      - null
     'APPLY FILTER': 'Aplicar Filtro'
     Custom: Personalizado
     DATEFORMATBAD: 'O formato da data é inválida'

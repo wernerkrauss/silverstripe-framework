@@ -387,7 +387,8 @@ af:
   MemberAuthenticator:
     TITLE: 'Epos &amp; Wagwoord'
   MemberDatetimeOptionsetField:
-    AMORPM: 'AM (Oggend) of PM (Middag)'
+    AMORPM:
+      - null
     'APPLY FILTER': 'Wend filter aan'
     Custom: 'Maak pas'
     DATEFORMATBAD: 'Die datum formaat is ongeldig'

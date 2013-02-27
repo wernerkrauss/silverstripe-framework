@@ -387,7 +387,8 @@ ja_JP:
   MemberAuthenticator:
     TITLE: メールアドレスとパスワード
   MemberDatetimeOptionsetField:
-    AMORPM: 'AM (Ante meridiem) or PM (Post meridiem)'
+    AMORPM:
+      - null
     'APPLY FILTER': フィルタを適用
     Custom: Custom
     DATEFORMATBAD: 日付フォーマットが不正です

@@ -387,7 +387,8 @@ zh_TW:
   MemberAuthenticator:
     TITLE: '電子郵件 &amp; 密碼'
   MemberDatetimeOptionsetField:
-    AMORPM: 'AM (Ante meridiem) or PM (Post meridiem)'
+    AMORPM:
+      - null
     'APPLY FILTER': 'Apply Filter'
     Custom: Custom
     DATEFORMATBAD: 'Date format is invalid'
