@@ -387,44 +387,26 @@ sk:
   MemberAuthenticator:
     TITLE: 'E-mail &amp; Heslo'
   MemberDatetimeOptionsetField:
-    AMORPM:
-      - null
+    AMORPM: 'AM (pred poludním) alebo PM (popoludní)'
     'APPLY FILTER': 'Použiť filter'
-    Custom:
-      - null
+    Custom: Vlastné
     DATEFORMATBAD: 'Formát dátumu je neplatný'
-    DAYNOLEADING:
-      - null
-    DIGITSDECFRACTIONSECOND:
-      - null
-    FOURDIGITYEAR:
-      - null
-    FULLNAMEMONTH:
-      - null
-    HOURNOLEADING:
-      - null
-    MINUTENOLEADING:
-      - null
-    MONTHNOLEADING:
-      - null
-    Preview:
-      - null
-    SHORTMONTH:
-      - null
-    TOGGLEHELP:
-      - null
-    TWODIGITDAY:
-      - null
-    TWODIGITHOUR:
-      - null
-    TWODIGITMINUTE:
-      - null
-    TWODIGITMONTH:
-      - null
-    TWODIGITSECOND:
-      - null
-    TWODIGITYEAR:
-      - null
+    DAYNOLEADING: 'Deň mesiaca bez úvodnej nuly'
+    DIGITSDECFRACTIONSECOND: 'Jedna alebo viac číslic zastupujúcich desatinný zlomok sekundy'
+    FOURDIGITYEAR: 'Štvorčíslie roka'
+    FULLNAMEMONTH: 'Celý názov mesiaca (napr. jún)'
+    HOURNOLEADING: 'Hodina bez úvodnej nuly'
+    MINUTENOLEADING: 'Minúta bez úvodnej nuly'
+    MONTHNOLEADING: 'Číslo mesiaca bez úvodnej nuly'
+    Preview: Náhľad
+    SHORTMONTH: 'Krátky názov mesiaca (napr. jún)'
+    TOGGLEHELP: 'Prepnúť nápovedu formátovania'
+    TWODIGITDAY: 'Dvojčíslie dňa mesiaca'
+    TWODIGITHOUR: 'Dvojčíslie hodiny (00 až 23)'
+    TWODIGITMINUTE: 'Dvojčíslie minúty (00 až 59)'
+    TWODIGITMONTH: 'Dvojčíslie mesiaca (01=január, atď.)'
+    TWODIGITSECOND: 'Dvojčíslie sekundy (00 až 59)'
+    TWODIGITYEAR: 'Dvojčíslie roka'
   MemberImportForm:
     Help1: 'Importovať členov v <em>CSV formáte</em> (čiarkov oddelené hodnoty). Zobraziť pokročile použitie'
     Help2: "<div class=\"advanced\">\\n<h4>Pokročilé použitie</h4>\\n<ul>\\n<li>Povolené stĺpce: <em>%s</em></li>\\n<li>Existujúci užívatelia sú porovnávaní ich unikátnou vlastnosťou <em>Code</em>, a aktualizovaní s novými hodnotami z\\nimportovaného súboru.</li>\\n<li>Skupiny môžu byťt priradené stĺpcom <em>Groups</em>. Skupiny sú identifikované ich vlastnosťou <em>Code</em>,\\nviacero skupín môže byť oddelené čiarkou. Existujúce členstvá skupiny nie sú smazané.</li>\\n</ul>\\n</div>"
