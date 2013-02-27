@@ -387,8 +387,7 @@ nl:
   MemberAuthenticator:
     TITLE: 'Email &amp; Wachtwoord'
   MemberDatetimeOptionsetField:
-    AMORPM:
-      - null
+    AMORPM: 'AM (Ante meridiem) of PM (Post meridiem)'
     'APPLY FILTER': 'Filter toepassen'
     Custom: Aangepast
     DATEFORMATBAD: 'Datum is niet correct opgegeven'

@@ -387,8 +387,7 @@ bg:
   MemberAuthenticator:
     TITLE: 'email и парола'
   MemberDatetimeOptionsetField:
-    AMORPM:
-      - null
+    AMORPM: 'АМ (преди обед) или РМ (следобед)'
     'APPLY FILTER': 'Приложи филтър'
     Custom: Произволно
     DATEFORMATBAD: 'Невалиден формат на датата'

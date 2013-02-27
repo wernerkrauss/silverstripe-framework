@@ -387,8 +387,7 @@ sk:
   MemberAuthenticator:
     TITLE: 'E-mail &amp; Heslo'
   MemberDatetimeOptionsetField:
-    AMORPM:
-      - null
+    AMORPM: 'AM (pred poludním) alebo PM (popoludní)'
     'APPLY FILTER': 'Použiť filter'
     Custom: Vlastné
     DATEFORMATBAD: 'Formát dátumu je neplatný'

@@ -387,8 +387,7 @@ fi:
   MemberAuthenticator:
     TITLE: 'Sähköposti &amp; Salasana'
   MemberDatetimeOptionsetField:
-    AMORPM:
-      - null
+    AMORPM: 'AM (aamupäivä) tai PM (iltapäivä)'
     'APPLY FILTER': Suodata
     Custom: Muokattu
     DATEFORMATBAD: 'Päivämäärän muoto on virheellinen'

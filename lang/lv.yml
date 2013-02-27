@@ -387,8 +387,7 @@ lv:
   MemberAuthenticator:
     TITLE: 'E-pasts un Parole'
   MemberDatetimeOptionsetField:
-    AMORPM:
-      - null
+    AMORPM: 'AM (Ante meridiem) or PM (Post meridiem)'
     'APPLY FILTER': 'Apply Filter'
     Custom: Custom
     DATEFORMATBAD: 'Date format is invalid'

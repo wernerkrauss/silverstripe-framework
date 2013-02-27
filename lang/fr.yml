@@ -387,8 +387,7 @@ fr:
   MemberAuthenticator:
     TITLE: 'Email &amp; Mot de passe'
   MemberDatetimeOptionsetField:
-    AMORPM:
-      - null
+    AMORPM: 'AM (Ante meridiem) ou PM (Post meridiem)'
     'APPLY FILTER': 'Appliquer le filtre'
     Custom: Personnalisé
     DATEFORMATBAD: 'Format de date incorrect'

@@ -387,8 +387,7 @@ nb:
   MemberAuthenticator:
     TITLE: 'Epost &amp; Passord'
   MemberDatetimeOptionsetField:
-    AMORPM:
-      - null
+    AMORPM: 'AM (Ante meridiem) or PM (Post meridiem)'
     'APPLY FILTER': 'Legg til filter'
     Custom: Custom
     DATEFORMATBAD: 'Datoformat er ugyldig'

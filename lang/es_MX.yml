@@ -387,8 +387,7 @@ es_MX:
   MemberAuthenticator:
     TITLE: 'Correo-e y Contraseña'
   MemberDatetimeOptionsetField:
-    AMORPM:
-      - null
+    AMORPM: 'AM (ante meridian) o PM (post meridiano)'
     'APPLY FILTER': Filtro
     Custom: 'A medida'
     DATEFORMATBAD: 'El formato de fecha es invalido'
