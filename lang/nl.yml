@@ -387,25 +387,34 @@ nl:
   MemberAuthenticator:
     TITLE: 'Email &amp; Wachtwoord'
   MemberDatetimeOptionsetField:
-    AMORPM: 'AM (Ante meridiem) of PM (Post meridiem)'
+    AMORPM:
+      - null
     'APPLY FILTER': 'Filter toepassen'
     Custom: Aangepast
     DATEFORMATBAD: 'Datum is niet correct opgegeven'
     DAYNOLEADING: 'Dag van de maand zonder voorloop-nul'
-    DIGITSDECFRACTIONSECOND: 'One or more digits representing a decimal fraction of a second'
-    FOURDIGITYEAR: 'jaar (yyyy)'
-    FULLNAMEMONTH: 'Volledige naam van de maand (Bijv. Juni)'
-    HOURNOLEADING: 'Uur zonder voorloopnul'
-    MINUTENOLEADING: 'Minuut zonder voorloopnul'
+    DIGITSDECFRACTIONSECOND:
+      - null
+    FOURDIGITYEAR:
+      - null
+    FULLNAMEMONTH:
+      - null
+    HOURNOLEADING:
+      - null
+    MINUTENOLEADING:
+      - null
     MONTHNOLEADING: 'Dag van de maand zonder voorloop-nul'
     Preview: Voorbeeld
-    SHORTMONTH: 'Korte naam van de maand (Bijv. Jun)'
+    SHORTMONTH:
+      - null
     TOGGLEHELP: 'Hulp weergeven / verbergen'
     TWODIGITDAY: 'Dag van de maand (met voorloop-nul)'
     TWODIGITHOUR: 'Twee cijfer van het uur (00 tot 23)'
     TWODIGITMINUTE: 'Minuten met voorloop-nul (00 tot 59)'
-    TWODIGITMONTH: 'Maand in twee cijfers (01 = januari, enz.)'
-    TWODIGITSECOND: 'Twee cijfer van het uur (00 tot 23)'
+    TWODIGITMONTH:
+      - null
+    TWODIGITSECOND:
+      - null
     TWODIGITYEAR: 'Twee-cijferig jaar'
   MemberImportForm:
     Help1: '<p>Importeer leden in <em>CSV</em> formaat (Kommagescheiden bestandsformaat). <small><a href="#" class="toggle-advanced">Toon geavanceerd gebruik</a></small></p>'
