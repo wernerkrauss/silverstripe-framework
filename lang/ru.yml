@@ -6,12 +6,15 @@ ru:
     CREATED: 'Первая загрузка'
     DIM: Размеры
     FILENAME: 'Имя файла'
-    FOLDER: Папка
+    FOLDER:
+      - null
     LASTEDIT: 'Последнее изменение'
     OWNER: Владелец
-    SIZE: Размер
+    SIZE:
+      - null
     TITLE: Название
-    TYPE: Тип
+    TYPE:
+      - null
     URL: URL
   AssetUploadField:
     ChooseFiles: 'Выберите файлы'
@@ -312,7 +315,8 @@ ru:
     PLURALNAME: Файлы
     SINGULARNAME: Файл
   ImageField:
-    IMAGE: Изображение
+    IMAGE:
+      - null
   Image_Cached:
     PLURALNAME: Файлы
     SINGULARNAME: Файл
@@ -390,9 +394,12 @@ ru:
     AMORPM:
       - null
     'APPLY FILTER': 'Применить фильтр'
-    Custom: Пользовательский
-    DATEFORMATBAD: 'Неверный формат даты'
-    DAYNOLEADING: 'Число месяца без ведущего нуля'
+    Custom:
+      - null
+    DATEFORMATBAD:
+      - null
+    DAYNOLEADING:
+      - null
     DIGITSDECFRACTIONSECOND:
       - null
     FOURDIGITYEAR:
@@ -403,19 +410,26 @@ ru:
       - null
     MINUTENOLEADING:
       - null
-    MONTHNOLEADING: 'Месяц без ведущего нуля'
-    Preview: Просмотр
+    MONTHNOLEADING:
+      - null
+    Preview:
+      - null
     SHORTMONTH:
       - null
-    TOGGLEHELP: 'Включить подсказки форматирования'
-    TWODIGITDAY: 'Число месяца: двумя цифрами'
-    TWODIGITHOUR: 'Часы: двумя цифрами (00 - 23)'
-    TWODIGITMINUTE: 'Минуты: двумя цифрами (00 - 59)'
+    TOGGLEHELP:
+      - null
+    TWODIGITDAY:
+      - null
+    TWODIGITHOUR:
+      - null
+    TWODIGITMINUTE:
+      - null
     TWODIGITMONTH:
       - null
     TWODIGITSECOND:
       - null
-    TWODIGITYEAR: 'Год: двумя цифрами'
+    TWODIGITYEAR:
+      - null
   MemberImportForm:
     Help1: '<p>Импорт пользователей в формате <em>CSV</em> (comma-separated values). <small><a href="#" class="toggle-advanced">Показать подробности</a></small></p>'
     Help2: "<div class=\"advanced\">\\n<h4>Расширенное использование</h4>\\n<ul>\\n<li>Разрешенные столбцы: <em>%s</em></li>\\n<li>Существующие пользователи сверяются c уникальным атрибутом <em>Code</em> и новые значения из \\nимпортированного файла вносятся в записи о пользователях.</li>\\n<li>Назначение групп производится с помощью столбца <em>Groups</em>. Группы идентифицируются по атрибуту <em>Code</em>, \\nотдельные группы разделяются запятой. Если участник входит в какую-либо группу, это свойство не обнуляется.</li>\\n</ul>\\n</div>"
@@ -428,16 +442,26 @@ ru:
     SINGULARNAME: Пароль
   MemberTableField: null
   ModelAdmin:
-    DELETE: Удалить
-    DELETEDRECORDS: 'Удалено {count} записей.'
-    EMPTYBEFOREIMPORT: 'Очистить базу данных перед импортированием'
-    IMPORT: 'Импорт из CSV'
-    IMPORTEDRECORDS: 'Импортировано {count} записей.'
-    NOCSVFILE: 'Выберите CSV-файл для импорта'
-    NOIMPORT: 'Нечего импортировать'
-    RESET: Сброс
-    Title: 'Модели данных'
-    UPDATEDRECORDS: 'Обновлено {count} записей.'
+    DELETE:
+      - null
+    DELETEDRECORDS:
+      - null
+    EMPTYBEFOREIMPORT:
+      - null
+    IMPORT:
+      - null
+    IMPORTEDRECORDS:
+      - null
+    NOCSVFILE:
+      - null
+    NOIMPORT:
+      - null
+    RESET:
+      - null
+    Title:
+      - null
+    UPDATEDRECORDS:
+      - null
   ModelAdmin_ImportSpec.ss:
     IMPORTSPECFIELDS: 'Колонки таблицы базы данных'
     IMPORTSPECLINK: 'Показать спецификацию для %s'

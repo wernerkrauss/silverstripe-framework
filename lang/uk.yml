@@ -6,12 +6,15 @@ uk:
     CREATED: 'Вперше завантажено'
     DIM: Виміри
     FILENAME: 'Ім''я файлу'
-    FOLDER: Folder
+    FOLDER:
+      - null
     LASTEDIT: 'Востаннє змінено'
     OWNER: Власник
-    SIZE: Розмір
+    SIZE:
+      - null
     TITLE: Назва
-    TYPE: Тип
+    TYPE:
+      - null
     URL: URL
   AssetUploadField:
     ChooseFiles: 'Choose files'
@@ -312,7 +315,8 @@ uk:
     PLURALNAME: Files
     SINGULARNAME: File
   ImageField:
-    IMAGE: Зображення
+    IMAGE:
+      - null
   Image_Cached:
     PLURALNAME: Files
     SINGULARNAME: File
@@ -390,9 +394,12 @@ uk:
     AMORPM:
       - null
     'APPLY FILTER': 'Apply Filter'
-    Custom: Custom
-    DATEFORMATBAD: 'Date format is invalid'
-    DAYNOLEADING: 'Day of month without leading zero'
+    Custom:
+      - null
+    DATEFORMATBAD:
+      - null
+    DAYNOLEADING:
+      - null
     DIGITSDECFRACTIONSECOND:
       - null
     FOURDIGITYEAR:
@@ -403,19 +410,26 @@ uk:
       - null
     MINUTENOLEADING:
       - null
-    MONTHNOLEADING: 'Month digit without leading zero'
-    Preview: Preview
+    MONTHNOLEADING:
+      - null
+    Preview:
+      - null
     SHORTMONTH:
       - null
-    TOGGLEHELP: 'Toggle formatting help'
-    TWODIGITDAY: 'Two-digit day of month'
-    TWODIGITHOUR: 'Two digits of hour (00 through 23)'
-    TWODIGITMINUTE: 'Two digits of minute (00 through 59)'
+    TOGGLEHELP:
+      - null
+    TWODIGITDAY:
+      - null
+    TWODIGITHOUR:
+      - null
+    TWODIGITMINUTE:
+      - null
     TWODIGITMONTH:
       - null
     TWODIGITSECOND:
       - null
-    TWODIGITYEAR: 'Two-digit year'
+    TWODIGITYEAR:
+      - null
   MemberImportForm:
     Help1: '<p>Import users in <em>CSV format</em> (comma-separated values). <small><a href="#" class="toggle-advanced">Show advanced usage</a></small></p>'
     Help2: '<div class="advanced">	<h4>Advanced usage</h4>	<ul>	<li>Allowed columns: <em>%s</em></li>	<li>Existing users are matched by their unique <em>Code</em> property, and updated with any new values from	the imported file.</li>	<li>Groups can be assigned by the <em>Groups</em> column. Groups are identified by their <em>Code</em> property,	multiple groups can be separated by comma. Existing group memberships are not cleared.</li>	</ul></div>'
@@ -428,16 +442,26 @@ uk:
     SINGULARNAME: 'Member Password'
   MemberTableField: null
   ModelAdmin:
-    DELETE: Delete
-    DELETEDRECORDS: 'Deleted {count} records.'
-    EMPTYBEFOREIMPORT: 'Clear Database before import'
-    IMPORT: 'Імпортувати з CSV'
-    IMPORTEDRECORDS: 'Imported {count} records.'
-    NOCSVFILE: 'Please browse for a CSV file to import'
-    NOIMPORT: 'Nothing to import'
-    RESET: Reset
-    Title: 'Data Models'
-    UPDATEDRECORDS: 'Updated {count} records.'
+    DELETE:
+      - null
+    DELETEDRECORDS:
+      - null
+    EMPTYBEFOREIMPORT:
+      - null
+    IMPORT:
+      - null
+    IMPORTEDRECORDS:
+      - null
+    NOCSVFILE:
+      - null
+    NOIMPORT:
+      - null
+    RESET:
+      - null
+    Title:
+      - null
+    UPDATEDRECORDS:
+      - null
   ModelAdmin_ImportSpec.ss:
     IMPORTSPECFIELDS: 'Database columns'
     IMPORTSPECLINK: 'Show Specification for %s'
