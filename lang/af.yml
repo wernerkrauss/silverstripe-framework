@@ -387,32 +387,25 @@ af:
   MemberAuthenticator:
     TITLE: 'Epos &amp; Wagwoord'
   MemberDatetimeOptionsetField:
-    AMORPM:
-      - null
+    AMORPM: 'AM (Oggend) of PM (Middag)'
     'APPLY FILTER': 'Wend filter aan'
     Custom: 'Maak pas'
     DATEFORMATBAD: 'Die datum formaat is ongeldig'
     DAYNOLEADING: 'Dag van die maand sonder ''n zero vooraan'
     DIGITSDECFRACTIONSECOND: 'Een of meer syfers wat ''n desimale fraksie van ''n sekonde aan dui'
-    FOURDIGITYEAR:
-      - null
-    FULLNAMEMONTH:
-      - null
+    FOURDIGITYEAR: 'View syfer jaar'
+    FULLNAMEMONTH: 'Volle naam van maand (bv Junie)'
     HOURNOLEADING: 'Uur sonder die aanvangs nul'
-    MINUTENOLEADING:
-      - null
+    MINUTENOLEADING: 'Minuut sonder die aanvangs nul'
     MONTHNOLEADING: 'Maand syfers sonder aanvangs-zero'
     Preview: Voorskou
-    SHORTMONTH:
-      - null
+    SHORTMONTH: 'Kort naam van die maan (bv Jun)'
     TOGGLEHELP: 'Skakel formateringshelp aan'
     TWODIGITDAY: 'Twee syfer dag van die maand'
     TWODIGITHOUR: 'Twee syfers van uur (00 tot 23)'
     TWODIGITMINUTE: 'Two syfers van minute (00 tot 59)'
-    TWODIGITMONTH:
-      - null
-    TWODIGITSECOND:
-      - null
+    TWODIGITMONTH: 'Twee syfer maand (01=Januarie etc)'
+    TWODIGITSECOND: 'Twee syfers van sekondes (00 to 59)'
     TWODIGITYEAR: 'Twee syfer jaar'
   MemberImportForm:
     Help1: '<p> Voer gebruikers in <em>CSV</em>formaat (komma geskeide waardes).<small> <a href="#" class="toggle-advanced">Wys gevorderde gebruike</a></small></p>'
