@@ -6,15 +6,12 @@ it:
     CREATED: 'Inizialmente caricato'
     DIM: Dimensioni
     FILENAME: 'Nome del file'
-    FOLDER:
-      - null
+    FOLDER: Cartella
     LASTEDIT: 'Ultima modifica'
     OWNER: Proprietario
-    SIZE:
-      - null
+    SIZE: Dimensione
     TITLE: Titolo
-    TYPE:
-      - null
+    TYPE: 'Tipo di file'
     URL: URL
   AssetUploadField:
     ChooseFiles: 'Scegli file'
@@ -315,8 +312,7 @@ it:
     PLURALNAME: Files
     SINGULARNAME: File
   ImageField:
-    IMAGE:
-      - null
+    IMAGE: Immagine
   Image_Cached:
     PLURALNAME: Files
     SINGULARNAME: File
@@ -394,42 +390,30 @@ it:
     AMORPM:
       - null
     'APPLY FILTER': 'Applica filtro'
-    Custom:
-      - null
-    DATEFORMATBAD:
-      - null
-    DAYNOLEADING:
-      - null
-    DIGITSDECFRACTIONSECOND:
-      - null
+    Custom: Personalizza
+    DATEFORMATBAD: 'Il formato della data non è valido'
+    DAYNOLEADING: 'Giorno del mese senza zero iniziale'
+    DIGITSDECFRACTIONSECOND: 'Una o più cifre che rappresentano una frazione decimale di secondo'
     FOURDIGITYEAR:
       - null
     FULLNAMEMONTH:
       - null
-    HOURNOLEADING:
-      - null
+    HOURNOLEADING: 'Ore senza zero iniziale'
     MINUTENOLEADING:
       - null
-    MONTHNOLEADING:
-      - null
-    Preview:
-      - null
+    MONTHNOLEADING: 'Mese senza zero iniziale'
+    Preview: Anteprima
     SHORTMONTH:
       - null
-    TOGGLEHELP:
-      - null
-    TWODIGITDAY:
-      - null
-    TWODIGITHOUR:
-      - null
-    TWODIGITMINUTE:
-      - null
+    TOGGLEHELP: 'Mostra/Nascondi aiuto formattazione'
+    TWODIGITDAY: 'Giorno del mese a due cifre'
+    TWODIGITHOUR: 'Ora a due cifre (00 a 23)'
+    TWODIGITMINUTE: 'Minuti a due cifre (00 a 59)'
     TWODIGITMONTH:
       - null
     TWODIGITSECOND:
       - null
-    TWODIGITYEAR:
-      - null
+    TWODIGITYEAR: 'Anno a due cifre'
   MemberImportForm:
     Help1: '<p>Importa utenti in <em>formato CSV</em> (valori separati da virgole). <small><a href="#" class="toggle-advanced">Mostra utilizzo avanzato</a></small></p>'
     Help2: "<div class=\"advanced\">\\n<h4>Utilizzo avanzato</h4>\\n<ul>\\n<li>Colonne consentite: <em>%s</em></li>\\n<li>Utenti esistenti sono individuati attraverso la proprietà univoca <em>Code</em> e aggiornati con i nuovi valori \\ndal file importato.</li>\\n<li>I gruppi possono essere assegnati attraverso la colonna <em>Groups</em>. I gruppi sono identificati attraverso la loro colonna <em>Code</em>, \\npiù gruppi devono essere separati da virgola. L''appartenenza esistente a gruppi non viene cancellata.</li>\\n</ul>\\n</div>"
@@ -442,26 +426,16 @@ it:
     SINGULARNAME: 'Password utente'
   MemberTableField: null
   ModelAdmin:
-    DELETE:
-      - null
-    DELETEDRECORDS:
-      - null
-    EMPTYBEFOREIMPORT:
-      - null
-    IMPORT:
-      - null
-    IMPORTEDRECORDS:
-      - null
-    NOCSVFILE:
-      - null
-    NOIMPORT:
-      - null
-    RESET:
-      - null
-    Title:
-      - null
-    UPDATEDRECORDS:
-      - null
+    DELETE: Elimina
+    DELETEDRECORDS: 'Eliminati {count} record.'
+    EMPTYBEFOREIMPORT: 'Cancella database prima dell''import'
+    IMPORT: 'Importa da CSV'
+    IMPORTEDRECORDS: 'Importati {count} record.'
+    NOCSVFILE: 'Scegli un file CSV da importare'
+    NOIMPORT: 'Nulla da importare.'
+    RESET: Azzera
+    Title: 'Modelli di dati'
+    UPDATEDRECORDS: 'Aggiornati {count} record.'
   ModelAdmin_ImportSpec.ss:
     IMPORTSPECFIELDS: 'Colonne database'
     IMPORTSPECLINK: 'Mostra specifiche per %s'

@@ -6,15 +6,12 @@ sk:
     CREATED: 'Prvýkrát nahrané'
     DIM: Rozmery
     FILENAME: Názov
-    FOLDER:
-      - null
+    FOLDER: Adresár
     LASTEDIT: 'Posledne zmenené'
     OWNER: Vlastník
-    SIZE:
-      - null
+    SIZE: Veľkosť
     TITLE: Titulok
-    TYPE:
-      - null
+    TYPE: Typ
     URL: URL
   AssetUploadField:
     ChooseFiles: 'Vyberte súbory'
@@ -315,8 +312,7 @@ sk:
     PLURALNAME: Súbory
     SINGULARNAME: Súbor
   ImageField:
-    IMAGE:
-      - null
+    IMAGE: Obrázok
   Image_Cached:
     PLURALNAME: Súbory
     SINGULARNAME: Súbor
@@ -394,42 +390,30 @@ sk:
     AMORPM:
       - null
     'APPLY FILTER': 'Použiť filter'
-    Custom:
-      - null
-    DATEFORMATBAD:
-      - null
-    DAYNOLEADING:
-      - null
-    DIGITSDECFRACTIONSECOND:
-      - null
+    Custom: Vlastné
+    DATEFORMATBAD: 'Formát dátumu je neplatný'
+    DAYNOLEADING: 'Deň mesiaca bez úvodnej nuly'
+    DIGITSDECFRACTIONSECOND: 'Jedna alebo viac číslic zastupujúcich desatinný zlomok sekundy'
     FOURDIGITYEAR:
       - null
     FULLNAMEMONTH:
       - null
-    HOURNOLEADING:
-      - null
+    HOURNOLEADING: 'Hodina bez úvodnej nuly'
     MINUTENOLEADING:
       - null
-    MONTHNOLEADING:
-      - null
-    Preview:
-      - null
+    MONTHNOLEADING: 'Číslo mesiaca bez úvodnej nuly'
+    Preview: Náhľad
     SHORTMONTH:
       - null
-    TOGGLEHELP:
-      - null
-    TWODIGITDAY:
-      - null
-    TWODIGITHOUR:
-      - null
-    TWODIGITMINUTE:
-      - null
+    TOGGLEHELP: 'Prepnúť nápovedu formátovania'
+    TWODIGITDAY: 'Dvojčíslie dňa mesiaca'
+    TWODIGITHOUR: 'Dvojčíslie hodiny (00 až 23)'
+    TWODIGITMINUTE: 'Dvojčíslie minúty (00 až 59)'
     TWODIGITMONTH:
       - null
     TWODIGITSECOND:
       - null
-    TWODIGITYEAR:
-      - null
+    TWODIGITYEAR: 'Dvojčíslie roka'
   MemberImportForm:
     Help1: 'Importovať členov v <em>CSV formáte</em> (čiarkov oddelené hodnoty). Zobraziť pokročile použitie'
     Help2: "<div class=\"advanced\">\\n<h4>Pokročilé použitie</h4>\\n<ul>\\n<li>Povolené stĺpce: <em>%s</em></li>\\n<li>Existujúci užívatelia sú porovnávaní ich unikátnou vlastnosťou <em>Code</em>, a aktualizovaní s novými hodnotami z\\nimportovaného súboru.</li>\\n<li>Skupiny môžu byťt priradené stĺpcom <em>Groups</em>. Skupiny sú identifikované ich vlastnosťou <em>Code</em>,\\nviacero skupín môže byť oddelené čiarkou. Existujúce členstvá skupiny nie sú smazané.</li>\\n</ul>\\n</div>"
@@ -442,26 +426,16 @@ sk:
     SINGULARNAME: 'Heslo člena'
   MemberTableField: null
   ModelAdmin:
-    DELETE:
-      - null
-    DELETEDRECORDS:
-      - null
-    EMPTYBEFOREIMPORT:
-      - null
-    IMPORT:
-      - null
-    IMPORTEDRECORDS:
-      - null
-    NOCSVFILE:
-      - null
-    NOIMPORT:
-      - null
-    RESET:
-      - null
-    Title:
-      - null
-    UPDATEDRECORDS:
-      - null
+    DELETE: Zmazať
+    DELETEDRECORDS: 'Zmazaných {count} záznamov.'
+    EMPTYBEFOREIMPORT: 'Vyčistiť databázu pred importovaním'
+    IMPORT: 'Importovať z CSV'
+    IMPORTEDRECORDS: 'Importovaných {count} záznamov.'
+    NOCSVFILE: 'Prosím vyhľadajte CSV súbor pre importovanie'
+    NOIMPORT: 'Nie je čo importovať'
+    RESET: Reset
+    Title: 'Dátové modely'
+    UPDATEDRECORDS: 'Aktualizovaných {count} záznamov.'
   ModelAdmin_ImportSpec.ss:
     IMPORTSPECFIELDS: 'Stĺpce databázy'
     IMPORTSPECLINK: 'Zobraziť špecifikáciu pre %s'

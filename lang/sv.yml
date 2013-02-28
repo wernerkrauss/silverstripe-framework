@@ -6,15 +6,12 @@ sv:
     CREATED: 'Först uppladdad'
     DIM: Dimensioner
     FILENAME: Filnamn
-    FOLDER:
-      - null
+    FOLDER: Mapp
     LASTEDIT: 'Senast ändrad'
     OWNER: Ägare
-    SIZE:
-      - null
+    SIZE: Filstorlek
     TITLE: Titel
-    TYPE:
-      - null
+    TYPE: Filtyp
     URL: URL
   AssetUploadField:
     ChooseFiles: 'Välj filer'
@@ -315,8 +312,7 @@ sv:
     PLURALNAME: Filer
     SINGULARNAME: Fil
   ImageField:
-    IMAGE:
-      - null
+    IMAGE: Bild
   Image_Cached:
     PLURALNAME: Filer
     SINGULARNAME: Fil
@@ -394,42 +390,30 @@ sv:
     AMORPM:
       - null
     'APPLY FILTER': 'Använd filter'
-    Custom:
-      - null
-    DATEFORMATBAD:
-      - null
-    DAYNOLEADING:
-      - null
-    DIGITSDECFRACTIONSECOND:
-      - null
+    Custom: Anpassad
+    DATEFORMATBAD: 'Datumformatet är ogiltigt'
+    DAYNOLEADING: 'Dag i månad utan inledande nolla'
+    DIGITSDECFRACTIONSECOND: 'En eller fler delar som representerar en decimaldel av en sekund.'
     FOURDIGITYEAR:
       - null
     FULLNAMEMONTH:
       - null
-    HOURNOLEADING:
-      - null
+    HOURNOLEADING: 'Timme utan inledande nolla'
     MINUTENOLEADING:
       - null
-    MONTHNOLEADING:
-      - null
-    Preview:
-      - null
+    MONTHNOLEADING: 'Dag i månad utan inledande nolla'
+    Preview: Förhandsgranska
     SHORTMONTH:
       - null
-    TOGGLEHELP:
-      - null
-    TWODIGITDAY:
-      - null
-    TWODIGITHOUR:
-      - null
-    TWODIGITMINUTE:
-      - null
+    TOGGLEHELP: 'Växla formatteringshjälp'
+    TWODIGITDAY: 'Två siffror för dag i månad'
+    TWODIGITHOUR: 'Två siffror för timme (00 till 23)'
+    TWODIGITMINUTE: 'Två siffror för minut (00 till 59)'
     TWODIGITMONTH:
       - null
     TWODIGITSECOND:
       - null
-    TWODIGITYEAR:
-      - null
+    TWODIGITYEAR: 'Två siffror för år'
   MemberImportForm:
     Help1: '<p>Importera användare i <em>CSV-format</em> (kommaseparerade värden). <small><a href="#" class="toggle-advanced">Visa avancerat</a></small></p>'
     Help2: "<div class=\"advanced\">\\n<h4>Avancerat </h4>\\n<ul>\\n<li>Tillåtna kolumner: <em>%s</em></li>\\n<li>Existerade användare matchas av deras unika <em>kod</em>-attribut och uppdateras med alla nya värden från den importerade filen</li>\\n<li>Grupper kan anges i <em>Grupp</em>-kolumnen. Grupper identiferas av deras <em>Code</em>-attribut. Anges flera grupper separeras dessa med kommatecken. Existerande användarrättigheter till grupperna tas inte bort.</li>\\n</ul>\\n</div>"
@@ -442,26 +426,16 @@ sv:
     SINGULARNAME: 'Användares lösenord'
   MemberTableField: null
   ModelAdmin:
-    DELETE:
-      - null
-    DELETEDRECORDS:
-      - null
-    EMPTYBEFOREIMPORT:
-      - null
-    IMPORT:
-      - null
-    IMPORTEDRECORDS:
-      - null
-    NOCSVFILE:
-      - null
-    NOIMPORT:
-      - null
-    RESET:
-      - null
-    Title:
-      - null
-    UPDATEDRECORDS:
-      - null
+    DELETE: Radera
+    DELETEDRECORDS: 'Raderade {count} poster.'
+    EMPTYBEFOREIMPORT: 'Töm databasen före import'
+    IMPORT: 'Importera från CSV'
+    IMPORTEDRECORDS: 'Importerade {count} poster.'
+    NOCSVFILE: 'Var god och bläddra efter en CSV-fil för import'
+    NOIMPORT: 'Inget att importera'
+    RESET: Rensa
+    Title: Datamodeller
+    UPDATEDRECORDS: 'Uppdaterade {count} poster.'
   ModelAdmin_ImportSpec.ss:
     IMPORTSPECFIELDS: Databaskolumner
     IMPORTSPECLINK: 'Visa specifikation för %s'
