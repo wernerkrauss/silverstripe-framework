@@ -8,8 +8,8 @@ ar:
     FILENAME: 'اسم الملف'
     FOLDER: Folder
     LASTEDIT: 'آخر التعديلات'
-    OWNER: المالك
-    SIZE: الحجم
+    OWNER: 'المالك'
+    SIZE: 'الحجم'
     TITLE: العنوان
     TYPE: النوع
     URL: الرابط
@@ -28,7 +28,7 @@ ar:
     UPLOADINPROGRESS: 'Please wait… upload in progress'
     UPLOADOR: OR
   BBCodeParser:
-    ALIGNEMENT: المحاذاة
+    ALIGNEMENT: 'المحاذاة'
     ALIGNEMENTEXAMPLE: 'محاذاة إلى اليمين'
     BOLD: 'خط عريض'
     BOLDEXAMPLE: عريض
@@ -42,7 +42,7 @@ ar:
     IMAGE: الصورة
     IMAGEDESCRIPTION: 'عرض الصورة في الموضوع'
     ITALIC: 'خط مائل'
-    ITALICEXAMPLE: مائل
+    ITALICEXAMPLE: 'مائل'
     LINK: 'رابط الموقع'
     LINKDESCRIPTION: 'رابط إلى موقع آخر'
     STRUCK: 'خط في المنتصف'
@@ -61,7 +61,7 @@ ar:
   Boolean:
     0: لا
     ANY: أي
-    1: نعم
+    1: 'نعم'
   CMSLoadingScreen.ss:
     LOADING: Loading...
     REQUIREJS: 'The CMS requires that you have JavaScript enabled.'
@@ -80,7 +80,7 @@ ar:
     PASSWORD: 'الرقم السري'
   CheckboxField:
     - لا
-    - نعم
+    - 'نعم'
   ComplexTableField:
     CLOSEPOPUP: 'إغلاق النافذة'
     SUCCESSADD2: 'Added {name}'
@@ -109,8 +109,8 @@ ar:
     PLURALNAME: 'بيانات كائن'
     SINGULARNAME: 'بيانات كائن'
   Date:
-    DAY: اليوم
-    DAYS: الأيام
+    DAY: 'اليوم'
+    DAYS: 'الأيام'
     HOUR: ساعة
     HOURS: ساعات
     MIN: دقيقة
@@ -125,7 +125,7 @@ ar:
     YEARS: السنوات
   DateField:
     NOTSET: 'غير محدد'
-    TODAY: اليوم
+    TODAY: 'اليوم'
     VALIDDATEFORMAT2: 'Please enter a valid date format ({format})'
     VALIDDATEMAXDATE: 'Your date has to be older or matching the maximum allowed date ({date})'
     VALIDDATEMINDATE: 'Your date has to be newer or matching the minimum allowed date ({date})'
@@ -144,7 +144,7 @@ ar:
     ANY: أي
   File:
     AviType: 'AVI video file'
-    Content: المحتوى
+    Content: 'المحتوى'
     CssType: 'CSS file'
     DmgType: 'Apple disk image'
     DocType: 'Word document'
@@ -162,11 +162,11 @@ ar:
     MpgType: 'MPEG video file'
     NOFILESIZE: 'حجم الملف 0 بايت'
     NOVALIDUPLOAD: 'نوع الملف غير قابل للرفع'
-    Name: الاسم
-    PLURALNAME: الملفات
+    Name: 'الاسم'
+    PLURALNAME: 'الملفات'
     PdfType: 'Adobe Acrobat PDF file'
     PngType: 'PNG image - good general-purpose format'
-    SINGULARNAME: الملف
+    SINGULARNAME: 'الملف'
     TOOLARGE: 'Filesize is too large, maximum {size} allowed'
     TOOLARGESHORT: 'Filesize exceeds {size}'
     TiffType: 'Tagged image format'
@@ -180,7 +180,7 @@ ar:
     ATTACHONCESAVED2: 'Files can be attached once you have saved the record for the first time.'
     DELETE: 'Delete {type}'
     DISALLOWEDFILETYPE: 'This filetype is not allowed to be uploaded'
-    FILE: ملف
+    FILE: 'ملف'
     FROMCOMPUTER: 'من جهازك الشخصي'
     FROMFILESTORE: 'من مكتبة الملفات'
     NOSOURCE: 'الرجاء اختيارمصدر ملف المرفق'
@@ -205,7 +205,7 @@ ar:
     VALIDATIONPASSWORDSDONTMATCH: 'رقم المرور غير صحيح'
     VALIDATIONPASSWORDSNOTEMPTY: 'أرقام المرور لا يمكن أن تكون فارغة'
     VALIDATIONSTRONGPASSWORD: 'Passwords must have at least one digit and one alphanumeric character'
-    VALIDATOR: المحقق
+    VALIDATOR: 'المحقق'
     VALIDCURRENCY: 'Please enter a valid currency'
   FormField:
     NONE: لايوجد
@@ -279,8 +279,8 @@ ar:
     CSSCLASSRIGHT: 'إلى اليمين ، مع التفاف النص'
     DETAILS: Details
     EMAIL: 'بريد إلكتروني'
-    FILE: ملف
-    FOLDER: المجلد
+    FILE: 'ملف'
+    FOLDER: 'المجلد'
     FROMCMS: 'From the CMS'
     FROMCOMPUTER: 'From your computer'
     FROMWEB: 'From the web'
@@ -322,7 +322,7 @@ ar:
     CANT_REORGANISE: 'You do not have permission to alter Top level pages. Your change was not saved.'
     DELETED: Deleted.
     DropdownBatchActionsDefault: Actions
-    HELP: مساعدة
+    HELP: 'مساعدة'
     PAGETYPE: 'نوع الصفحة:'
     PERMAGAIN: 'تم خروجك من النظام بنجاح. للدخول مرة أخرى أدحل البريد الإلكتروني و الرقم السري بالأسفل'
     PERMALREADY: 'عذراً , لكن لا يمكنك الوصول لهذا القسم من النظام. يتوجب عليك الدخول بصلاحية أخرى'
@@ -377,7 +377,7 @@ ar:
     ValidationIdentifierFailed: 'Can''t overwrite existing member #{id} with identical identifier ({name} = {value}))'
     WELCOMEBACK: 'Welcome Back, {firstname}'
     YOUROLDPASSWORD: 'رقم المرور السابق'
-    belongs_many_many_Groups: المجموعات
+    belongs_many_many_Groups: 'المجموعات'
     db_LastVisited: 'تاريخ آخر زيارة'
     db_Locale: 'واجهة الموقع'
     db_LockedOutUntil: 'مغلق حتى تاريخ'
@@ -387,26 +387,45 @@ ar:
   MemberAuthenticator:
     TITLE: 'البريد الإلكتروني &amp; كلمة المرور'
   MemberDatetimeOptionsetField:
-    AMORPM: 'AM (Ante meridiem) or PM (Post meridiem)'
+    AMORPM:
+      - null
     'APPLY FILTER': 'Apply Filter'
-    Custom: Custom
-    DATEFORMATBAD: 'Date format is invalid'
-    DAYNOLEADING: 'Day of month without leading zero'
-    DIGITSDECFRACTIONSECOND: 'One or more digits representing a decimal fraction of a second'
-    FOURDIGITYEAR: 'Four-digit year'
-    FULLNAMEMONTH: 'Full name of month (e.g. June)'
-    HOURNOLEADING: 'Hour without leading zero'
-    MINUTENOLEADING: 'Minute without leading zero'
-    MONTHNOLEADING: 'Month digit without leading zero'
-    Preview: Preview
-    SHORTMONTH: 'Short name of month (e.g. Jun)'
-    TOGGLEHELP: 'Toggle formatting help'
-    TWODIGITDAY: 'Two-digit day of month'
-    TWODIGITHOUR: 'Two digits of hour (00 through 23)'
-    TWODIGITMINUTE: 'Two digits of minute (00 through 59)'
-    TWODIGITMONTH: 'Two-digit month (01=January, etc.)'
-    TWODIGITSECOND: 'Two digits of second (00 through 59)'
-    TWODIGITYEAR: 'Two-digit year'
+    Custom:
+      - null
+    DATEFORMATBAD:
+      - null
+    DAYNOLEADING:
+      - null
+    DIGITSDECFRACTIONSECOND:
+      - null
+    FOURDIGITYEAR:
+      - null
+    FULLNAMEMONTH:
+      - null
+    HOURNOLEADING:
+      - null
+    MINUTENOLEADING:
+      - null
+    MONTHNOLEADING:
+      - null
+    Preview:
+      - null
+    SHORTMONTH:
+      - null
+    TOGGLEHELP:
+      - null
+    TWODIGITDAY:
+      - null
+    TWODIGITHOUR:
+      - null
+    TWODIGITMINUTE:
+      - null
+    TWODIGITMONTH:
+      - null
+    TWODIGITSECOND:
+      - null
+    TWODIGITYEAR:
+      - null
   MemberImportForm:
     Help1: '<p>Import users in <em>CSV format</em> (comma-separated values). <small><a href="#" class="toggle-advanced">Show advanced usage</a></small></p>'
     Help2: '<div class="advanced">	<h4>Advanced usage</h4>	<ul>	<li>Allowed columns: <em>%s</em></li>	<li>Existing users are matched by their unique <em>Code</em> property, and updated with any new values from	the imported file.</li>	<li>Groups can be assigned by the <em>Groups</em> column. Groups are identified by their <em>Code</em> property,	multiple groups can be separated by comma. Existing group memberships are not cleared.</li>	</ul></div>'
@@ -419,16 +438,20 @@ ar:
     SINGULARNAME: 'Member Password'
   MemberTableField: null
   ModelAdmin:
-    DELETE: حذف
+    DELETE:
+      - null
     DELETEDRECORDS: 'Deleted {count} records.'
     EMPTYBEFOREIMPORT: 'Clear Database before import'
-    IMPORT: 'استيراد من CSV'
+    IMPORT:
+      - null
     IMPORTEDRECORDS: 'Imported {count} records.'
-    NOCSVFILE: 'فضلاً استعرض ملف CSV للاستيراد'
+    NOCSVFILE:
+      - null
     NOIMPORT: 'لايوجد شيء للاستيراد'
     RESET: Reset
     Title: 'Data Models'
-    UPDATEDRECORDS: 'Updated {count} records.'
+    UPDATEDRECORDS:
+      - null
   ModelAdmin_ImportSpec.ss:
     IMPORTSPECFIELDS: 'Database columns'
     IMPORTSPECLINK: 'Show Specification for %s'
@@ -441,8 +464,8 @@ ar:
     IMPORT_TAB_HEADER: Import
     SEARCHLISTINGS: Search
   MoneyField:
-    FIELDLABELAMOUNT: الكمية
-    FIELDLABELCURRENCY: العملة
+    FIELDLABELAMOUNT: 'الكمية'
+    FIELDLABELCURRENCY: 'العملة'
   NullableField:
     IsNullLabel: باطل
   NumericField:

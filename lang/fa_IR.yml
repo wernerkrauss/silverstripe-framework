@@ -9,7 +9,7 @@ fa_IR:
     FOLDER: Folder
     LASTEDIT: 'آخرین تغییرات'
     OWNER: دارنده
-    SIZE: حجم
+    SIZE: 'حجم'
     TITLE: عنوان
     TYPE: نوع
     URL: نشانی
@@ -75,7 +75,7 @@ fa_IR:
   ChangePasswordEmail.ss:
     CHANGEPASSWORDTEXT1: 'شما گذرواژه تان را دگرگون کردید برای'
     CHANGEPASSWORDTEXT2: 'You can now use the following credentials to log in:'
-    EMAIL: ايميل
+    EMAIL: 'ايميل'
     HELLO: درود
     PASSWORD: 'كلمه عبور'
   CheckboxField:
@@ -100,9 +100,9 @@ fa_IR:
     SHOWONCLICKTITLE: 'تغيير كلمه عبور'
   CreditCardField:
     FIRST: نخست
-    FOURTH: چهارم
-    SECOND: دوم
-    THIRD: سوم
+    FOURTH: 'چهارم'
+    SECOND: 'دوم'
+    THIRD: 'سوم'
   CurrencyField:
     CURRENCYSYMBOL: $
   DataObject:
@@ -115,7 +115,7 @@ fa_IR:
     HOURS: ساعت
     MIN: دقیقه
     MINS: دقیقه
-    MONTH: ماه
+    MONTH: 'ماه'
     MONTHS: 'ماه ها'
     SEC: ثانیه
     SECS: ثانیه
@@ -125,7 +125,7 @@ fa_IR:
     YEARS: سال
   DateField:
     NOTSET: 'not set'
-    TODAY: امروز
+    TODAY: 'امروز'
     VALIDDATEFORMAT2: 'Please enter a valid date format ({format})'
     VALIDDATEMAXDATE: 'Your date has to be older or matching the maximum allowed date ({date})'
     VALIDDATEMINDATE: 'Your date has to be newer or matching the minimum allowed date ({date})'
@@ -144,7 +144,7 @@ fa_IR:
     ANY: Any
   File:
     AviType: 'AVI video file'
-    Content: محتوا
+    Content: 'محتوا'
     CssType: 'CSS file'
     DmgType: 'Apple disk image'
     DocType: 'Word document'
@@ -162,7 +162,7 @@ fa_IR:
     MpgType: 'MPEG video file'
     NOFILESIZE: 'Filesize is zero bytes.'
     NOVALIDUPLOAD: 'File is not a valid upload'
-    Name: نام
+    Name: 'نام'
     PLURALNAME: 'فايل ها'
     PdfType: 'Adobe Acrobat PDF file'
     PngType: 'PNG image - good general-purpose format'
@@ -253,7 +253,7 @@ fa_IR:
     RolesAddEditLink: 'اضافه/ویرایش وظیفه'
     SINGULARNAME: Group
     Sort: 'تربیت چیدن'
-    has_many_Permissions: مجوز‌ها
+    has_many_Permissions: 'مجوز‌ها'
     many_many_Members: اعضاء
   GroupImportForm:
     Help1: '<p>Import one or more groups in <em>CSV</em> format (comma-separated values). <small><a href="#" class="toggle-advanced">Show advanced usage</a></small></p>'
@@ -322,7 +322,7 @@ fa_IR:
     CANT_REORGANISE: 'You do not have permission to alter Top level pages. Your change was not saved.'
     DELETED: Deleted.
     DropdownBatchActionsDefault: Actions
-    HELP: کمک
+    HELP: 'کمک'
     PAGETYPE: 'نوع صفحه'
     PERMAGAIN: 'شما از سیستم مدیریت محتوا خارج شده اید.اگر میخواهید دوباره وارد شوید نام کاربری و رمز عبور خود را در قسمت زیر وارد کنید'
     PERMALREADY: 'من متاسفم، شما نمی توانید به آن قسمت از سیستم مدیریت محتوا دسترسی پیدا کنید. اگر میخواهید به عنوان شخص دیگری وارد شوید از قسمت زیر تلاش کنید'
@@ -360,7 +360,7 @@ fa_IR:
     ERRORNEWPASSWORD: 'You have entered your new password differently, try again'
     ERRORPASSWORDNOTMATCH: 'Your current password does not match, please try again'
     ERRORWRONGCRED: 'That doesn''t seem to be the right e-mail address or password. Please try again.'
-    FIRSTNAME: نام
+    FIRSTNAME: 'نام'
     INTERFACELANG: 'زبان برنامه'
     INVALIDNEWPASSWORD: 'We couldn''t accept that password: {password}'
     LOGGEDINAS: 'You''re logged in as {name}.'
@@ -387,26 +387,45 @@ fa_IR:
   MemberAuthenticator:
     TITLE: 'E-mail &amp; Password'
   MemberDatetimeOptionsetField:
-    AMORPM: 'AM (Ante meridiem) or PM (Post meridiem)'
+    AMORPM:
+      - null
     'APPLY FILTER': 'Apply Filter'
-    Custom: Custom
-    DATEFORMATBAD: 'Date format is invalid'
-    DAYNOLEADING: 'Day of month without leading zero'
-    DIGITSDECFRACTIONSECOND: 'One or more digits representing a decimal fraction of a second'
-    FOURDIGITYEAR: 'Four-digit year'
-    FULLNAMEMONTH: 'Full name of month (e.g. June)'
-    HOURNOLEADING: 'Hour without leading zero'
-    MINUTENOLEADING: 'Minute without leading zero'
-    MONTHNOLEADING: 'Month digit without leading zero'
-    Preview: Preview
-    SHORTMONTH: 'Short name of month (e.g. Jun)'
-    TOGGLEHELP: 'Toggle formatting help'
-    TWODIGITDAY: 'Two-digit day of month'
-    TWODIGITHOUR: 'Two digits of hour (00 through 23)'
-    TWODIGITMINUTE: 'Two digits of minute (00 through 59)'
-    TWODIGITMONTH: 'Two-digit month (01=January, etc.)'
-    TWODIGITSECOND: 'Two digits of second (00 through 59)'
-    TWODIGITYEAR: 'Two-digit year'
+    Custom:
+      - null
+    DATEFORMATBAD:
+      - null
+    DAYNOLEADING:
+      - null
+    DIGITSDECFRACTIONSECOND:
+      - null
+    FOURDIGITYEAR:
+      - null
+    FULLNAMEMONTH:
+      - null
+    HOURNOLEADING:
+      - null
+    MINUTENOLEADING:
+      - null
+    MONTHNOLEADING:
+      - null
+    Preview:
+      - null
+    SHORTMONTH:
+      - null
+    TOGGLEHELP:
+      - null
+    TWODIGITDAY:
+      - null
+    TWODIGITHOUR:
+      - null
+    TWODIGITMINUTE:
+      - null
+    TWODIGITMONTH:
+      - null
+    TWODIGITSECOND:
+      - null
+    TWODIGITYEAR:
+      - null
   MemberImportForm:
     Help1: '<p>Import users in <em>CSV format</em> (comma-separated values). <small><a href="#" class="toggle-advanced">Show advanced usage</a></small></p>'
     Help2: '<div class="advanced">	<h4>Advanced usage</h4>	<ul>	<li>Allowed columns: <em>%s</em></li>	<li>Existing users are matched by their unique <em>Code</em> property, and updated with any new values from	the imported file.</li>	<li>Groups can be assigned by the <em>Groups</em> column. Groups are identified by their <em>Code</em> property,	multiple groups can be separated by comma. Existing group memberships are not cleared.</li>	</ul></div>'
@@ -419,16 +438,20 @@ fa_IR:
     SINGULARNAME: 'Member Password'
   MemberTableField: null
   ModelAdmin:
-    DELETE: حذف
+    DELETE:
+      - null
     DELETEDRECORDS: 'Deleted {count} records.'
     EMPTYBEFOREIMPORT: 'Clear Database before import'
-    IMPORT: 'Import from CSV'
+    IMPORT:
+      - null
     IMPORTEDRECORDS: 'Imported {count} records.'
-    NOCSVFILE: 'Please browse for a CSV file to import'
+    NOCSVFILE:
+      - null
     NOIMPORT: 'Nothing to import'
     RESET: Reset
     Title: 'Data Models'
-    UPDATEDRECORDS: 'Updated {count} records.'
+    UPDATEDRECORDS:
+      - null
   ModelAdmin_ImportSpec.ss:
     IMPORTSPECFIELDS: 'Database columns'
     IMPORTSPECLINK: 'Show Specification for %s'
