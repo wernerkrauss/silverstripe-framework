@@ -387,45 +387,26 @@ sl:
   MemberAuthenticator:
     TITLE: 'Uporabniški račun'
   MemberDatetimeOptionsetField:
-    AMORPM:
-      - null
+    AMORPM: 'AM (zjutraj in dopoldan) ali PM (popoldan in zvečer)'
     'APPLY FILTER': 'Apply Filter'
-    Custom:
-      - null
-    DATEFORMATBAD:
-      - null
-    DAYNOLEADING:
-      - null
-    DIGITSDECFRACTIONSECOND:
-      - null
-    FOURDIGITYEAR:
-      - null
-    FULLNAMEMONTH:
-      - null
-    HOURNOLEADING:
-      - null
-    MINUTENOLEADING:
-      - null
-    MONTHNOLEADING:
-      - null
-    Preview:
-      - null
-    SHORTMONTH:
-      - null
-    TOGGLEHELP:
-      - null
-    TWODIGITDAY:
-      - null
-    TWODIGITHOUR:
-      - null
-    TWODIGITMINUTE:
-      - null
-    TWODIGITMONTH:
-      - null
-    TWODIGITSECOND:
-      - null
-    TWODIGITYEAR:
-      - null
+    Custom: Prilagojeno
+    DATEFORMATBAD: 'Zapis datuma je napačen'
+    DAYNOLEADING: 'Dan v mesecu brez zapisa sprednje ničle'
+    DIGITSDECFRACTIONSECOND: 'Ena ali več decimalk, ki predstavljajo sekunde'
+    FOURDIGITYEAR: 'Štirimesten zapis letnice'
+    FULLNAMEMONTH: 'Celoten zapis meseca (npr: junij)'
+    HOURNOLEADING: 'Ura brez zapisa sprednje ničle'
+    MINUTENOLEADING: 'Minute brez zapisa sprednje ničle'
+    MONTHNOLEADING: 'Mesec brez zapisa sprednje ničle'
+    Preview: Predogled
+    SHORTMONTH: 'Kratek zapis meseca (npr. Jun)'
+    TOGGLEHELP: 'Toggle formatting help'
+    TWODIGITDAY: 'Dvomestno število za mesec'
+    TWODIGITHOUR: 'Dvomestno število za uro (od 00 do 23)'
+    TWODIGITMINUTE: 'Dvomestno število za minute (od 00 do 59)'
+    TWODIGITMONTH: 'Dvomesten zapis meseca (01 = Januar)'
+    TWODIGITSECOND: 'Dvomesten zapis sekund (od 00 do 59)'
+    TWODIGITYEAR: 'Dvomestno število za letnico'
   MemberImportForm:
     Help1: '<p>Uvoz uporabnikov v <em>formatu CSV</em> (comma-separated values). <small><a href="#" class="toggle-advanced">Prikaži možnosti za napredno urejanje.</a></small></p>'
     Help2: '<div class="advanced">	<h4>Advanced usage</h4>	<ul>	<li>Allowed columns: <em>%s</em></li>	<li>Existing users are matched by their unique <em>Code</em> property, and updated with any new values from	the imported file.</li>	<li>Groups can be assigned by the <em>Groups</em> column. Groups are identified by their <em>Code</em> property,	multiple groups can be separated by comma. Existing group memberships are not cleared.</li>	</ul></div>'
@@ -438,20 +419,16 @@ sl:
     SINGULARNAME: 'Geslo uporabnika'
   MemberTableField: null
   ModelAdmin:
-    DELETE:
-      - null
+    DELETE: Izbriši
     DELETEDRECORDS: 'Deleted {count} records.'
     EMPTYBEFOREIMPORT: 'Clear Database before import'
-    IMPORT:
-      - null
+    IMPORT: 'Uvozi CSV-datoteko'
     IMPORTEDRECORDS: 'Imported {count} records.'
-    NOCSVFILE:
-      - null
+    NOCSVFILE: 'Poiščite CSV-datoteko za uvoz'
     NOIMPORT: 'Ne najdem ničesar za uvoz'
     RESET: Ponastavi
     Title: 'Data Models'
-    UPDATEDRECORDS:
-      - null
+    UPDATEDRECORDS: 'Updated {count} records.'
   ModelAdmin_ImportSpec.ss:
     IMPORTSPECFIELDS: 'Database columns'
     IMPORTSPECLINK: 'Show Specification for %s'
