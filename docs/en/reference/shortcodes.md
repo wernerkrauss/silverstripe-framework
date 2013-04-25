@@ -12,7 +12,8 @@ A guide to syntax
 	With contained content & closing tag - [shortcode]Enclosed Content[/shortcode]
 	Escaped (will output [just] [text] in response) - [[just] [[text]]
 
-Shortcode parsing is already hooked into HTMLText and HTMLVarchar fields when rendered into a template
+Even though unquoted attributes are supported, it is strongly recommend to quote them and avoid misinterpretations.
+Shortcode parsing is already hooked into HTMLText and HTMLVarchar fields when rendered into a template.
 
 ## Attribute and element scope
 
@@ -150,6 +151,7 @@ Here is a summary of the callback parameter values based on some example shortco
 
 All internal links inserted via the CMS into a content field are in the form `<a href="[sitetree_link,id=n]">`. At
 runtime this is replaced by a plain link to the page with the ID in question.
+Media embeds through OEmbed are handled with the `[embed]` shortcode.
 
 ## Limitations
 
