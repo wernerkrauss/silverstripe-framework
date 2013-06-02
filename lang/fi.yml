@@ -323,7 +323,7 @@ fi:
     DELETED: Poistettu.
     DropdownBatchActionsDefault: Toimenpiteet
     HELP: Ohje
-    PAGETYPE: 'Sivun tyyppi:'
+    PAGETYPE: 'Sivutyyppi:'
     PERMAGAIN: 'Olet kirjautunut ulos CMS:stä. Jos haluat kirjautua uudelleen sisään, syötä käyttäjätunnuksesi ja salasanasi alla.'
     PERMALREADY: 'Paihoittelut, mutta et pääse tähän osaan CMS:ää. Jos haluat kirjautua jonain muuna, voit tehdä sen alla.'
     PERMDEFAULT: 'Valitse tunnistustapa ja syötä tunnistetietosi CMS:ään.'
