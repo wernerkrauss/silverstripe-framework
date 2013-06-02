@@ -79,6 +79,7 @@ Example:
 
 	:::php
 	class MyController extends Controller {
+	  private static $allowed_actions = array('myurlaction');
 	  public function myurlaction($RAW_urlParams) {
 	    $SQL_urlParams = Convert::raw2sql($RAW_urlParams); // works recursively on an array
 	    $objs = Player::get()->where("Name = '{$SQL_data[OtherID]}'");
@@ -93,7 +94,6 @@ This means if you've got a chain of functions passing data through, escaping sho
 	:::php
 	class MyController extends Controller {
 	  /**
-	
 	   * @param array $RAW_data All names in an indexed array (not SQL-safe)
 	   */
 	  public function saveAllNames($RAW_data) {
@@ -136,7 +136,7 @@ PHP:
 
 	:::php
 	class MyObject extends DataObject {
-	  public static $db = array(
+	  private static $db = array(
 	    'MyEscapedValue' => 'Text', // Example value: <b>not bold</b>
 	    'MyUnescapedValue' => 'HTMLText' // Example value: <b>bold</b>
 	  );
@@ -220,6 +220,7 @@ PHP:
 
 	:::php
 	class MyController extends Controller {
+		private static $allowed_actions = array('search');
 		public function search($request) {
 			$htmlTitle = '<p>Your results for:' . Convert::raw2xml($request->getVar('Query')) . '</p>';
 			return $this->customise(array(
@@ -249,6 +250,7 @@ PHP:
 
 	:::php
 	class MyController extends Controller {
+		private static $allowed_actions = array('search');
 		public function search($request) {
 			$rssRelativeLink = "/rss?Query=" . urlencode($_REQUEST['query']) . "&sortOrder=asc";
 			$rssLink = Controller::join_links($this->Link(), $rssRelativeLink);
@@ -273,21 +275,14 @@ Some rules of thumb:
 
 ## Cross-Site Request Forgery (CSRF)
 
-SilverStripe has built-in countermeasures against this type of identity theft for all form submissions. A form object
-will automatically contain a *SecurityID* parameter which is generated as a secure hash on the server, connected to the
+SilverStripe has built-in countermeasures against [CSRF](http://shiflett.org/articles/cross-site-request-forgeries) identity theft for all form submissions. A form object
+will automatically contain a `SecurityID` parameter which is generated as a secure hash on the server, connected to the
 currently active session of the user. If this form is submitted without this parameter, or if the parameter doesn't
 match the hash stored in the users session, the request is discarded.
+You can disable this behaviour through `[api:Form->disableSecurityToken()]`.
 
-If you know what you're doing, you can disable this behaviour:
-
-	:::php
-	$myForm->disableSecurityToken();
-
-
-See
-[http://shiflett.org/articles/cross-site-request-forgeries](http://shiflett.org/articles/cross-site-request-forgeries)
-
-
+It is also recommended to limit form submissions to the intended HTTP verb (mostly `GET` or `POST`)
+through `[api:Form->setStrictFormMethodCheck()]`.
 
 ## Casting user input
 
@@ -363,6 +358,16 @@ file in the assets directory.  This requires PHP to be loaded as an Apache modul
 	php_flag engine off
 	Options -ExecCGI -Includes -Indexes 
 
+### Don't allow access to .yml files
+
+Yaml files are often used to store sensitive or semi-sensitive data for use by SilverStripe framework (for instance,
+configuration and test fixtures).
+
+You should therefore block access to all yaml files (extension .yml) by default, and white list only yaml files
+you need to serve directly.
+
+See [Apache](/installation/webserver) and [Nginx](/installation/nginx) installation documentation for details 
+specific to your web server
 
 ##  Related
 

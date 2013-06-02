@@ -291,9 +291,9 @@ sl:
     IMAGEDIMENSIONS: Velikosti
     IMAGEHEIGHTPX: Višina
     IMAGETITLE: 'Naslov (tooltip)  bo izpisan kot dopolnitev k vsebini slike'
-    IMAGETITLETEXT: 'Naslov (tooltip)'
-    IMAGETITLETEXTDESC: 'Za dodatne informacije o sliki'
-    IMAGEWIDTHPX: 'Širina'
+    IMAGETITLETEXT: 'Title text (tooltip)'
+    IMAGETITLETEXTDESC: 'For additional information about the image'
+    IMAGEWIDTHPX: Širina
     INSERTMEDIA: 'Insert Media'
     LINK: Povezava
     LINKANCHOR: 'Sidro na tej strani'

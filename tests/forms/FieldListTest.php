@@ -126,21 +126,45 @@ class FieldListTest extends SapphireTest {
 		/* We have no fields in the tab now */
 		$this->assertEquals(0, $tab->Fields()->Count());
 	}
-	
-	/**
-	 * Test removing a field from a set by it's name.
-	 */
+
 	public function testRemoveFieldByName() {
 		$fields = new FieldList();
-		
-		/* First of all, we add a field into our FieldList object */
 		$fields->push(new TextField('Name', 'Your name'));
 		
-		/* We have 1 field in our set now */
 		$this->assertEquals(1, $fields->Count());
+		$fields->removeByName('Name');
+		$this->assertEquals(0, $fields->Count());
+
+		$fields->push(new TextField('Name[Field]', 'Your name'));
+		$this->assertEquals(1, $fields->Count());
+		$fields->removeByName('Name[Field]');
+		$this->assertEquals(0, $fields->Count());
+	}
+
+	public function testDataFieldByName() {
+		$fields = new FieldList();
+		$fields->push($basic = new TextField('Name', 'Your name'));
+		$fields->push($brack = new TextField('Name[Field]', 'Your name'));
+
+		$this->assertEquals($basic, $fields->dataFieldByName('Name'));
+		$this->assertEquals($brack, $fields->dataFieldByName('Name[Field]'));
+	}
+	
+	/**
+	 * Test removing multiple fields from a set by their names in an array.
+	 */
+	public function testRemoveFieldsByName() {
+		$fields = new FieldList();
+		
+		/* First of all, we add some fields into our FieldList object */
+		$fields->push(new TextField('Name', 'Your name'));
+		$fields->push(new TextField('Email', 'Your email'));
+		
+		/* We have 2 fields in our set now */
+		$this->assertEquals(2, $fields->Count());
 		
 		/* Then, we call up removeByName() to take it out again */
-		$fields->removeByName('Name');
+		$fields->removeByName(array('Name', 'Email'));
 		
 		/* We have 0 fields in our set now, as we've just removed the one we added */
 		$this->assertEquals(0, $fields->Count());
@@ -157,14 +181,19 @@ class FieldListTest extends SapphireTest {
 		/* A field gets added to the set */
 		$fields->addFieldToTab('Root', new TextField('Country'));
 
-		/* We have the same object as the one we pushed */
 		$this->assertSame($fields->dataFieldByName('Country'), $tab->fieldByName('Country'));
 		
-		/* The field called Country is replaced by the field called Email */
 		$fields->replaceField('Country', new EmailField('Email'));
-		
-		/* We have 1 field inside our tab */
-		$this->assertEquals(1, $tab->Fields()->Count());		
+		$this->assertEquals(1, $tab->Fields()->Count());
+
+		$fields = new FieldList();
+		$fields->push(new TextField('Name', 'Your name'));
+		$brack = new TextField('Name[Field]', 'Your name');
+
+		$fields->replaceField('Name', $brack);
+		$this->assertEquals(1, $fields->Count());
+
+		$this->assertEquals('Name[Field]', $fields->first()->getName());
 	}
 	
 	public function testRenameField() {

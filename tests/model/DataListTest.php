@@ -3,7 +3,7 @@
 class DataListTest extends SapphireTest {
 	
 	// Borrow the model from DataObjectTest
-	static $fixture_file = 'DataObjectTest.yml';
+	protected static $fixture_file = 'DataObjectTest.yml';
 
 	protected $extraDataObjects = array(
 		'DataObjectTest_Team',
@@ -79,9 +79,14 @@ class DataListTest extends SapphireTest {
 	
 	public function testInnerJoin() {
 		$db = DB::getConn();
+
 		$list = DataObjectTest_TeamComment::get();
-		$list->innerJoin('DataObjectTest_Team', '"DataObjectTest_Team"."ID" = "DataObjectTest_TeamComment"."TeamID"',
-			'Team');
+		$list = $list->innerJoin(
+			'DataObjectTest_Team',
+			'"DataObjectTest_Team"."ID" = "DataObjectTest_TeamComment"."TeamID"',
+			'Team'
+		);
+
 		$expected = 'SELECT DISTINCT "DataObjectTest_TeamComment"."ClassName", "DataObjectTest_TeamComment"."Created",'
 			. ' "DataObjectTest_TeamComment"."LastEdited", "DataObjectTest_TeamComment"."Name",'
 			. ' "DataObjectTest_TeamComment"."Comment", "DataObjectTest_TeamComment"."TeamID",'
@@ -89,14 +94,20 @@ class DataListTest extends SapphireTest {
 			. ' THEN "DataObjectTest_TeamComment"."ClassName" ELSE '.$db->prepStringForDB('DataObjectTest_TeamComment')
 			. ' END AS "RecordClassName" FROM "DataObjectTest_TeamComment" INNER JOIN "DataObjectTest_Team" AS "Team"'
 			. ' ON "DataObjectTest_Team"."ID" = "DataObjectTest_TeamComment"."TeamID"';
+
 		$this->assertEquals($expected, $list->sql());
 	}
 	
 	public function testLeftJoin() {
 		$db = DB::getConn();
+
 		$list = DataObjectTest_TeamComment::get();
-		$list->leftJoin('DataObjectTest_Team', '"DataObjectTest_Team"."ID" = "DataObjectTest_TeamComment"."TeamID"',
-			'Team');
+		$list = $list->leftJoin(
+			'DataObjectTest_Team',
+			'"DataObjectTest_Team"."ID" = "DataObjectTest_TeamComment"."TeamID"',
+			'Team'
+		);
+
 		$expected = 'SELECT DISTINCT "DataObjectTest_TeamComment"."ClassName", "DataObjectTest_TeamComment"."Created",'
 			. ' "DataObjectTest_TeamComment"."LastEdited", "DataObjectTest_TeamComment"."Name",'
 			. ' "DataObjectTest_TeamComment"."Comment", "DataObjectTest_TeamComment"."TeamID",'
@@ -104,14 +115,16 @@ class DataListTest extends SapphireTest {
 			. ' THEN "DataObjectTest_TeamComment"."ClassName" ELSE '.$db->prepStringForDB('DataObjectTest_TeamComment')
 			. ' END AS "RecordClassName" FROM "DataObjectTest_TeamComment" LEFT JOIN "DataObjectTest_Team" AS "Team"'
 			. ' ON "DataObjectTest_Team"."ID" = "DataObjectTest_TeamComment"."TeamID"';
+
 		$this->assertEquals($expected, $list->sql());
 
 		// Test with namespaces (with non-sensical join, but good enough for testing)
 		$list = DataObjectTest_TeamComment::get();
-		$list->leftJoin(
+		$list = $list->leftJoin(
 			'DataObjectTest\NamespacedClass', 
 			'"DataObjectTest\NamespacedClass"."ID" = "DataObjectTest_TeamComment"."ID"'
 		);
+
 		$expected = 'SELECT DISTINCT "DataObjectTest_TeamComment"."ClassName", '
 			. '"DataObjectTest_TeamComment"."Created", '
 			. '"DataObjectTest_TeamComment"."LastEdited", '
@@ -126,6 +139,7 @@ class DataListTest extends SapphireTest {
 			. 'LEFT JOIN "DataObjectTest\NamespacedClass" ON '
 			. '"DataObjectTest\NamespacedClass"."ID" = "DataObjectTest_TeamComment"."ID"';
 		$this->assertEquals($expected, $list->sql(), 'Retains backslashes in namespaced classes');
+
 	}
 	
 	public function testToNestedArray() {
@@ -179,9 +193,24 @@ class DataListTest extends SapphireTest {
 		$this->assertEquals($otherExpected, $otherMap);
 	}
 	
+	public function testEach() {
+		$list = DataObjectTest_TeamComment::get();
+		
+		$count = 0;
+		$test = $this;
+		
+		$list->each(function($item) use (&$count, $test) {
+			$count++;
+			
+			$test->assertTrue(is_a($item, "DataObjectTest_TeamComment"));
+		});
+		
+		$this->assertEquals($list->Count(), $count);
+	}
+	
 	public function testFilter() {
-		// coming soon!
-		}
+		$this->markTestIncomplete();
+	}
 		
 	public function testWhere() {
 		// We can use raw SQL queries with where.  This is only recommended for advanced uses;
@@ -365,13 +394,6 @@ class DataListTest extends SapphireTest {
 	// 	$this->assertEquals('Joe', $list->Last()->Name, 'Last comment should be from Joe');
 	// }
 
-	public function testSimpleNegationFilter() {
-		$list = DataObjectTest_TeamComment::get();
-		$list = $list->filter('TeamID:Negation', $this->idFromFixture('DataObjectTest_Team', 'team1'));
-		$this->assertEquals(1, $list->count());
-		$this->assertEquals('Phil', $list->first()->Name, 'First comment should be from Bob');
-	}
-
 	public function testSimplePartialMatchFilter() {
 		$list = DataObjectTest_TeamComment::get();
 		$list = $list->filter('Name:PartialMatch', 'o')->sort('Name');
@@ -399,6 +421,7 @@ class DataListTest extends SapphireTest {
 	public function testSimpleFilterWithMultiple() {
 		$list = DataObjectTest_TeamComment::get();
 		$list = $list->filter('Name', array('Bob','Phil'));
+		$list = $list->sort('Name', 'ASC');
 		$this->assertEquals(2, $list->count());
 		$this->assertEquals('Bob', $list->first()->Name, 'First comment should be from Bob');
 		$this->assertEquals('Phil', $list->last()->Name, 'Last comment should be from Phil');
@@ -409,13 +432,14 @@ class DataListTest extends SapphireTest {
 		$list = $list->filter(array('Name'=>'Bob', 'Comment'=>'Phil is a unique guy, and comments on team2'));
 		$this->assertEquals(0, $list->count());
 	}
-	
+
 	/**
 	 *  $list->filter(array('Name'=>'bob, 'Age'=>21)); // bob with the age 21
 	 */
 	public function testFilterMultipleArray() {
 		$list = DataObjectTest_TeamComment::get();
 		$list = $list->filter(array('Name'=>'Bob', 'Comment'=>'This is a team comment by Bob'));
+		$list = $list->sort('Name', 'ASC');
 		$this->assertEquals(1, $list->count());
 		$this->assertEquals('Bob', $list->first()->Name, 'Only comment should be from Bob');
 	}
@@ -429,9 +453,19 @@ class DataListTest extends SapphireTest {
 	public function testFilterMultipleWithArrayFilter() {
 		$list = DataObjectTest_TeamComment::get();
 		$list = $list->filter(array('Name'=>array('Bob','Phil')));
+		$list = $list->sort('Name', 'ASC');
 		$this->assertEquals(2, $list->count(), 'There should be two comments');
 		$this->assertEquals('Bob', $list->first()->Name, 'First comment should be from Bob');
 		$this->assertEquals('Phil', $list->last()->Name, 'Last comment should be from Phil');
+	}
+
+	public function testFilterMultipleWithArrayFilterAndModifiers() {
+		$list = DataObjectTest_TeamComment::get();
+		$list = $list->filter(array('Name:StartsWith'=>array('Bo', 'Jo')));
+		$list = $list->sort('Name', 'ASC');
+		$this->assertEquals(2, $list->count());
+		$this->assertEquals('Bob', $list->first()->Name);
+		$this->assertEquals('Joe', $list->last()->Name);
 	}
 	
 	/**
@@ -606,11 +640,11 @@ class DataListTest extends SapphireTest {
 	 */
 	public function testExcludeOnFilter() {
 		$list = DataObjectTest_TeamComment::get();
- 		$list = $list->filter('Comment', 'Phil is a unique guy, and comments on team2');
+		$list = $list->filter('Comment', 'Phil is a unique guy, and comments on team2');
 		$list = $list->exclude('Name', 'Bob');
 		
 		$this->assertContains(
-			  'WHERE ("DataObjectTest_TeamComment"."Comment" = '
+			'WHERE ("DataObjectTest_TeamComment"."Comment" = '
 			. '\'Phil is a unique guy, and comments on team2\') '
 			. 'AND (("DataObjectTest_TeamComment"."Name" != \'Bob\'))',
 			$list->sql());

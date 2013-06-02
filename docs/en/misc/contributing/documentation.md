@@ -12,19 +12,18 @@ and a GitHub user account.
 
 ## Editing online
 
-The easiest way of making a change the the documentation is to find the appropriate .md 
-file in the [github.com/silverstripe/sapphire](https://github.com/silverstripe/sapphire/edit/3.0/docs/) repository
-and press the "edit" button.  You will need a GitHub account to do this.
+The easiest way of making a change to the documentation is by clicking the "Edit this page" link at 
+the bottom of the page you want to edit. Alternativly, you can find the appropriate .md file in 
+the [github.com/silverstripe/silverstripe-framework](https://github.com/silverstripe/silverstripe-framework/tree/3.0/docs/) repository
+and press the "edit" button.  You will need a GitHub account to do this.  You should make the changes in the lowest branch they apply to.
 
  * After you have made your change, describe it in the "commit summary" and "extended description" fields below, and press "Commit Changes".
  * After that you will see form to submit a Pull Request.  You should just be able to submit the form, and your changes will be sent to the core team for approval.
 
-Each documentation page has have an "edit" link, to make it easier for you to find this feature.
-
 ## Editing on your computer
 
 If you prefer to edit the content on your local machine, you can "[fork](http://help.github.com/forking/)" 
-the [github.com/silverstripe/sapphire](http://github.com/silverstripe/sapphire)
+the [github.com/silverstripe/silverstripe-framework](http://github.com/silverstripe/silverstripe-framework)
 and [github.com/silverstripe/silverstripe-cms](http://github.com/silverstripe/silverstripe-cms) 
 repositories and send us "[pull requests](http://help.github.com/pull-requests/)".   If you have 
 downloaded SilverStripe or a module, chances are that you already have these checkouts.
@@ -39,7 +38,7 @@ getting out of date.
 
 *  End-user: [userhelp.silverstripe.org](http://userhelp.silverstripe.org) - a custom SilverStripe project (not open sourced at the moment).
 *  Developer Guides: [doc.silverstripe.org](http://doc.silverstripe.org) - powered by a
-SilverStripe project that uses the ["sapphiredocs" module](https://github.com/silverstripe/silverstripe-sapphiredocs)
+SilverStripe project that uses the ["docsviewer" module](https://github.com/silverstripe/silverstripe-docsviewer)
 to convert Markdown formatted files into searchable HTML pages with index lists.
 Its contents are fetched from different releases automatically every couple of minutes.
 *  Developer API Docuumentation: [api.silverstripe.org](http://api.silverstripe.org) - powered by a customized

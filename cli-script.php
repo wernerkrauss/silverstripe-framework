@@ -37,19 +37,19 @@ chdir(dirname($_SERVER['SCRIPT_FILENAME']));
  *   fourth => val
  */
 if(isset($_SERVER['argv'][2])) {
-    $args = array_slice($_SERVER['argv'],2);
-    if(!isset($_GET)) $_GET = array();
-    if(!isset($_REQUEST)) $_REQUEST = array();
-    foreach($args as $arg) {
-       if(strpos($arg,'=') == false) {
-           $_GET['args'][] = $arg;
-       } else {
-           $newItems = array();
-           parse_str( (substr($arg,0,2) == '--') ? substr($arg,2) : $arg, $newItems );
-           $_GET = array_merge($_GET, $newItems);
-       }
-    }
-  $_REQUEST = array_merge($_REQUEST, $_GET);
+	$args = array_slice($_SERVER['argv'],2);
+	if(!isset($_GET)) $_GET = array();
+	if(!isset($_REQUEST)) $_REQUEST = array();
+	foreach($args as $arg) {
+		if(strpos($arg,'=') == false) {
+			$_GET['args'][] = $arg;
+		} else {
+			$newItems = array();
+			parse_str( (substr($arg,0,2) == '--') ? substr($arg,2) : $arg, $newItems );
+			$_GET = array_merge($_GET, $newItems);
+		}
+	}
+	$_REQUEST = array_merge($_REQUEST, $_GET);
 }
 
 // Set 'url' GET parameter
@@ -68,15 +68,48 @@ global $databaseConfig;
 // We don't have a session in cli-script, but this prevents errors
 $_SESSION = null;
 
-// Connect to database
 require_once("model/DB.php");
+
+
+// Connect to database
+if(!isset($databaseConfig) || !isset($databaseConfig['database']) || !$databaseConfig['database']) {
+	echo "\nPlease configure your database connection details.  You can do this by creating a file
+called _ss_environment.php in either of the following locations:\n\n";
+	echo " - " .  BASE_PATH  ."_ss_environment.php\n - " . dirname(BASE_PATH) . "_ss_environment.php\n\n";
+	echo <<<ENVCONTENT
+
+Put the following content into this file:
+--------------------------------------------------
+<?php
+
+/* Change this from 'dev' to 'live' for a production environment. */
+define('SS_ENVIRONMENT_TYPE', 'dev');
+ 
+/* This defines a default database user */
+define('SS_DATABASE_SERVER', 'localhost');
+define('SS_DATABASE_USERNAME', '<user>');
+define('SS_DATABASE_PASSWORD', '<password>');
+define('SS_DATABASE_NAME', '<database>');
+--------------------------------------------------
+
+Once you have done that, run 'composer install' or './framework/sake dev/build' to create 
+an empty database.
+
+For more information, please read this page in our docs:
+http://doc.silverstripe.org/framework/en/topics/environment-management
+
+
+ENVCONTENT;
+	exit(1);
+}
 DB::connect($databaseConfig);
+
 
 // Get the request URL from the querystring arguments
 $url = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : null;
 if(!$url) {
 	echo 'Please specify an argument to cli-script.php/sake. For more information, visit'
-    . ' http://doc.silverstripe.org/framework/en/topics/commandline';
+		. ' http://doc.silverstripe.org/framework/en/topics/commandline';
 	die();
 }
 

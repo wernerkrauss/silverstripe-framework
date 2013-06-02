@@ -21,6 +21,8 @@ The poll we will be creating on our homepage will ask the user for their name an
 
 	:::php
 	class HomePage_Controller extends Page_Controller {
+		private static $allowed_actions = array('BrowserPollForm');
+
 		// ...
 	
 		public function BrowserPollForm() {
@@ -173,7 +175,7 @@ If you recall, in the [second tutorial](2-extending-a-basic-site) we said that a
 	:::php
 	<?php	
 	class BrowserPollSubmission extends DataObject {
-		static $db = array(
+		private static $db = array(
 			'Name' => 'Text',
 			'Browser' => 'Text'
 		);
@@ -323,11 +325,11 @@ The final step is to create the template to display our data. Change the 'Browse
 	:::ss
 	<div id="BrowserPoll">
 		<h2>Browser Poll</h2>
-		<% if BrowserPollForm %>
+		<% if $BrowserPollForm %>
 			$BrowserPollForm
 		<% else %>
 		<ul>
-			<% loop BrowserPollResults %>
+			<% loop $BrowserPollResults %>
 			<li>
 				<div class="browser">$Browser: $Percentage%</div>
 				<div class="bar" style="width:$Percentage%">&nbsp;</div>

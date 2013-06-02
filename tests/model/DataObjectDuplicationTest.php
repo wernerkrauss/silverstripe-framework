@@ -8,6 +8,26 @@ class DataObjectDuplicationTest extends SapphireTest {
 		'DataObjectDuplicateTestClass3'
 	);
 
+	public function testDuplicate() {
+		$orig = new DataObjectDuplicateTestClass1();
+		$orig->text = 'foo';
+		$orig->write();
+
+		$duplicate = $orig->duplicate();
+		$this->assertInstanceOf('DataObjectDuplicateTestClass1', $duplicate,
+			'Creates the correct type'
+		);
+		$this->assertNotEquals($duplicate->ID, $orig->ID,
+			'Creates a unique record'
+		);
+		$this->assertEquals('foo', $duplicate->text,
+			'Copies fields'
+		);
+		$this->assertEquals(2, DataObjectDuplicateTestClass1::get()->Count(),
+			'Only creates a single duplicate'
+		);
+	}
+
 	public function testDuplicateManyManyClasses() {
 		//create new test classes below
 		$one = new DataObjectDuplicateTestClass1();
@@ -74,26 +94,26 @@ class DataObjectDuplicationTest extends SapphireTest {
 
 class DataObjectDuplicateTestClass1 extends DataObject implements TestOnly {
 
-	static $db = array(
+	private static $db = array(
 		'text' => 'Varchar'
 	);
 
-	static $has_many = array(
+	private static $has_many = array(
 		'twos' => 'DataObjectDuplicateTestClass2'
 	);
 
-	static $many_many = array(
+	private static $many_many = array(
 		'threes' => 'DataObjectDuplicateTestClass3'
 	);
 }
 
 class DataObjectDuplicateTestClass2 extends DataObject implements TestOnly {
 
-	static $db = array(
+	private static $db = array(
 		'text' => 'Varchar'
 	);
 
-	static $has_one = array(
+	private static $has_one = array(
 		'one' => 'DataObjectDuplicateTestClass1'
 	);
 
@@ -101,11 +121,11 @@ class DataObjectDuplicateTestClass2 extends DataObject implements TestOnly {
 
 class DataObjectDuplicateTestClass3 extends DataObject implements TestOnly {
 
-	static $db = array(
+	private static $db = array(
 		'text' => 'Varchar'
 	);
 
-	static $belongs_many_many = array(
+	private static $belongs_many_many = array(
 		'ones' => 'DataObjectDuplicateTestClass1'
 	);
 }

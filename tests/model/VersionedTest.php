@@ -1,11 +1,17 @@
 <?php
 
+/**
+ * @package framework
+ * @subpackage tests
+ */
 class VersionedTest extends SapphireTest {
-	static $fixture_file = 'VersionedTest.yml';
+	
+	protected static $fixture_file = 'VersionedTest.yml';
 
 	protected $extraDataObjects = array(
 		'VersionedTest_DataObject',
-		'VersionedTest_Subclass'
+		'VersionedTest_Subclass',
+		'VersionedTest_RelatedWithoutVersion'
 	);
 	
 	protected $requiredExtensions = array(
@@ -74,8 +80,18 @@ class VersionedTest extends SapphireTest {
 	 * Test Versioned::get_including_deleted()
 	 */
 	public function testGetIncludingDeleted() {
-		// Delete a page
-		$this->objFromFixture('VersionedTest_DataObject', 'page3')->delete();
+		// Get all ids of pages
+		$allPageIDs = DataObject::get(
+			'VersionedTest_DataObject', 
+			"\"ParentID\" = 0", "\"VersionedTest_DataObject\".\"ID\" ASC"
+		)->column('ID');
+		
+		// Modify a page, ensuring that the Version ID and Record ID will differ,
+		// and then subsequently delete it
+		$targetPage = $this->objFromFixture('VersionedTest_DataObject', 'page3');
+		$targetPage->Content = 'To be deleted';
+		$targetPage->write();
+		$targetPage->delete();
 	
 		// Get all items, ignoring deleted
 		$remainingPages = DataObject::get("VersionedTest_DataObject", "\"ParentID\" = 0",
@@ -90,12 +106,17 @@ class VersionedTest extends SapphireTest {
 		// Check that page 3 is still there
 		$this->assertEquals(array("Page 1", "Page 2", "Page 3"), $allPages->column('Title'));
 		
+		// Check that the returned pages have the correct IDs
+		$this->assertEquals($allPageIDs, $allPages->column('ID'));
+		
 		// Check that this still works if we switch to reading the other stage
 		Versioned::reading_stage("Live");
 		$allPages = Versioned::get_including_deleted("VersionedTest_DataObject", "\"ParentID\" = 0",
 			"\"VersionedTest_DataObject\".\"ID\" ASC");
 		$this->assertEquals(array("Page 1", "Page 2", "Page 3"), $allPages->column('Title'));
 		
+		// Check that the returned pages still have the correct IDs
+		$this->assertEquals($allPageIDs, $allPages->column('ID'));
 	}
 	
 	public function testVersionedFieldsAdded() {
@@ -106,6 +127,13 @@ class VersionedTest extends SapphireTest {
 		$obj2 = new VersionedTest_Subclass();
 		// Check that the Version column is added as a full-fledged column
 		$this->assertInstanceOf('Int', $obj2->dbObject('Version'));
+	}
+
+	public function testVersionedFieldsNotInCMS() {
+		$obj = new VersionedTest_DataObject();
+
+		// the version field in cms causes issues with Versioned::augmentWrite()
+		$this->assertNull($obj->getCMSFields()->dataFieldByName('Version'));
 	}
 
 	public function testPublishCreateNewVersion() {
@@ -254,12 +282,12 @@ class VersionedTest extends SapphireTest {
 	 * Test that SQLQuery::queriedTables() applies the version-suffixes properly.
 	 */
 	public function testQueriedTables() {
-	    Versioned::reading_stage('Live');
+		Versioned::reading_stage('Live');
 
-	    $this->assertEquals(array(
-	        'VersionedTest_DataObject_Live',
-	        'VersionedTest_Subclass_Live',
-	    ), DataObject::get('VersionedTest_Subclass')->dataQuery()->query()->queriedTables());
+		$this->assertEquals(array(
+			'VersionedTest_DataObject_Live',
+			'VersionedTest_Subclass_Live',
+		), DataObject::get('VersionedTest_Subclass')->dataQuery()->query()->queriedTables());
 	}
 	
 	public function testGetVersionWhenClassnameChanged() {
@@ -392,37 +420,100 @@ class VersionedTest extends SapphireTest {
 			'Additional version fields returned');
 		$this->assertEquals($extraFields, array('2005', '2007', '2009'), 'Additional version fields returned');
 	}
+
+	public function testArchiveRelatedDataWithoutVersioned() {
+		SS_Datetime::set_mock_now('2009-01-01 00:00:00');
+
+		$relatedData = new VersionedTest_RelatedWithoutVersion();
+		$relatedData->Name = 'Related Data';
+		$relatedDataId = $relatedData->write();
+
+		$testData = new VersionedTest_DataObject();
+		$testData->Title = 'Test';
+		$testData->Content = 'Before Content';
+		$testData->Related()->add($relatedData);
+		$id = $testData->write();
+
+		SS_Datetime::set_mock_now('2010-01-01 00:00:00');
+		$testData->Content = 'After Content';
+		$testData->write();
+
+		$_GET['archiveDate'] = '2009-01-01 19:00:00';
+		Versioned::reading_archived_date('2009-01-01 19:00:00');
+
+		$fetchedData = VersionedTest_DataObject::get()->byId($id);
+		$this->assertEquals('Before Content', $fetchedData->Content, 'We see the correct content of the older version');
+
+		$relatedData = VersionedTest_RelatedWithoutVersion::get()->byId($relatedDataId);
+		$this->assertEquals(
+			1,
+			$relatedData->Related()->count(),
+			'We have a relation, with no version table, querying it still works'
+		);
+	}
+
 }
 
+
+/**
+ * @package framework
+ * @subpackage tests
+ */
 class VersionedTest_DataObject extends DataObject implements TestOnly {
-	static $db = array(
+	private static $db = array(
 		"Name" => "Varchar",
 		'Title' => 'Varchar',
 		'Content' => 'HTMLText'
 	);
 
-	static $extensions = array(
+	private static $extensions = array(
 		"Versioned('Stage', 'Live')"
 	);
 	
-	static $has_one = array(
+	private static $has_one = array(
 		'Parent' => 'VersionedTest_DataObject'
 	);
+
+	private static $many_many = array(
+		'Related' => 'VersionedTest_RelatedWithoutVersion'
+	);
+
 }
 
+/**
+ * @package framework
+ * @subpackage tests
+ */
+class VersionedTest_RelatedWithoutVersion extends DataObject implements TestOnly {
+
+	private static $db = array(
+		'Name' => 'Varchar'
+	);
+
+	private static $belongs_many_many = array(
+		'Related' => 'VersionedTest_DataObject'
+	);
+
+}
+
+/**
+ * @package framework
+ * @subpackage tests
+ */
 class VersionedTest_Subclass extends VersionedTest_DataObject implements TestOnly {
-	static $db = array(
+	private static $db = array(
 		"ExtraField" => "Varchar",
 	);
 	
-	static $extensions = array(
+	private static $extensions = array(
 		"Versioned('Stage', 'Live')"
 	);
 }
 
 /**
- * @ignore
+ * @package framework
+ * @subpackage tests
  */
 class VersionedTest_UnversionedWithField extends DataObject implements TestOnly {
-	public static $db = array('Version' => 'Varchar(255)');
+	private static $db = array('Version' => 'Varchar(255)');
 }

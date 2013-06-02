@@ -79,7 +79,7 @@ Let's create the *ArticleHolder* page type.
 	:::php
 	<?php
 	class ArticleHolder extends Page {
-		static $allowed_children = array('ArticlePage');
+		private static $allowed_children = array('ArticlePage');
 	}
 	class ArticleHolder_Controller extends Page_Controller {
 	}
@@ -107,7 +107,7 @@ it. Add a *$db* property definition in the *ArticlePage* class:
 	:::php
 	<?php
 	class ArticlePage extends Page {
-		static $db = array(
+		private static $db = array(
 			'Date' => 'Date',
 			'Author' => 'Text'
 		);
@@ -201,9 +201,9 @@ the date field will have the date format defined by your locale.
 		$fields = parent::getCMSFields();
 		
 		$fields->addFieldToTab('Root.Main', $dateField = new DateField('Date','Article Date (for example: 20/12/2010)'), 'Content');
-        $dateField->setConfig('showcalendar', true);
-        $fields->addFieldToTab('Root.Main', $dateField, 'Content');
-        $fields->addFieldToTab('Root.Main', new TextField('Author'), 'Content');
+		$dateField->setConfig('showcalendar', true);
+		$fields->addFieldToTab('Root.Main', $dateField, 'Content');
+		$fields->addFieldToTab('Root.Main', new TextField('Author'), 'Content');
 
 		return $fields;
 	}
@@ -245,7 +245,8 @@ First, the template for displaying a single article:
 
 
 	:::ss
-	<div class="content-container"> 
+	<% include SideBar %>
+	<div class="content-container unit size3of4 lastUnit">
 		<article>
 			<h1>$Title</h1>
 			<div class="news-details">
@@ -255,7 +256,6 @@ First, the template for displaying a single article:
 		</article>
 			$Form
 	</div>
-	<% include SideBar %>
 
 
 Most of the code is just like the regular Page.ss, we include an informational div with the date and the author of the Article.
@@ -278,13 +278,14 @@ We'll now create a template for the article holder. We want our news section to 
 **themes/simple/templates/Layout/ArticleHolder.ss**
 
 	:::ss
-	<div class="content-container">     
+	<% include SideBar %>
+	<div class="content-container unit size3of4 lastUnit">  
 		<article>
 			<h1>$Title</h1>
 			$Content        
 			<div class="content">$Content</div>
 		</article>
-		<% loop Children %>
+		<% loop $Children %>
 			<article>
 				<h2><a href="$Link" title="Read more on &quot;{$Title}&quot;">$Title</a></h2>
 				<p>$Content.FirstParagraph</p>
@@ -293,7 +294,6 @@ We'll now create a template for the article holder. We want our news section to 
 		<% end_loop %>
 			$Form
 	</div>
-	<% include SideBar %>
 
 
 Here we use the page control *Children*. As the name suggests, this control allows you to iterate over the children of a page. In this case, the children are our news articles. The *$Link* variable will give the address of the article which we can use to create a link, and the *FirstParagraph* function of the `[api:HTMLText]` field gives us a nice summary of the article. The function strips all tags from the paragraph extracted.
@@ -313,7 +313,7 @@ Cut the code between "loop Children" in *ArticleHolder.ss** and replace it with 
 
 	:::ss
 	...
-	<% loop Children %>
+	<% loop $Children %>
 		<% include ArticleTeaser %>
 	<% end_loop %>
 	...
@@ -335,13 +335,13 @@ Let's now make a purely cosmetic change that nevertheless helps to make the info
 Add the following field to the *ArticleHolder* and *ArticlePage* classes:
 
 	:::php
-	static $icon = "framework/docs/en/tutorials/_images/treeicons/news-file.gif";
+	private static $icon = "framework/docs/en/tutorials/_images/treeicons/news-file.gif";
 
 
 And this one to the *HomePage* class:
 
 	:::php
-	static $icon = "framework/docs/en/tutorials/_images/treeicons/home-file.gif";
+	private static $icon = "framework/docs/en/tutorials/_images/treeicons/home-file.gif";
 
 
 This will change the icons for the pages in the CMS.  
@@ -370,7 +370,7 @@ This function simply runs a database query that gets the latest news articles fr
 	<!-- ... -->
 	<div class="content">$Content</div>
 	</article>
-	<% loop LatestNews %>
+	<% loop $LatestNews %>
 		<% include ArticleTeaser %>
 	<% end_loop %>
 
@@ -422,12 +422,9 @@ Now that we have a complete news section, let's take a look at the staff section
 	<?php
 	
 	class StaffHolder extends Page {
-		static $db = array(
-		);
-		static $has_one = array(
-		);
-		
-		static $allowed_children = array('StaffPage');
+		private static $db = array();
+		private static $has_one = array();
+		private static $allowed_children = array('StaffPage');
 	}
 	
 	class StaffHolder_Controller extends Page_Controller {
@@ -442,9 +439,9 @@ Nothing here should be new. The *StaffPage* page type is more interesting though
 	:::php
 	<?php
 	class StaffPage extends Page {
-		static $db = array(
+		private static $db = array(
 		);
-		static $has_one = array(
+		private static $has_one = array(
 			'Photo' => 'Image'
 		);
 		
@@ -482,13 +479,14 @@ The staff section templates aren't too difficult to create, thanks to the utilit
 **themes/simple/templates/Layout/StaffHolder.ss**
 
 	:::ss
-	<div class="content-container">     
+	<% include SideBar %>
+	<div class="content-container unit size3of4 lastUnit">
 		<article>
 			<h1>$Title</h1>
 			$Content        
 			<div class="content">$Content</div>
 		</article>
-		<% loop Children %>
+		<% loop $Children %>
 			<article>
 				<h2><a href="$Link" title="Read more on &quot;{$Title}&quot;">$Title</a></h2>
 				$Photo.SetWidth(150)
@@ -498,7 +496,6 @@ The staff section templates aren't too difficult to create, thanks to the utilit
 		<% end_loop %>
 			$Form
 	</div>
-	<% include SideBar %>
 
 
 This template is very similar to the *ArticleHolder* template. The *SetWidth* method of the `[api:Image]` class
@@ -512,7 +509,8 @@ The *StaffPage* template is also very straight forward.
 **themes/simple/templates/Layout/StaffPage.ss**
 
 	:::ss
-	<div class="content-container"> 
+	<% include SideBar %>
+	<div class="content-container unit size3of4 lastUnit">
 		<article>
 			<h1>$Title</h1>
 			<div class="content">
@@ -521,7 +519,6 @@ The *StaffPage* template is also very straight forward.
 		</article>
 			$Form
 	</div>
-	<% include SideBar %>
 
 Here we use the *SetWidth* method to get a different sized image from the same source image. You should now have
 a complete staff section.

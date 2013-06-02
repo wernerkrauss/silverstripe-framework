@@ -1,10 +1,12 @@
 <?php
 class CMSProfileController extends LeftAndMain {
 
-	static $url_segment = 'myprofile';
-	static $menu_title = 'My Profile';
-	static $required_permission_codes = false;
-	static $tree_class = 'Member';
+	private static $url_segment = 'myprofile';
+
+	private static $menu_title = 'My Profile';
+
+	private static $required_permission_codes = false;
+	private static $tree_class = 'Member';
 
 	public function getResponseNegotiator() {
 		$neg = parent::getResponseNegotiator();
@@ -24,15 +26,15 @@ class CMSProfileController extends LeftAndMain {
 		$form->Fields()->push(new HiddenField('ID', null, Member::currentUserID()));
 		$form->Actions()->push(
 			FormAction::create('save',_t('CMSMain.SAVE', 'Save'))
- 				->addExtraClass('ss-ui-button ss-ui-action-constructive')
- 				->setAttribute('data-icon', 'accept')
- 				->setUseButtonTag(true)
- 		);
- 		$form->Actions()->removeByName('delete');
- 		$form->setValidator(new Member_Validator());
- 		$form->setTemplate('Form');
- 		$form->setAttribute('data-pjax-fragment', null);
- 		if($form->Fields()->hasTabset()) $form->Fields()->findOrMakeTab('Root')->setTemplate('CMSTabSet');
+				->addExtraClass('ss-ui-button ss-ui-action-constructive')
+				->setAttribute('data-icon', 'accept')
+				->setUseButtonTag(true)
+		);
+		$form->Actions()->removeByName('action_delete');
+		$form->setValidator(new Member_Validator());
+		$form->setTemplate('Form');
+		$form->setAttribute('data-pjax-fragment', null);
+		if($form->Fields()->hasTabset()) $form->Fields()->findOrMakeTab('Root')->setTemplate('CMSTabSet');
 		$form->addExtraClass('member-profile-form root-form cms-edit-form cms-panel-padded center');
 		
 		return $form;

@@ -61,20 +61,12 @@ class CompositeField extends FormField {
 	}
 
 	/**
-	 * Returns all the sub-fields, suitable for <% control FieldList %>
+	 * Returns all the sub-fields, suitable for <% loop FieldList %>
 	 *
 	 * @return FieldList
 	 */
 	public function FieldList() {
 		return $this->children;
-	}
-
-	/**
-	 * @deprecated 3.0 Please use {@link FieldList()}.
-	 */
-	public function FieldSet() {
-		Deprecation::notice('3.0', 'Use FieldList() instead.');
-		return $this->FieldList();
 	}
 
 	public function setID($id) {
@@ -171,8 +163,8 @@ class CompositeField extends FormField {
 						$formName = (isset($this->form)) ? $this->form->FormName() : '(unknown form)';
 						if(isset($list[$name])) {
 							user_error("collateDataFields() I noticed that a field called '$name' appears twice in"
-								 . " your form: '{$formName}'.  One is a '{$field->class}' and the other is a"
-								 . " '{$list[$name]->class}'", E_USER_ERROR);
+								. " your form: '{$formName}'.  One is a '{$field->class}' and the other is a"
+								. " '{$list[$name]->class}'", E_USER_ERROR);
 						}
 						$list[$name] = $field;
 					}
@@ -273,6 +265,8 @@ class CompositeField extends FormField {
 
 		$clone->children = $newChildren;
 		$clone->readonly = true;
+		$clone->addExtraClass($this->extraClass());
+		$clone->setDescription($this->getDescription());
 
 		return $clone;
 	}
@@ -293,6 +287,11 @@ class CompositeField extends FormField {
 
 		$clone->children = $newChildren;
 		$clone->readonly = true;
+		$clone->addExtraClass($this->extraClass());
+		$clone->setDescription($this->getDescription());
+		foreach($this->attributes as $k => $v) {
+			$clone->setAttribute($k, $v);
+		}
 
 		return $clone;
 	}

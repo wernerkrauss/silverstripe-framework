@@ -13,7 +13,7 @@ class RSSFeed extends ViewableData {
 	 * Casting information for this object's methods.
 	 * Let's us use $Title.XML in templates
 	 */
-	public static $casting = array(
+	private static $casting = array(
 		"Title" => "Varchar",
 		"Description" => "Varchar",
 	);
@@ -106,9 +106,9 @@ class RSSFeed extends ViewableData {
 	 *                         every time the representation does
 	 */
 	public function __construct(SS_List $entries, $link, $title,
-											 $description = null, $titleField = "Title",
-											 $descriptionField = "Content", $authorField = null,
-											 $lastModified = null, $etag = null) {
+											$description = null, $titleField = "Title",
+											$descriptionField = "Content", $authorField = null,
+											$lastModified = null, $etag = null) {
 		$this->entries = $entries;
 		$this->link = $link;
 		$this->description = $description;
@@ -186,12 +186,14 @@ class RSSFeed extends ViewableData {
 	 * Output the feed to the browser
 	 */
 	public function outputToBrowser() {
-		$prevState = SSViewer::get_source_file_comments();
-		SSViewer::set_source_file_comments(false);
+		$prevState = Config::inst()->get('SSViewer', 'source_file_comments');
+		Config::inst()->update('SSViewer', 'source_file_comments', false);
+
+		$response = Controller::curr()->getResponse();
 
 		if(is_int($this->lastModified)) {
 			HTTP::register_modification_timestamp($this->lastModified);
-			header('Last-Modified: ' . gmdate("D, d M Y H:i:s", $this->lastModified) . ' GMT');
+			$response->addHeader("Last-Modified", gmdate("D, d M Y H:i:s", $this->lastModified) . ' GMT');
 		}
 		if(!empty($this->etag)) {
 			HTTP::register_etag($this->etag);
@@ -199,10 +201,10 @@ class RSSFeed extends ViewableData {
 
 		if(!headers_sent()) {
 			HTTP::add_cache_headers();
-			header("Content-type: text/xml");
+			$response->addHeader("Content-Type", "application/rss+xml");
 		}
 
-		SSViewer::set_source_file_comments($prevState);
+		Config::inst()->update('SSViewer', 'source_file_comments', $prevState);
 
 		return $this->renderWith($this->getTemplate());
 	}
@@ -269,7 +271,7 @@ class RSSFeed_Entry extends ViewableData {
 	 * Create a new RSSFeed entry.
 	 */
 	public function __construct($entry, $titleField, $descriptionField,
-											 $authorField) {
+											$authorField) {
 		$this->failover = $entry;
 		$this->titleField = $titleField;
 		$this->descriptionField = $descriptionField;
@@ -293,7 +295,7 @@ class RSSFeed_Entry extends ViewableData {
 	 * @return string Returns the description of the entry.
 	 */
 	public function Description() {
-		return $this->rssField($this->descriptionField, 'Text');
+		return $this->rssField($this->descriptionField, 'HTMLText');
 	}
 
 	/**

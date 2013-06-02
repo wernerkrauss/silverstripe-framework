@@ -8,14 +8,14 @@
  * 
  * <code>
  *   public function testMyForm() {
- *     // Visit a URL
- *     $this->get("your/url");
+ *   // Visit a URL
+ *   $this->get("your/url");
  * 
- *     // Submit a form on the page that you get in response
- *     $this->submitForm("MyForm_ID",  array("Email" => "invalid email ^&*&^"));
+ *   // Submit a form on the page that you get in response
+ *   $this->submitForm("MyForm_ID",  array("Email" => "invalid email ^&*&^"));
  *
- *     // Validate the content that is returned
- *     $this->assertExactMatchBySelector("#MyForm_ID p.error", array("That email address is invalid."));
+ *   // Validate the content that is returned
+ *   $this->assertExactMatchBySelector("#MyForm_ID p.error", array("That email address is invalid."));
  *  }	
  * </code>
  * 
@@ -28,12 +28,12 @@ class FunctionalTest extends SapphireTest {
 	 * This can be handy for functional testing of modules without having to worry about whether a user has changed
 	 * behaviour by replacing the theme.
 	 */
-	static $disable_themes = false;
+	protected static $disable_themes = false;
 	
 	/**
 	 * Set this to true on your sub-class to use the draft site by default for every test in this class.
 	 */
-	static $use_draft_site = false;
+	protected static $use_draft_site = false;
 	
 	protected $mainSession = null;
 	
@@ -64,16 +64,16 @@ class FunctionalTest extends SapphireTest {
 		$this->mainSession = new TestSession();
 
 		// Disable theme, if necessary
-		if($this->stat('disable_themes')) SSViewer::set_theme(null);
+		if(static::get_disable_themes()) Config::inst()->update('SSViewer', 'theme', null);
 		
 		// Switch to draft site, if necessary
-		if($this->stat('use_draft_site')) {
+		if(static::get_use_draft_site()) {
 			$this->useDraftSite();
 		}
-        
-        // Unprotect the site, tests are running with the assumption it's off. They will enable it on a case-by-case
-        // basis.
-        BasicAuth::protect_entire_site(false);
+		
+		// Unprotect the site, tests are running with the assumption it's off. They will enable it on a case-by-case
+		// basis.
+		BasicAuth::protect_entire_site(false);
 		
 		SecurityToken::disable();
 	}
@@ -191,14 +191,13 @@ class FunctionalTest extends SapphireTest {
 		if($items) foreach($items as $item) $actuals[trim(preg_replace("/[ \n\r\t]+/", " ", $item. ''))] = true;
 		
 		foreach($expectedMatches as $match) {
-			if(!isset($actuals[$match])) {
-				throw new PHPUnit_Framework_AssertionFailedError(
-		            "Failed asserting the CSS selector '$selector' has a partial match to the expected elements:\n'"
-		            	. implode("'\n'", $expectedMatches) . "'\n\n" 
-						. "Instead the following elements were found:\n'" . implode("'\n'", array_keys($actuals)) . "'"
-		        );
-				return false;
-			}
+			$this->assertTrue(
+				isset($actuals[$match]),
+		"Failed asserting the CSS selector '$selector' has a partial match to the expected elements:\n'"
+			. implode("'\n'", $expectedMatches) . "'\n\n" 
+					. "Instead the following elements were found:\n'" . implode("'\n'", array_keys($actuals)) . "'"
+			);
+			return false;
 		}
 		
 		return true;
@@ -224,14 +223,12 @@ class FunctionalTest extends SapphireTest {
 		$actuals = array();
 		if($items) foreach($items as $item) $actuals[] = trim(preg_replace("/[ \n\r\t]+/", " ", $item. ''));
 		
-		if($expectedMatches != $actuals) {
-			throw new PHPUnit_Framework_AssertionFailedError(
-	            "Failed asserting the CSS selector '$selector' has an exact match to the expected elements:\n'"
-	            	. implode("'\n'", $expectedMatches) . "'\n\n" 
-					. "Instead the following elements were found:\n'" . implode("'\n'", $actuals) . "'"
-	        );
-			return false;
-		}
+		$this->assertTrue(
+			$expectedMatches == $actuals,
+				"Failed asserting the CSS selector '$selector' has an exact match to the expected elements:\n'"
+				. implode("'\n'", $expectedMatches) . "'\n\n" 
+				. "Instead the following elements were found:\n'" . implode("'\n'", $actuals) . "'"
+		);
 		
 		return true;
 	}
@@ -257,14 +254,12 @@ class FunctionalTest extends SapphireTest {
 		if($items) foreach($items as $item) $actuals[$item->asXML()] = true;
 		
 		foreach($expectedMatches as $match) {
-			if(!isset($actuals[$match])) {
-				throw new PHPUnit_Framework_AssertionFailedError(
-		            "Failed asserting the CSS selector '$selector' has a partial match to the expected elements:\n'"
-		            	. implode("'\n'", $expectedMatches) . "'\n\n" 
-						. "Instead the following elements were found:\n'" . implode("'\n'", array_keys($actuals)) . "'"
-		        );
-				return false;
-			}
+			$this->assertTrue(
+				isset($actuals[$match]),
+				"Failed asserting the CSS selector '$selector' has a partial match to the expected elements:\n'"
+				. implode("'\n'", $expectedMatches) . "'\n\n" 
+				. "Instead the following elements were found:\n'" . implode("'\n'", array_keys($actuals)) . "'"
+			);
 		}
 		
 		return true;
@@ -288,13 +283,12 @@ class FunctionalTest extends SapphireTest {
 		$actuals = array();
 		if($items) foreach($items as $item) $actuals[] = $item->asXML();
 		
-		if($expectedMatches != $actuals) {
-			throw new PHPUnit_Framework_AssertionFailedError(
-	            "Failed asserting the CSS selector '$selector' has an exact match to the expected elements:\n'"
-	            	. implode("'\n'", $expectedMatches) . "'\n\n" 
-					. "Instead the following elements were found:\n'" . implode("'\n'", $actuals) . "'"
-	        );
-		}
+		$this->assertTrue(
+			$expectedMatches == $actuals,
+			"Failed asserting the CSS selector '$selector' has an exact match to the expected elements:\n'"
+			. implode("'\n'", $expectedMatches) . "'\n\n" 
+			. "Instead the following elements were found:\n'" . implode("'\n'", $actuals) . "'"
+		);
 	}
 	
 	/**
@@ -329,10 +323,22 @@ class FunctionalTest extends SapphireTest {
 
 	/**
 	 * Return a static variable from this class.
-	 * Gets around PHP's lack of late static binding.
 	 */
 	public function stat($varName) {
-		$className = get_class($this);
-		return eval("return {$className}::\$$varName;");
+		return static::$varName;
+	}
+
+	/**
+	 * @return Boolean
+	 */
+	public static function get_disable_themes() {
+		return static::$disable_themes;
+	}
+
+	/**
+	 * @return Boolean
+	 */
+	public static function get_use_draft_site() {
+		return static::$use_draft_site;
 	}
 }

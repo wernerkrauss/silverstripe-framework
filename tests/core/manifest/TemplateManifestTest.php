@@ -15,8 +15,8 @@ class TemplateManifestTest extends SapphireTest {
 		parent::setUp();
 
 		$this->base = dirname(__FILE__) . '/fixtures/templatemanifest';
-		$this->manifest      = new SS_TemplateManifest($this->base);
-		$this->manifestTests = new SS_TemplateManifest($this->base, true);
+		$this->manifest      = new SS_TemplateManifest($this->base, 'myproject');
+		$this->manifestTests = new SS_TemplateManifest($this->base, 'myproject', true);
 
 		$this->manifest->regenerate(false);
 		$this->manifestTests->regenerate(false);
@@ -38,8 +38,21 @@ class TemplateManifestTest extends SapphireTest {
 			'custompage' => array(
 				'Layout' => "{$this->base}/module/templates/Layout/CustomPage.ss"
 			),
+			'customtemplate' => array(
+				'main' => "{$this->base}/module/templates/CustomTemplate.ss",
+				'myproject' => array(
+					'main' => "{$this->base}/myproject/templates/CustomTemplate.ss"
+				)
+			),
 			'subfolder' => array(
 				'main' => "{$this->base}/module/subfolder/templates/Subfolder.ss"
+			),
+			'customthemepage' => array (
+			  'Layout' => "{$this->base}/module/templates/Layout/CustomThemePage.ss",
+			  'themes' =>
+			  array(
+			    'theme' => array('main' => "{$this->base}/themes/theme/templates/CustomThemePage.ss",)
+			  )
 			),
 			'include' => array('themes' => array(
 				'theme' => array(
@@ -60,7 +73,7 @@ class TemplateManifestTest extends SapphireTest {
 		ksort($expectTests);
 		ksort($manifest);
 		ksort($manifestTests);
-
+		
 		$this->assertEquals(
 			$expect, $manifest,
 			'All templates are correctly loaded in the manifest.'
@@ -93,6 +106,12 @@ class TemplateManifestTest extends SapphireTest {
 
 		$this->assertEquals(array(), $this->manifest->getTemplate('Test'));
 		$this->assertEquals($expectTests, $this->manifestTests->getTemplate('Test'));
+
+		$this->assertEquals(array(
+			'main' => "{$this->base}/module/templates/CustomTemplate.ss",
+			'myproject' => array(
+				'main' => "{$this->base}/myproject/templates/CustomTemplate.ss"		
+		)), $this->manifestTests->getTemplate('CustomTemplate'));
 	}
 
 }

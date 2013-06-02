@@ -9,7 +9,7 @@ It uses the framework's knowledge about the model to provide sensible defaults,
 allowing you to get started in a couple of lines of code,
 while still providing a solid base for customization.
 
-The interface is mainly powered by the `[GridField](/topics/grid-field)` class,
+The interface is mainly powered by the `[GridField](/reference/grid-field)` class,
 which can also be used in other CMS areas (e.g. to manage a relation on a `SiteTree`
 record in the standard CMS interface).
 
@@ -20,12 +20,12 @@ A product can have a name, price, and a category.
 
 	:::php
 	class Product extends DataObject {
-	   static $db = array('Name' => 'Varchar', 'ProductCode' => 'Varchar', 'Price' => 'Currency');
-	   static $has_one = array('Category' => 'Category');
+	   private static $db = array('Name' => 'Varchar', 'ProductCode' => 'Varchar', 'Price' => 'Currency');
+	   private static $has_one = array('Category' => 'Category');
 	}
 	class Category extends DataObject {
-	   static $db = array('Title' => 'Text');
-	   static $has_many = array('Products' => 'Product');
+	   private static $db = array('Title' => 'Text');
+	   private static $has_many = array('Products' => 'Product');
 	}
 
 To create your own `ModelAdmin`, simply extend the base class,
@@ -36,13 +36,41 @@ We'll name it `MyAdmin`, but the class name can be anything you want.
 
 	:::php
 	class MyAdmin extends ModelAdmin {
-	  public static $managed_models = array('Product','Category'); // Can manage multiple models
-	  static $url_segment = 'products'; // Linked as /admin/products/
-	  static $menu_title = 'My Product Admin';
+	  private static $managed_models = array('Product','Category'); // Can manage multiple models
+	  private static $url_segment = 'products'; // Linked as /admin/products/
+	  private $menu_title = 'My Product Admin';
 	}
 
 This will automatically add a new menu entry to the CMS, and you're ready to go!
 Try opening http://localhost/admin/products/?flush=all.
+
+## Permissions
+
+Each new `ModelAdmin` subclass creates its own [permission code](/reference/permission),
+for the example above this would be `CMS_ACCESS_MyAdmin`. Users with access to the CMS
+need to have this permission assigned through `admin/security/` in order to gain
+access to the controller (unless they're admins).
+
+The `DataObject` API has more granular permission control, which is enforced in ModelAdmin by default. 
+Available checks are `canEdit()`, `canCreate()`, `canView()` and `canDelete()`.
+Models check for administrator permissions by default. For most cases,
+less restrictive checks make sense, e.g. checking for general CMS access rights.
+
+	:::php
+	class Category extends DataObject {
+	  // ...
+		public function canView($member = null) {
+			return Permission::check('CMS_ACCESS_CMSMain', 'any', $member);
+		}
+		public function canEdit($member = null) {
+			return Permission::check('CMS_ACCESS_CMSMain', 'any', $member);
+		}
+		public function canDelete($member = null) {
+			return Permission::check('CMS_ACCESS_CMSMain', 'any', $member);
+		}
+		public function canCreate($member = null) {
+			return Permission::check('CMS_ACCESS_CMSMain', 'any', $member);
+		}
 
 ## Search Fields
 
@@ -57,7 +85,7 @@ static on your model class (see `[SearchContext](/reference/searchcontext)` docs
 	:::php
 	class Product extends DataObject {
 	   // ...
-	   static $searchable_fields = array(
+	   private static $searchable_fields = array(
 	      'Name',
 	      'ProductCode'
 	      // leaves out the 'Price' field, removing it from the search
@@ -69,17 +97,20 @@ for the search form, override `[api:DataObject->getCustomSearchContext()]` on yo
 
 ## Result Columns
 
-The results are shown in a tabular listing, powered by the `[GridField](/topics/grid-field)`,
+The results are shown in a tabular listing, powered by the `[GridField](/reference/grid-field)`,
 more specifically the `[api:GridFieldDataColumns]` component.
 It looks for a `[api:DataObject::$summary_fields]` static on your model class,
-where you can add or remove columns, or change their title.
+where you can add or remove columns. To change the title, use `[api:DataObject::$field_labels]`.
 
 	:::php
 	class Product extends DataObject {
 	   // ...
-	   static $summary_fields = array(
-	      'Name' => 'Name',
-	      'Price' => 'Cost', // renames the column to "Cost"
+	   private static $field_labels = array(
+	      'Price' => 'Cost' // renames the column to "Cost"
+	   );
+	   private static $summary_fields = array(
+	      'Name',
+	      'Price',
 	      // leaves out the 'ProductCode' field, removing the column
 	   );
 	}
@@ -130,15 +161,32 @@ For example, we might want to have a checkbox which limits search results to exp
 		}
 	}
 
+To alter how the results are displayed (via `[api:GridField]`), you can also overload the `getEditForm()` method. For example, to add a new component.
+
+	:::php
+	class MyAdmin extends ModelAdmin {
+		// ...
+		public function getEditForm($id = null, $fields = null) {
+			$form = parent::getEditForm($id, $fields);
+			$gridField = $form->Fields()->fieldByName($this->sanitiseClassName($this->modelClass));
+			$gridField->getConfig()->addComponent(new GridFieldFilterHeader());
+			return $form;
+		}
+	}
+
 ## Managing Relationships
 
 Has-one relationships are simply implemented as a `[api:DropdownField]` by default.
 Consider replacing it with a more powerful interface in case you have many records
 (through customizing `[api:DataObject->getCMSFields]`).
 
-Has-many and many-many relationships are usually handled via the `[GridField](/topics/grid-field)` class,
+Has-many and many-many relationships are usually handled via the `[GridField](/reference/grid-field)` class,
 more specifically the `[api:GridFieldAddExistingAutocompleter]` and `[api:GridFieldRelationDelete]` components.
 They provide a list/detail interface within a single record edited in your ModelAdmin.
+The `[GridField](/reference/grid-field)` docs also explain how to manage 
+extra relation fields on join tables through its detail forms.
+The autocompleter can also search attributes on relations,
+based on the search fields defined through `[api:DataObject::searchableFields()]`.
 
 ## Permissions
 
@@ -197,8 +245,12 @@ also another tool at your disposal: The `[api:Extension]` API.
 		}
 	}
 
-	// mysite/_config.php
-	Object::add_extension('MyAdmin', 'MyAdminExtension');
+Now enable this extension through your `[config.yml](/topics/configuration)` file.
+
+	:::yml
+	MyAdmin:
+	  extensions:
+	    - MyAdminExtension
 
 The following extension points are available: `updateEditForm()`, `updateSearchContext()`,
 `updateSearchForm()`, `updateList()`, `updateImportForm`.
@@ -217,8 +269,8 @@ For an introduction how to customize the CMS templates, see our [CMS Architectur
 
 ## Related
 
-* [/topics/grid-field](GridField): The UI component powering ModelAdmin
-* [/tutorials/5-dataobject-relationship-management](Tutorial 5: Dataobject Relationship Management)
+* [GridField](../reference/grid-field): The UI component powering ModelAdmin
+* [Tutorial 5: Dataobject Relationship Management](../tutorials/5-dataobject-relationship-management)
 *  `[api:SearchContext]`
 * [genericviews Module](http://silverstripe.org/generic-views-module)
 * [Presentation about ModelAdmin at SupperHappyDevHouse Wellington](http://www.slideshare.net/chillu/modeladmin-in-silverstripe-23)

@@ -26,8 +26,8 @@ Append the option and corresponding value to your URL in your browser's address 
 
  | URL Variable  | | Values | | Description                                                | 
  | ------------  | | ------ | | -----------                                                | 
- | isDev         | | 1      | | Put the site into [development mode](/topics/debugging), enabling debugging messages to the browser on a live server.  For security, you'll be asked to log in with an administrator log-in | 
- | isTest        | | 1      | | Put the site into [test mode](/topics/debugging), enabling debugging messages to the admin email and generic errors to the browser on a live server                                         | 
+ | isDev         | | 1      | | Put the site into [development mode](/topics/debugging), enabling debugging messages to the browser on a live server.  For security, you'll be asked to log in with an administrator log-in. Will persist for the current browser session. | 
+ | isTest        | | 1      | | See above. | 
  | debug         | | 1      | | Show a collection of debugging information about the director / controller operation        |
  | debug_request | | 1      | | Show all steps of the request from initial `[api:HTTPRequest]` to `[api:Controller]` to Template Rendering  | 
 
@@ -59,8 +59,7 @@ Redirections](security#redirect_back_to_another_page_after_login) for more infor
  | Site URL                                         | | Action                                                            | 
  | --------                                         | | ------                                                            | 
  | http://yoursite.com**/dev/build**                | | Rebuild the entire database and manifest, see below for additional URL Variables                                      | 
- | http://yoursite.com**/admin/publishall/**        | | Publish all pages on the site                                     | 
- | http://yoursite.com**/anypage/images/flush**     | | Creates new images for the page by deleting the resized ones and going back to the original to create new resized one | 
+ | http://yoursite.com**/admin/pages/publishall/**        | | Publish all pages on the site
 
 ###  /dev/build
 

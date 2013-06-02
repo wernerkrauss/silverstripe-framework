@@ -1,14 +1,20 @@
 <?php
 
 /**
- * Provides view and edit forms at GridField-specific URLs.  
+ * Provides view and edit forms at GridField-specific URLs. 
+ *
  * These can be placed into pop-ups by an appropriate front-end.
- * Usually added to a grid field alongside of {@link GridFieldEditButton}
- * which takes care of linking the individual rows to their edit view.
+ *
+ * Usually added to a {@link GridField} alongside of a
+ * {@link GridFieldEditButton} which takes care of linking the 
+ * individual rows to their edit view.
  * 
  * The URLs provided will be off the following form:
  *  - <FormURL>/field/<GridFieldName>/item/<RecordID>
  *  - <FormURL>/field/<GridFieldName>/item/<RecordID>/edit
+ *
+ * @package framework
+ * @subpackage fields-gridfield
  */
 class GridFieldDetailForm implements GridField_URLHandler {
 
@@ -27,6 +33,11 @@ class GridFieldDetailForm implements GridField_URLHandler {
 	 * @var Validator The form validator used for both add and edit fields.
 	 */
 	protected $validator;
+
+	/**
+	 * @var FieldList Falls back to {@link DataObject->getCMSFields()} if not defined.
+	 */
+	protected $fields;
 
 	/**
 	 * @var String
@@ -128,6 +139,21 @@ class GridFieldDetailForm implements GridField_URLHandler {
 	}
 
 	/**
+	 * @param FieldList $fields
+	 */
+	public function setFields(FieldList $fields) {
+		$this->fields = $fields;
+		return $this;
+	}
+
+	/**
+	 * @return FieldList
+	 */
+	public function getFields() {
+		return $this->fields;
+	}
+
+	/**
 	 * @param String
 	 */
 	public function setItemRequestClass($class) {
@@ -163,6 +189,10 @@ class GridFieldDetailForm implements GridField_URLHandler {
 	}
 }
 
+/**
+ * @package framework
+ * @subpackage fields-gridfield
+ */
 class GridFieldDetailForm_ItemRequest extends RequestHandler {
 	
 	/**
@@ -200,7 +230,7 @@ class GridFieldDetailForm_ItemRequest extends RequestHandler {
 	 */
 	protected $template = 'GridFieldItemEditView';
 
-	static $url_handlers = array(
+	private static $url_handlers = array(
 		'$Action!' => '$Action',
 		'' => 'edit',
 	);
@@ -281,6 +311,8 @@ class GridFieldDetailForm_ItemRequest extends RequestHandler {
 	 * @return Form 
 	 */
 	public function ItemEditForm() {
+		$list = $this->gridField->getList();
+
 		if (empty($this->record)) {
 			$controller = Controller::curr();
 			$noActionURL = $controller->removeAction($_REQUEST['url']);
@@ -288,15 +320,31 @@ class GridFieldDetailForm_ItemRequest extends RequestHandler {
 			return $controller->redirect($noActionURL, 302);
 		}
 
+		$canView = $this->record->canView();
+		$canEdit = $this->record->canEdit();
+		$canDelete = $this->record->canDelete();
+		$canCreate = $this->record->canCreate();
+
+		if(!$canView) {
+			$controller = Controller::curr();
+			// TODO More friendly error
+			return $controller->httpError(403);
+		}
+
 		$actions = new FieldList();
 		if($this->record->ID !== 0) {
-			$actions->push(FormAction::create('doSave', _t('GridFieldDetailForm.Save', 'Save'))
-				->setUseButtonTag(true)
-				->addExtraClass('ss-ui-action-constructive')
-				->setAttribute('data-icon', 'accept'));
+			if($canEdit) {
+				$actions->push(FormAction::create('doSave', _t('GridFieldDetailForm.Save', 'Save'))
+					->setUseButtonTag(true)
+					->addExtraClass('ss-ui-action-constructive')
+					->setAttribute('data-icon', 'accept'));
+			}
 
-			$actions->push(FormAction::create('doDelete', _t('GridFieldDetailForm.Delete', 'Delete'))
-				->addExtraClass('ss-ui-action-destructive'));
+			if($canDelete) {
+				$actions->push(FormAction::create('doDelete', _t('GridFieldDetailForm.Delete', 'Delete'))
+					->setUseButtonTag(true)
+					->addExtraClass('ss-ui-action-destructive'));
+			}
 
 		}else{ // adding new record
 			//Change the Save label to 'Create'
@@ -318,17 +366,33 @@ class GridFieldDetailForm_ItemRequest extends RequestHandler {
 				$actions->push(new LiteralField('cancelbutton', $text));
 			}
 		}
+		$fields = $this->component->getFields();
+		if(!$fields) $fields = $this->record->getCMSFields();
 		$form = new Form(
 			$this,
 			'ItemEditForm',
-			$this->record->getCMSFields(),
+			$fields,
 			$actions,
 			$this->component->getValidator()
 		);
-		if($this->record->ID !== 0) {
-			$form->loadDataFrom($this->record);
+		
+		$form->loadDataFrom($this->record, $this->record->ID == 0 ? Form::MERGE_IGNORE_FALSEISH : Form::MERGE_DEFAULT);
+
+		if($this->record->ID && !$canEdit) {
+			// Restrict editing of existing records
+			$form->makeReadonly();
+		} elseif(!$this->record->ID && !$canCreate) {
+			// Restrict creation of new records
+			$form->makeReadonly();
 		}
 
+		// Load many_many extraData for record.
+		// Fields with the correct 'ManyMany' namespace need to be added manually through getCMSFields().
+		if($list instanceof ManyManyList) {
+			$extraData = $list->getExtraData('', $this->record->ID);
+			$form->loadDataFrom(array('ManyMany' => $extraData));
+		}
+		
 		// TODO Coupling with CMS
 		$toplevelController = $this->getToplevelController();
 		if($toplevelController && $toplevelController instanceof LeftAndMain) {
@@ -340,7 +404,7 @@ class GridFieldDetailForm_ItemRequest extends RequestHandler {
 			$form->setAttribute('data-pjax-fragment', 'CurrentForm Content');
 			if($form->Fields()->hasTabset()) {
 				$form->Fields()->findOrMakeTab('Root')->setTemplate('CMSTabSet');
-				$form->addExtraClass('ss-tabset cms-tabset');
+				$form->addExtraClass('cms-tabset');
 			}
 
 			$form->Backlink = $this->getBackLink();
@@ -348,7 +412,7 @@ class GridFieldDetailForm_ItemRequest extends RequestHandler {
 
 		$cb = $this->component->getItemEditFormCallback();
 		if($cb) $cb($form, $this);
-
+		$this->extend("updateItemEditForm", $form);
 		return $form;
 	}
 
@@ -377,10 +441,10 @@ class GridFieldDetailForm_ItemRequest extends RequestHandler {
 			} elseif($this->popupController->hasMethod('Breadcrumbs')) {
 				$parents = $this->popupController->Breadcrumbs(false)->items;
 				$backlink = array_pop($parents)->Link;
-			} else {
-				$backlink = $toplevelController->Link();
-			}
+			} 
 		}
+		if(!$backlink) $backlink = $toplevelController->Link();
+		
 		return $backlink;
 	}
 
@@ -389,11 +453,33 @@ class GridFieldDetailForm_ItemRequest extends RequestHandler {
 	public function doSave($data, $form) {
 		$new_record = $this->record->ID == 0;
 		$controller = Controller::curr();
+		$list = $this->gridField->getList();
+		
+		if($list instanceof ManyManyList) {
+			// Data is escaped in ManyManyList->add()
+			$extraData = (isset($data['ManyMany'])) ? $data['ManyMany'] : null;
+		} else {
+			$extraData = null;
+		}
+
+		if(!$this->record->canEdit()) {
+			return $controller->httpError(403);
+		}
+		
+		if (isset($data['ClassName']) && $data['ClassName'] != $this->record->ClassName) {
+			$newClassName = $data['ClassName'];
+			// The records originally saved attribute was overwritten by $form->saveInto($record) before.
+			// This is necessary for newClassInstance() to work as expected, and trigger change detection
+			// on the ClassName attribute
+			$this->record->setClassName($this->record->ClassName);
+			// Replace $record with a new instance
+			$this->record = $this->record->newClassInstance($newClassName);
+		}
 
 		try {
 			$form->saveInto($this->record);
 			$this->record->write();
-			$this->gridField->getList()->add($this->record);
+			$list->add($this->record, $extraData);
 		} catch(ValidationException $e) {
 			$form->sessionMessage($e->getResult()->message(), 'bad');
 			$responseNegotiator = new PjaxResponseNegotiator(array(
@@ -412,10 +498,16 @@ class GridFieldDetailForm_ItemRequest extends RequestHandler {
 
 		// TODO Save this item into the given relationship
 
-		$message = sprintf(
-			_t('GridFieldDetailForm.Saved', 'Saved %s %s'),
-			$this->record->singular_name(),
-			'<a href="' . $this->Link('edit') . '">"' . htmlspecialchars($this->record->Title, ENT_QUOTES) . '"</a>'
+		$link = '<a href="' . $this->Link('edit') . '">"' 
+			. htmlspecialchars($this->record->Title, ENT_QUOTES) 
+			. '"</a>';
+		$message = _t(
+			'GridFieldDetailForm.Saved', 
+			'Saved {name} {link}',
+			array(
+				'name' => $this->record->i18n_singular_name(),
+				'link' => $link
+			)
 		);
 		
 		$form->sessionMessage($message, 'good');
@@ -451,7 +543,7 @@ class GridFieldDetailForm_ItemRequest extends RequestHandler {
 
 		$message = sprintf(
 			_t('GridFieldDetailForm.Deleted', 'Deleted %s %s'),
-			$this->record->singular_name(),
+			$this->record->i18n_singular_name(),
 			htmlspecialchars($title, ENT_QUOTES)
 		);
 		

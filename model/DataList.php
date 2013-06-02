@@ -3,21 +3,21 @@
  * Implements a "lazy loading" DataObjectSet.
  * Uses {@link DataQuery} to do the actual query generation.
  *
- * todo 3.1: In 3.0 the below is not currently true for backwards compatible reasons, but code should not rely on
- * current behaviour.
+ * DataLists are _immutable_ as far as the query they represent is concerned. When you call a method that
+ * alters the query, a new DataList instance is returned, rather than modifying the existing instance
  *
- * DataLists have two sets of methods.
+ * When you add or remove an element to the list the query remains the same, but because you have modified
+ * the underlying data the contents of the list changes. These are some of those methods:
  *
- * 1). Selection methods (SS_Filterable, SS_Sortable, SS_Limitable) change the way the list is built, but does not
- *     alter underlying data. There are no external affects from selection methods once this list instance is
- *     destructed.
+ *   - add
+ *   - addMany
+ *   - remove
+ *   - removeMany
+ *   - removeByID
+ *   - removeByFilter
+ *   - removeAll
  *
- * 2). Mutation methods change the underlying data. The change persists into the underlying data storage layer.
- *
- * DataLists are _immutable_ as far as selection methods go - they all return new instances of DataList, rather
- * than change the current list.
- *
- * DataLists are _mutable_ as far as mutation methods go - they all act on the existing DataList instance.
+ * Subclasses of DataList may add other methods that have the same effect.
  *
  * @package framework
  * @subpackage model
@@ -85,17 +85,13 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 	/**
 	 * Return a copy of the internal {@link DataQuery} object
 	 *
-	 * todo 3.1: In 3.0 the below is not currently true for backwards compatible reasons, but code should not rely on
-	 * this
-	 * 
 	 * Because the returned value is a copy, modifying it won't affect this list's contents. If
 	 * you want to alter the data query directly, use the alterDataQuery method
 	 *
 	 * @return DataQuery
 	 */
 	public function dataQuery() {
-		// TODO 3.1: This method potentially mutates self
-		return /* clone */ $this->dataQuery;
+		return clone $this->dataQuery;
 	}
 
 	/**
@@ -122,7 +118,7 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 		if ($this->inAlterDataQueryCall) {
 			$list = $this;
 
-			$res = $callback($list->dataQuery, $list);
+			$res = call_user_func($callback, $list->dataQuery, $list);
 			if ($res) $list->dataQuery = $res;
 
 			return $list;
@@ -132,7 +128,7 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 			$list->inAlterDataQueryCall = true;
 
 			try {
-				$res = $callback($list->dataQuery, $list);
+				$res = call_user_func($callback, $list->dataQuery, $list);
 				if ($res) $list->dataQuery = $res;
 			}
 			catch (Exception $e) {
@@ -146,39 +142,6 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 	}
 
 	/**
-	 * In 3.0.0 some methods in DataList mutate their list. We don't want to change that in the 3.0.x
-	 * line, but we don't want people relying on it either. This does the same as alterDataQuery, but
-	 * _does_ mutate the existing list.
-	 *
-	 * todo 3.1: All methods that call this need to call alterDataQuery instead
-	 */
-	protected function alterDataQuery_30($callback) {
-		Deprecation::notice('3.1', 'DataList will become immutable in 3.1');
-
-		if ($this->inAlterDataQueryCall) {
-			$res = $callback($this->dataQuery, $this);
-			if ($res) $this->dataQuery = $res;
-
-			return $this;
-		}
-		else {
-			$this->inAlterDataQueryCall = true;
-
-			try {
-				$res = $callback($this->dataQuery, $this);
-				if ($res) $this->dataQuery = $res;
-			}
-			catch (Exception $e) {
-				$this->inAlterDataQueryCall = false;
-				throw $e;
-			}
-
-			$this->inAlterDataQueryCall = false;
-			return $this;
-		}
-	}
-
-	/**
 	 * Return a new DataList instance with the underlying {@link DataQuery} object changed
 	 *
 	 * @param DataQuery $dataQuery
@@ -187,6 +150,21 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 	public function setDataQuery(DataQuery $dataQuery) {
 		$clone = clone $this;
 		$clone->dataQuery = $dataQuery;
+		return $clone;
+	}
+
+	public function setDataQueryParam($keyOrArray, $val = null) {
+		$clone = clone $this;
+
+		if(is_array($keyOrArray)) {
+			foreach($keyOrArray as $key => $val) {
+				$clone->dataQuery->setQueryParam($key, $val);
+			}
+		}
+		else {
+			$clone->dataQuery->setQueryParam($keyOrArray, $val);
+		}
+
 		return $clone;
 	}
 
@@ -206,7 +184,7 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 	 * @return DataList
 	 */
 	public function where($filter) {
-		return $this->alterDataQuery_30(function($query) use ($filter){
+		return $this->alterDataQuery(function($query) use ($filter){
 			$query->where($filter);
 		});
 	}
@@ -218,7 +196,7 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 	 * @return boolean
 	 */
 	public function canSortBy($fieldName) {
-	    return $this->dataQuery()->query()->canSortBy($fieldName);
+		return $this->dataQuery()->query()->canSortBy($fieldName);
 	}
 	
 	/**
@@ -234,20 +212,6 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 	}
 
 	/**
-	 * Return a new DataList instance with a join clause added to this list's query.
-	 *
-	 * @param type $join Escaped SQL statement
-	 * @return DataList 
-	 * @deprecated 3.0
-	 */
-	public function join($join) {
-		Deprecation::notice('3.0', 'Use innerJoin() or leftJoin() instead.');
-		return $this->alterDataQuery_30(function($query) use ($join){
-			$query->join($join);
-		});
-	}
-
-	/**
 	 * Return a new DataList instance with the records returned in this query restricted by a limit clause
 	 * 
 	 * @param int $limit
@@ -257,11 +221,7 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 		if(!$limit && !$offset) {
 			return $this;
 		}
-		if($limit && !is_numeric($limit)) {
-			Deprecation::notice('3.0', 'Please pass limits as 2 arguments, rather than an array or SQL fragment.',
-				Deprecation::SCOPE_GLOBAL);
-		}
-		return $this->alterDataQuery_30(function($query) use ($limit, $offset){
+		return $this->alterDataQuery(function($query) use ($limit, $offset){
 			$query->limit($limit, $offset);
 		});
 	}
@@ -299,7 +259,7 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 			$sort = func_get_arg(0);
 		}
 
-		return $this->alterDataQuery_30(function($query, $list) use ($sort, $col, $dir){
+		return $this->alterDataQuery(function($query, $list) use ($sort, $col, $dir){
 
 			if ($col) {
 				// sort('Name','Desc')
@@ -364,25 +324,24 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 				throw new InvalidArgumentException('Incorrect number of arguments passed to filter()');
 		}
 		
-		// TODO 3.1: Once addFilter doesn't mutate self, this results in a double clone
-		$clone = clone $this;
-		$clone->addFilter($filters);
-		return $clone;
+		return $this->addFilter($filters);
 	}
 
 	/**
 	 * Return a new instance of the list with an added filter
 	 */
 	public function addFilter($filterArray) {
+		$list = $this;
+
 		foreach($filterArray as $field => $value) {
 			$fieldArgs = explode(':', $field);
 			$field = array_shift($fieldArgs);
 			$filterType = array_shift($fieldArgs);
 			$modifiers = $fieldArgs;
-			$this->applyFilterContext($field, $filterType, $modifiers, $value);
+			$list = $list->applyFilterContext($field, $filterType, $modifiers, $value);
 		}
 
-		return $this;
+		return $list;
 	}
 
 	/**
@@ -417,15 +376,15 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 			$whereArguments = func_get_arg(0);
 		} elseif($numberFuncArgs == 2) {
 			$whereArguments[func_get_arg(0)] = func_get_arg(1);
-		} else {
+			} else {
 			throw new InvalidArgumentException('Incorrect number of arguments passed to exclude()');
-		}
-
+			}
+			
 		return $this->alterDataQuery(function($query, $list) use ($whereArguments) {
 			$subquery = $query->disjunctiveGroup();
 
 			foreach($whereArguments as $field => $value) {
-				$fieldArgs = explode(':', $field);
+				$fieldArgs = explode(':',$field);
 				$field = array_shift($fieldArgs);
 				$filterType = array_shift($fieldArgs);
 				$modifiers = $fieldArgs;
@@ -434,16 +393,16 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 				$t = singleton($list->dataClass())->dbObject($field);
 				if($filterType) {
 					$className = "{$filterType}Filter";
-				} else {
+			} else {
 					$className = 'ExactMatchFilter';
 				}
 				if(!class_exists($className)){
 					$className = 'ExactMatchFilter';
 					array_unshift($modifiers, $filterType);
-				}
+			}
 				$t = new $className($field, $value, $modifiers);
 				$t->apply($subquery);
-			}
+		}
 		});
 	}
 
@@ -452,15 +411,14 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 	 * The function will be passed each record of the DataList in turn, and must return true for the record to be
 	 * included. Returns the filtered list.
 	 * 
-	 * Note that, in the current implementation, the filtered list will be an ArrayList, but this may change in a
-	 * future implementation.
+	 * @return ArrayList (this may change in future implementations)
 	 */
 	public function filterByCallback($callback) {
 		if(!is_callable($callback)) {
 			throw new LogicException("DataList::filterByCallback() must be passed something callable.");
 		}
 		
-		$output = new ArrayList;
+		$output = new ArrayList();
 		foreach($this as $item) {
 			if($callback($item)) $output->push($item);
 		}
@@ -494,29 +452,29 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 	}
 
 	/**
-	 * Translates the comparisator to the sql query
+	 * Translates a filter type to a SQL query.
 	 *
 	 * @param string $field - the fieldname in the db
-	 * @param string $comparisators - example StartsWith, relates to a filtercontext
+	 * @param string $filter - example StartsWith, relates to a filtercontext
 	 * @param array $modifiers - Modifiers to pass to the filter, ie not,nocase
 	 * @param string $value - the value that the filtercontext will use for matching
 	 * @todo Deprecated SearchContexts and pull their functionality into the core of the ORM
 	 */
-	private function applyFilterContext($field, $comparisators, $modifiers, $value) {
-		$t = singleton($this->dataClass())->dbObject($field);
-		if($comparisators) {
-			$className = "{$comparisators}Filter";
+	private function applyFilterContext($field, $filter, $modifiers, $value) {
+		if($filter) {
+			$className = "{$filter}Filter";
 		} else {
 			$className = 'ExactMatchFilter';
 		}
-		if(!class_exists($className)){
+		if(!class_exists($className)) {
 			$className = 'ExactMatchFilter';
-			array_unshift($modifiers, $comparisators);
+			array_unshift($modifiers, $filter);
 		}
 		$t = new $className($field, $value, $modifiers);
-		$t->apply($this->dataQuery());
+
+		return $this->alterDataQuery(array($t, 'apply'));
 	}
-	
+
 	/**
 	 * Return a copy of this list which does not contain any items with these charactaristics
 	 *
@@ -558,13 +516,13 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 				$t = singleton($list->dataClass())->dbObject($field);
 				if($filterType) {
 					$className = "{$filterType}Filter";
-				} else {
+			} else {
 					$className = 'ExactMatchFilter';
-				}
+			}
 				if(!class_exists($className)){
 					$className = 'ExactMatchFilter';
 					array_unshift($modifiers, $filterType);
-				}
+		}
 				$t = new $className($field, $value, $modifiers);
 				$t->exclude($subquery);
 			}
@@ -599,7 +557,7 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 	 * @return DataList 
 	 */
 	public function innerJoin($table, $onClause, $alias = null) {
-		return $this->alterDataQuery_30(function($query) use ($table, $onClause, $alias){
+		return $this->alterDataQuery(function($query) use ($table, $onClause, $alias){
 			$query->innerJoin($table, $onClause, $alias);
 		});
 	}
@@ -613,7 +571,7 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 	 * @return DataList 
 	 */
 	public function leftJoin($table, $onClause, $alias = null) {
-		return $this->alterDataQuery_30(function($query) use ($table, $onClause, $alias){
+		return $this->alterDataQuery(function($query) use ($table, $onClause, $alias){
 			$query->leftJoin($table, $onClause, $alias);
 		});
 	}
@@ -649,6 +607,20 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Walks the list using the specified callback
+	 *
+	 * @param callable $callback
+	 * @return DataList
+	 */
+	public function each($callback) {
+		foreach($this as $row) {
+			$callback($row);
+		}
+		
+		return $this;
 	}
 
 	public function debug() {
@@ -692,7 +664,10 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 		} else {
 			$item = Injector::inst()->create($defaultClass, $row, false, $this->model);
 		}
-		
+
+		//set query params on the DataObject to tell the lazy loading mechanism the context the object creation context
+		$item->setSourceQueryParams($this->dataQuery()->getQueryParams());
+
 		return $item;
 	}
 	
@@ -722,7 +697,7 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 	 * @return mixed
 	 */
 	public function max($fieldName) {
-	    return $this->dataQuery->max($fieldName);
+		return $this->dataQuery->max($fieldName);
 	}
 
 	/**
@@ -732,7 +707,7 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 	 * @return mixed
 	 */
 	public function min($fieldName) {
-	    return $this->dataQuery->min($fieldName);
+		return $this->dataQuery->min($fieldName);
 	}
 	
 	/**
@@ -742,7 +717,7 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 	 * @return mixed
 	 */
 	public function avg($fieldName) {
-	    return $this->dataQuery->avg($fieldName);
+		return $this->dataQuery->avg($fieldName);
 	}
 
 	/**
@@ -752,7 +727,7 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 	 * @return mixed
 	 */
 	public function sum($fieldName) {
-	    return $this->dataQuery->sum($fieldName);
+		return $this->dataQuery->sum($fieldName);
 	}
 	
 	
@@ -814,9 +789,7 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 			$SQL_col = sprintf('"%s"', Convert::raw2sql($key));
 		}
 
-		// todo 3.1: In 3.1 where won't be mutating, so this can be on $this directly
-		$clone = clone $this;
-		return $clone->where("$SQL_col = '" . Convert::raw2sql($value) . "'")->First();
+		return $this->where("$SQL_col = '" . Convert::raw2sql($value) . "'")->First();
 	}
 	
 	/**
@@ -840,9 +813,7 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 	public function byIDs(array $ids) {
 		$ids = array_map('intval', $ids); // sanitize
 		$baseClass = ClassInfo::baseDataClass($this->dataClass);
-		$this->where("\"$baseClass\".\"ID\" IN (" . implode(',', $ids) .")");
-		
-		return $this;
+		return $this->where("\"$baseClass\".\"ID\" IN (" . implode(',', $ids) .")");
 	}
 
 	/**
@@ -853,10 +824,7 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 	 */
 	public function byID($id) {
 		$baseClass = ClassInfo::baseDataClass($this->dataClass);
-
-		// todo 3.1: In 3.1 where won't be mutating, so this can be on $this directly
-		$clone = clone $this;
-		return $clone->where("\"$baseClass\".\"ID\" = " . (int)$id)->First();
+		return $this->where("\"$baseClass\".\"ID\" = " . (int)$id)->First();
 	}
 	
 	/**
@@ -882,7 +850,7 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 		
 		// Index current data
 		foreach($this->column() as $id) {
-		   $has[$id] = true;
+			$has[$id] = true;
 		}
 		
 		// Keep track of items to delete
@@ -1000,7 +968,7 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 	 */
 	public function newObject($initialFields = null) {
 		$class = $this->dataClass;
- 		return Injector::inst()->create($class, $initialFields, false, $this->model);
+		return Injector::inst()->create($class, $initialFields, false, $this->model);
 	}
 	
 	/**
@@ -1012,18 +980,20 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 	 */
 	public function remove($item) {
 		// By default, we remove an item from a DataList by deleting it.
-		if($item instanceof $this->dataClass) $item->delete();
-
+		$this->removeByID($item->ID);
 	}
 
-    /**
-     * Remove an item from this DataList by ID
+	/**
+	 * Remove an item from this DataList by ID
 	 * 
 	 * @param int $itemID - The primary ID
-     */
+	 */
 	public function removeByID($itemID) {
-	    $item = $this->byID($itemID);
-	    if($item) return $item->delete();
+		$item = $this->byID($itemID);
+
+		if($item) {
+			return $item->delete();
+		}
 	}
 	
 	/**
@@ -1032,7 +1002,7 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 	 * @return DataList
 	 */
 	public function reverse() {
-		return $this->alterDataQuery_30(function($query){
+		return $this->alterDataQuery(function($query){
 			$query->reverseSort();
 		});
 	}
@@ -1095,7 +1065,7 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 	 * @return bool
 	 */
 	public function offsetExists($key) {
-	    return ($this->limit(1,$key)->First() != null);
+		return ($this->limit(1,$key)->First() != null);
 	}
 
 	/**
@@ -1105,7 +1075,7 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 	 * @return DataObject
 	 */
 	public function offsetGet($key) {
-	    return $this->limit(1, $key)->First();
+		return $this->limit(1, $key)->First();
 	}
 	
 	/**
@@ -1115,7 +1085,7 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 	 * @param mixed $value
 	 */
 	public function offsetSet($key, $value) {
-	    user_error("Can't alter items in a DataList using array-access", E_USER_ERROR);
+		user_error("Can't alter items in a DataList using array-access", E_USER_ERROR);
 	}
 
 	/**
@@ -1124,7 +1094,7 @@ class DataList extends ViewableData implements SS_List, SS_Filterable, SS_Sortab
 	 * @param mixed $key
 	 */
 	public function offsetUnset($key) {
-	    user_error("Can't alter items in a DataList using array-access", E_USER_ERROR);
+		user_error("Can't alter items in a DataList using array-access", E_USER_ERROR);
 	}
 
 }

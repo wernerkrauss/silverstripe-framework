@@ -1,16 +1,25 @@
 <?php
+
 /**
  * @package framework
  * @subpackage tests
  */
 class FormTest extends FunctionalTest {
 	
-	static $fixture_file = 'FormTest.yml';
+	protected static $fixture_file = 'FormTest.yml';
 
 	protected $extraDataObjects = array(
 		'FormTest_Player',
 		'FormTest_Team',
 	);
+
+	public function setUp() {
+		parent::setUp();
+
+		Config::inst()->update('Director', 'rules', array(
+			'FormTest_Controller' => 'FormTest_Controller'
+		));
+	}
 	
 	public function testLoadDataFromRequest() {
 		$form = new Form(
@@ -79,7 +88,7 @@ class FormTest extends FunctionalTest {
 	
 	public function testLoadDataFromObject() {
 		$form = new Form(
-			new Controller(),
+		new Controller(),
 			'Form',
 			new FieldList(
 				new HeaderField('MyPlayerHeader','My Player'),
@@ -153,7 +162,7 @@ class FormTest extends FunctionalTest {
 		$captainWithDetails = $this->objFromFixture('FormTest_Player', 'captainNoDetails');
 		$team2 = $this->objFromFixture('FormTest_Team', 'team2');
 		$form->loadDataFrom($captainWithDetails);
-		$form->loadDataFrom($team2, true);
+		$form->loadDataFrom($team2, Form::MERGE_CLEAR_MISSING);
 		$this->assertEquals(
 			$form->getData(), 
 			array(
@@ -166,7 +175,35 @@ class FormTest extends FunctionalTest {
 			'LoadDataFrom() overwrites fields not found in the object with $clearMissingFields=true'
 		);
 	}
-	
+
+	public function testLoadDataFromIgnoreFalseish() {
+		$form = new Form(
+			new Controller(),
+			'Form',
+			new FieldList(
+				new TextField('Biography', 'Biography', 'Custom Default')
+			),
+			new FieldList()
+		);
+
+		$captainNoDetails = $this->objFromFixture('FormTest_Player', 'captainNoDetails');
+		$captainWithDetails = $this->objFromFixture('FormTest_Player', 'captainWithDetails');
+
+		$form->loadDataFrom($captainNoDetails, Form::MERGE_IGNORE_FALSEISH);
+		$this->assertEquals(
+			$form->getData(),
+			array('Biography' => 'Custom Default'),
+			'LoadDataFrom() doesn\'t overwrite fields when MERGE_IGNORE_FALSEISH set and values are false-ish'
+		);
+
+		$form->loadDataFrom($captainWithDetails, Form::MERGE_IGNORE_FALSEISH);
+		$this->assertEquals(
+			$form->getData(),
+			array('Biography' => 'Bio 1'),
+			'LoadDataFrom() does overwrite fields when MERGE_IGNORE_FALSEISH set and values arent false-ish'
+		);
+	}
+
 	public function testFormMethodOverride() {
 		$form = $this->getStubForm();
 		$form->setFormMethod('GET');
@@ -174,19 +211,19 @@ class FormTest extends FunctionalTest {
 		
 		$form = $this->getStubForm();
 		$form->setFormMethod('PUT');
-		$this->assertEquals($form->Fields()->dataFieldByName('_method')->Value(), 'put',
+		$this->assertEquals($form->Fields()->dataFieldByName('_method')->Value(), 'PUT',
 			'PUT override in forms has PUT in hiddenfield'
 		);
-		$this->assertEquals($form->FormMethod(), 'post',
+		$this->assertEquals($form->FormMethod(), 'POST',
 			'PUT override in forms has POST in <form> tag'
 		);
 		
 		$form = $this->getStubForm();
 		$form->setFormMethod('DELETE');
-		$this->assertEquals($form->Fields()->dataFieldByName('_method')->Value(), 'delete',
+		$this->assertEquals($form->Fields()->dataFieldByName('_method')->Value(), 'DELETE',
 			'PUT override in forms has PUT in hiddenfield'
 		);
-		$this->assertEquals($form->FormMethod(), 'post',
+		$this->assertEquals($form->FormMethod(), 'POST',
 			'PUT override in forms has POST in <form> tag'
 		);
 	}
@@ -201,21 +238,21 @@ class FormTest extends FunctionalTest {
 				// leaving out "Required" field
 			)
 		);
+
 		$this->assertPartialMatchBySelector(
-			'#Email span.message',
+			'#Form_Form_Email_Holder span.message',
 			array(
 				'Please enter an email address'
 			),
 			'Formfield validation shows note on field if invalid'
 		);
 		$this->assertPartialMatchBySelector(
-			'#SomeRequiredField span.required',
+			'#Form_Form_SomeRequiredField_Holder span.required',
 			array(
 				'"Some Required Field" is required'
 			),
 			'Required fields show a notification on field when left blank'
 		);
-		
 	}
 	
 	public function testSessionSuccessMessage() {
@@ -302,6 +339,24 @@ class FormTest extends FunctionalTest {
 		);
 		$this->assertEquals(200, $response->getStatusCode(), 'Submission suceeds with security token');
 	}
+
+	public function testStrictFormMethodChecking() {
+		$response = $this->get('FormTest_ControllerWithStrictPostCheck');
+		$response = $this->get(
+			'FormTest_ControllerWithStrictPostCheck/Form/?Email=test@test.com&action_doSubmit=1'
+		);
+		$this->assertEquals(405, $response->getStatusCode(), 'Submission fails with wrong method');
+
+		$response = $this->get('FormTest_ControllerWithStrictPostCheck');
+		$response = $this->post(
+			'FormTest_ControllerWithStrictPostCheck/Form',
+			array(
+				'Email' => 'test@test.com',
+				'action_doSubmit' => 1
+			)
+		);
+		$this->assertEquals(200, $response->getStatusCode(), 'Submission succeeds with correct method');
+	}
 	
 	public function testEnableSecurityToken() {
 		SecurityToken::disable();
@@ -379,18 +434,22 @@ class FormTest extends FunctionalTest {
 	
 }
 
+/**
+ * @package framework
+ * @subpackage tests
+ */
 class FormTest_Player extends DataObject implements TestOnly {
-	static $db = array(
+	private static $db = array(
 		'Name' => 'Varchar',
 		'Biography' => 'Text',
 		'Birthday' => 'Date'
 	);
 	
-	static $belongs_many_many = array(
+	private static $belongs_many_many = array(
 		'Teams' => 'FormTest_Team'
 	);
 	
-	static $has_one = array(
+	private static $has_one = array(
 		'FavouriteTeam' => 'FormTest_Team', 
 	);
 	
@@ -400,19 +459,27 @@ class FormTest_Player extends DataObject implements TestOnly {
 	
 }
 
+/**
+ * @package framework
+ * @subpackage tests
+ */
 class FormTest_Team extends DataObject implements TestOnly {
-	static $db = array(
+	private static $db = array(
 		'Name' => 'Varchar',
 		'Region' => 'Varchar',
 	);
 	
-	static $many_many = array(
+	private static $many_many = array(
 		'Players' => 'FormTest_Player'
 	);
 }
 
+/**
+ * @package framework
+ * @subpackage tests
+ */
 class FormTest_Controller extends Controller implements TestOnly {
-	static $url_handlers = array(
+	private static $url_handlers = array(
 		'$Action//$ID/$OtherID' => "handleAction",
 	);
 
@@ -440,25 +507,8 @@ class FormTest_Controller extends Controller implements TestOnly {
 				'SomeRequiredField'
 			)
 		);
-
-		// Disable CSRF protection for easier form submission handling
-		$form->disableSecurityToken();
+		$form->disableSecurityToken(); // Disable CSRF protection for easier form submission handling
 		
-		return $form;
-	}
-	
-	public function FormWithSecurityToken() {
-		$form = new Form(
-			$this,
-			'FormWithSecurityToken',
-			new FieldList(
-				new EmailField('Email')
-			),
-			new FieldList(
-				new FormAction('doSubmit')
-			)
-		);
-
 		return $form;
 	}
 	
@@ -473,8 +523,12 @@ class FormTest_Controller extends Controller implements TestOnly {
 
 }
 
+/**
+ * @package framework
+ * @subpackage tests
+ */
 class FormTest_ControllerWithSecurityToken extends Controller implements TestOnly {
-	static $url_handlers = array(
+	private static $url_handlers = array(
 		'$Action//$ID/$OtherID' => "handleAction",
 	);
 
@@ -505,12 +559,40 @@ class FormTest_ControllerWithSecurityToken extends Controller implements TestOnl
 		return $this->redirectBack();
 	}
 
-	public function getViewer($action = null) {
-		return new SSViewer('BlankPage');
-	}
 }
 
-Config::inst()->update('Director', 'rules', array(
-	'FormTest_Controller' => 'FormTest_Controller'
-));
+class FormTest_ControllerWithStrictPostCheck extends Controller implements TestOnly {
+	protected $template = 'BlankPage';
+	
+	public function Link($action = null) {
+		return Controller::join_links(
+			'FormTest_ControllerWithStrictPostCheck', 
+			$this->request->latestParam('Action'),
+			$this->request->latestParam('ID'), 
+			$action
+		);
+	}
+	
+	public function Form() {
+		$form = new Form(
+			$this,
+			'Form',
+			new FieldList(
+				new EmailField('Email')
+			),
+			new FieldList(
+				new FormAction('doSubmit')
+			)
+		);
+		$form->setFormMethod('POST');
+		$form->setStrictFormMethodCheck(true);
+		$form->disableSecurityToken(); // Disable CSRF protection for easier form submission handling
 
+		return $form;
+	}
+	
+	public function doSubmit($data, $form, $request) {
+		$form->sessionMessage('Test save was successful', 'good');
+		return $this->redirectBack();
+	}
+}

@@ -90,12 +90,12 @@ class FieldGroup extends CompositeField {
 	 *
 	 * @param string $zebra one of odd or even.
 	 */
-  	public function setZebra($zebra) {
-	    if($zebra == 'odd' || $zebra == 'even') $this->zebra = $zebra;
-	    else user_error("setZebra passed '$zebra'.  It should be passed 'odd' or 'even'", E_USER_WARNING);
-	    return $this;
- 	}
-  
+	public function setZebra($zebra) {
+		if($zebra == 'odd' || $zebra == 'even') $this->zebra = $zebra;
+		else user_error("setZebra passed '$zebra'.  It should be passed 'odd' or 'even'", E_USER_WARNING);
+		return $this;
+	}
+
 	/**
 	 * @return string
 	 */
@@ -110,10 +110,10 @@ class FieldGroup extends CompositeField {
 		$fs = $this->FieldList();
 		
 		foreach($fs as $subfield) {
-			if($m = $subfield->Message()) $message[] = $m;
+			if($m = $subfield->Message()) $message[] = rtrim($m, ".");
 		}
 		
-		return (isset($message)) ? implode(",  ", $message) . ". " : "";
+		return (isset($message)) ? implode(",  ", $message) . "." : "";
 	}	
 	
 	/**

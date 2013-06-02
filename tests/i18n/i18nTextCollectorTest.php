@@ -33,7 +33,7 @@ class i18nTextCollectorTest extends SapphireTest {
 			$this->alternateBasePath, false, true, false
 		);
 		
-		$manifest = new SS_TemplateManifest($this->alternateBasePath, false, true);
+		$manifest = new SS_TemplateManifest($this->alternateBasePath, null, false, true);
 		$manifest->regenerate(false);
 		SS_TemplateLoader::instance()->pushManifest($manifest);
 	}
@@ -327,6 +327,14 @@ _t("i18nTestModule.INJECTIONS3", "Hello {name} {greeting}. But it is late, {good
 		"New context (this should be ignored)",
 		array("name"=>"Steffen", "greeting"=>"willkommen", "goodbye"=>"wiedersehen"));
 _t('i18nTestModule.INJECTIONS4', array("name"=>"Cat", "greeting"=>"meow", "goodbye"=>"meow"));
+_t('i18nTestModule.INJECTIONS5','_DOES_NOT_EXIST', "Hello {name} {greeting}. But it is late, {goodbye}",
+	["name"=>"Mark", "greeting"=>"welcome", "goodbye"=>"bye"]);
+_t('i18nTestModule.INJECTIONS6', "Hello {name} {greeting}. But it is late, {goodbye}",
+	["name"=>"Paul", "greeting"=>"good you are here", "goodbye"=>"see you"]);
+_t("i18nTestModule.INJECTIONS7", "Hello {name} {greeting}. But it is late, {goodbye}",
+		"New context (this should be ignored)",
+		["name"=>"Steffen", "greeting"=>"willkommen", "goodbye"=>"wiedersehen"]);
+_t('i18nTestModule.INJECTIONS8', ["name"=>"Cat", "greeting"=>"meow", "goodbye"=>"meow"]);
 PHP;
 
 		$collectedTranslatables = $c->collectFromCode($php, 'mymodule');
@@ -337,6 +345,11 @@ PHP;
 				"Hello {name} {greeting}. But it is late, {goodbye}"),
 			'i18nTestModule.INJECTIONS2' => array("Hello {name} {greeting}. But it is late, {goodbye}"),
 			'i18nTestModule.INJECTIONS3' => array("Hello {name} {greeting}. But it is late, {goodbye}",
+				"New context (this should be ignored)"),
+			'i18nTestModule.INJECTIONS5' => array("_DOES_NOT_EXIST",
+				"Hello {name} {greeting}. But it is late, {goodbye}"),
+			'i18nTestModule.INJECTIONS6' => array("Hello {name} {greeting}. But it is late, {goodbye}"),
+			'i18nTestModule.INJECTIONS7' => array("Hello {name} {greeting}. But it is late, {goodbye}",
 				"New context (this should be ignored)"),
 		));
 
@@ -470,8 +483,8 @@ YAML;
 	public function testCollectFromThemesTemplates() {
 		$c = new i18nTextCollector();
 		
-		$theme = SSViewer::current_theme();
-		SSViewer::set_theme('testtheme1');
+		$theme = Config::inst()->get('SSViewer', 'theme');
+		Config::inst()->update('SSViewer', 'theme', 'testtheme1');
 		
 		$templateFilePath = $this->alternateBasePath . '/themes/testtheme1/templates/Layout/i18nTestTheme1.ss';
 		$html = file_get_contents($templateFilePath);
@@ -523,7 +536,31 @@ YAML;
 			array('Theme1 My include replacement no namespace: %s')
 		);
 		
-		SSViewer::set_theme($theme);
+		Config::inst()->update('SSViewer', 'theme', $theme);
+	}
+
+	public function testCollectMergesWithExisting() {
+		$defaultlocal = i18n::default_locale();
+		$local = i18n::get_locale();
+		i18n::set_locale('en_US'); 
+		i18n::set_default_locale('en_US');
+
+		$c = new i18nTextCollector();
+		$c->setWriter(new i18nTextCollector_Writer_Php());
+		$c->basePath = $this->alternateBasePath;
+		$c->baseSavePath = $this->alternateBaseSavePath;
+		
+		$entitiesByModule = $c->collect(null, true /* merge */);
+		$this->assertArrayHasKey(
+			'i18nTestModule.ENTITY',
+			$entitiesByModule['i18ntestmodule'],
+			'Retains existing entities'
+		);
+		$this->assertArrayHasKey(
+			'i18nTestModule.NEWENTITY',
+			$entitiesByModule['i18ntestmodule'],
+			'Adds new entities'
+		);
 	}
 	
 	public function testCollectFromFilesystemAndWriteMasterTables() {

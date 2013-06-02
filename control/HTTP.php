@@ -1,4 +1,5 @@
 <?php
+
 /**
  * A class with HTTP-related helpers.
  * Like Debug, this is more a bundle of methods than a class ;-)
@@ -8,17 +9,30 @@
  */
 class HTTP {
 
+	/**
+	 * @var int $cache_age
+	 */
 	protected static $cache_age = 0;
 
+	/**
+	 * @var timestamp $modification_date
+	 */
 	protected static $modification_date = null;
 
+	/**
+	 * @var string $etag
+	 */
 	protected static $etag = null;
 
 	/**
-	 * Turns a local system filename into a URL by comparing it to the script filename
+	 * Turns a local system filename into a URL by comparing it to the script 
+	 * filename.
+	 *
+	 * @param string
 	 */
 	public static function filename2url($filename) {
 		$slashPos = -1;
+
 		while(($slashPos = strpos($filename, "/", $slashPos+1)) !== false) {
 			if(substr($filename, 0, $slashPos) == substr($_SERVER['SCRIPT_FILENAME'],0,$slashPos)) {
 				$commonLength = $slashPos;
@@ -27,13 +41,19 @@ class HTTP {
 			}
 		}
 
-		$urlBase = substr($_SERVER['PHP_SELF'], 0, -(strlen($_SERVER['SCRIPT_FILENAME']) - $commonLength));
+		$urlBase = substr(
+			$_SERVER['PHP_SELF'], 
+			0, 
+			-(strlen($_SERVER['SCRIPT_FILENAME']) - $commonLength)
+		);
+		
 		$url = $urlBase . substr($filename, $commonLength);
 		$protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') ? "https" : "http";
-		return "$protocol://". $_SERVER['HTTP_HOST'] . $url;
 
 		// Count the number of extra folders the script is in.
 		// $prefix = str_repeat("../", substr_count(substr($_SERVER[SCRIPT_FILENAME],$commonBaseLength)));
+	
+		return "$protocol://". $_SERVER['HTTP_HOST'] . $url;
 	}
 
 	/**
@@ -41,39 +61,80 @@ class HTTP {
 	 */
 	public static function absoluteURLs($html) {
 		$html = str_replace('$CurrentPageURL', $_SERVER['REQUEST_URI'], $html);
-		return HTTP::urlRewriter($html, '(substr($URL,0,1) == "/") ? ( Director::protocolAndHost() . $URL ) :'
-			. ' ( (preg_match("/^[A-Za-z]+:/", $URL)) ? $URL : Director::absoluteBaseURL() . $URL )' );
+		return HTTP::urlRewriter($html, function($url) {
+			//no need to rewrite, if uri has a protocol (determined here by existence of reserved URI character ":")
+			if(preg_match('/^\w+:/', $url)){
+				return $url;
+			}
+			return Director::absoluteURL($url, true);
+		});
 	}
 
-	/*
-	 * Rewrite all the URLs in the given content, evaluating the given string as PHP code
+	/**
+	 * Rewrite all the URLs in the given content, evaluating the given string as PHP code.
 	 *
 	 * Put $URL where you want the URL to appear, however, you can't embed $URL in strings
 	 * Some example code:
-	 *  '"../../" . $URL'
-	 *  'myRewriter($URL)'
-	 *  '(substr($URL,0,1)=="/") ? "../" . substr($URL,1) : $URL'
+	 * <ul>
+	 * <li><code>'"../../" . $URL'</code></li>
+	 * <li><code>'myRewriter($URL)'</code></li>
+	 * <li><code>'(substr($URL,0,1)=="/") ? "../" . substr($URL,1) : $URL'</code></li>
+	 * </ul>
+	 * 
+	 * As of 3.2 $code should be a callable which takes a single parameter and returns
+	 * the rewritten URL. e.g.
+	 * 
+	 * <code>
+	 * function($url) { 
+	 *		return Director::absoluteURL($url, true);
+	 * }
+	 * </code>
+	 * 
+	 * @param string $content The HTML to search for links to rewrite
+	 * @param string|callable $code Either a string that can evaluate to an expression
+	 * to rewrite links (depreciated), or a callable that takes a single 
+	 * parameter and returns the rewritten URL
+	 * @return The content with all links rewritten as per the logic specified in $code
 	 */
 	public static function urlRewriter($content, $code) {
+		if(!is_callable($code)) {
+			Deprecation::notice(3.1, 'HTTP::urlRewriter expects a callable as the second parameter');
+		}
+		
+		// Replace attributes
 		$attribs = array("src","background","a" => "href","link" => "href", "base" => "href");
 		foreach($attribs as $tag => $attrib) {
 			if(!is_numeric($tag)) $tagPrefix = "$tag ";
 			else $tagPrefix = "";
 
-			$regExps[] = "/(<{$tagPrefix}[^>]*$attrib *= *\")([^\"]*)(\")/ie";
-			$regExps[] = "/(<{$tagPrefix}[^>]*$attrib *= *')([^']*)(')/ie";
-			$regExps[] = "/(<{$tagPrefix}[^>]*$attrib *= *)([^\"' ]*)( )/ie";
+			$regExps[] = "/(<{$tagPrefix}[^>]*$attrib *= *\")([^\"]*)(\")/i";
+			$regExps[] = "/(<{$tagPrefix}[^>]*$attrib *= *')([^']*)(')/i";
+			$regExps[] = "/(<{$tagPrefix}[^>]*$attrib *= *)([^\"' ]*)( )/i";
 		}
-		$regExps[] = '/(background-image:[^;]*url *\()([^)]+)(\))/ie';
-		$regExps[] = '/(background:[^;]*url *\()([^)]+)(\))/ie';
-		$regExps[] = '/(list-style-image:[^;]*url *\()([^)]+)(\))/ie';
-		$regExps[] = '/(list-style:[^;]*url *\()([^)]+)(\))/ie';
+		// Replace css styles
+		// @todo - http://www.css3.info/preview/multiple-backgrounds/
+		$styles = array('background-image', 'background', 'list-style-image', 'list-style', 'content');
+		foreach($styles as $style) {
+			$regExps[] = "/($style:[^;]*url *\(\")([^\"]+)(\"\))/i";
+			$regExps[] = "/($style:[^;]*url *\(')([^']+)('\))/i";
+			$regExps[] = "/($style:[^;]*url *\()([^\"\)')]+)(\))/i";
+		}
 
-		// Make
-		$code = 'stripslashes("$1") . (' . str_replace('$URL', 'stripslashes("$2")', $code) . ') . stripslashes("$3")';
+		// Callback for regexp replacement
+		$callback = function($matches) use($code) {
+			if(is_callable($code)) {
+				$rewritten = $code($matches[2]);
+			} else {
+				// Expose the $URL variable to be used by the $code expression
+				$URL = $matches[2];
+				$rewritten = eval("return ($code);");
+			}
+			return $matches[1] . $rewritten . $matches[3];
+		};
 
+		// Execute each expression
 		foreach($regExps as $regExp) {
-			$content = preg_replace($regExp, $code, $content);
+			$content = preg_replace_callback($regExp, $callback, $content);
 		}
 
 		return $content;
@@ -171,8 +232,8 @@ class HTTP {
 		if($regexes) foreach($regexes as $regex) {
 			if(preg_match_all($regex, $content, $matches)) {
 				$result = array_merge_recursive($result, (isset($matches[2]) ? $matches[2] : $matches[1]));
- 			}
- 		}
+			}
+		}
 		
 		return count($result) ? $result : null;
 	}
@@ -183,17 +244,6 @@ class HTTP {
 	
 	public static function getImagesIn($content) {
 		return self::findByTagAndAttribute($content, array("img" => "src"));
-	}
-	
-	/**
-	 * Get mime type based on extension
-	 *
-	 * @uses finfo
-	 * @deprecated Use HTTP::get_mime_type() instead
-	 */
-	public static function getMimeType($filename) {
-		Deprecation::notice('3.0', 'Use HTTP::get_mime_type() instead.');
-		self::get_mime_type($filename);
 	}
 	
 	/**
@@ -262,7 +312,7 @@ class HTTP {
 			user_error("HTTP::add_cache_headers() must be passed an SS_HTTPResponse object", E_USER_WARNING);
 			$body = null;
 		}
-		
+
 		// Development sites have frequently changing templates; this can get stuffed up by the code
 		// below.
 		if(Director::isDev()) return;
@@ -270,8 +320,8 @@ class HTTP {
 		// The headers have been sent and we don't have an SS_HTTPResponse object to attach things to; no point in
 		// us trying.
 		if(headers_sent() && !$body) return;
-		
-		// Popuplate $responseHeaders with all the headers that we want to build 
+
+		// Popuplate $responseHeaders with all the headers that we want to build
 		$responseHeaders = array();
 		if(function_exists('apache_request_headers')) {
 			$requestHeaders = apache_request_headers();
@@ -285,19 +335,43 @@ class HTTP {
 		}
 
 		if(self::$cache_age > 0) {
-			$responseHeaders["Cache-Control"] = "max-age=" . self::$cache_age . ", must-revalidate";
+			$responseHeaders["Cache-Control"] = "max-age=" . self::$cache_age . ", must-revalidate, no-transform";
 			$responseHeaders["Pragma"] = "";
+
+			// To do: User-Agent should only be added in situations where you *are* actually 
+			// varying according to user-agent.
+			$responseHeaders['Vary'] = 'Cookie, X-Forwarded-Protocol, User-Agent, Accept';
+
 		} else {
-			$responseHeaders["Cache-Control"] = "no-cache, max-age=0, must-revalidate";
+			$responseHeaders["Cache-Control"] = "no-cache, max-age=0, must-revalidate, no-transform";
 		}
 
 		if(self::$modification_date && self::$cache_age > 0) {
-			$responseHeaders["Last-Modified"] =self::gmt_date(self::$modification_date);
+			$responseHeaders["Last-Modified"] = self::gmt_date(self::$modification_date);
+
+			// Chrome ignores Varies when redirecting back (http://code.google.com/p/chromium/issues/detail?id=79758)
+			// which means that if you log out, you get redirected back to a page which Chrome then checks against 
+			// last-modified (which passes, getting a 304)
+			// when it shouldn't be trying to use that page at all because it's the "logged in" version.
+			// By also using and etag that includes both the modification date and all the varies 
+			// values which we also check against we can catch this and not return a 304
+			$etagParts = array(self::$modification_date, serialize($_COOKIE));
+			if (isset($_SERVER['HTTP_X_FORWARDED_PROTOCOL'])) $etagParts[] = $_SERVER['HTTP_X_FORWARDED_PROTOCOL'];
+			if (isset($_SERVER['HTTP_USER_AGENT'])) $etagParts[] = $_SERVER['HTTP_USER_AGENT'];
+			if (isset($_SERVER['HTTP_ACCEPT'])) $etagParts[] = $_SERVER['HTTP_ACCEPT'];
+
+			$etag = sha1(implode(':', $etagParts));
+			$responseHeaders["ETag"] = $etag;
 
 			// 304 response detection
 			if(isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
 				$ifModifiedSince = strtotime(stripslashes($_SERVER['HTTP_IF_MODIFIED_SINCE']));
-				if($ifModifiedSince >= self::$modification_date) {
+
+				// As above, only 304 if the last request had all the same varies values
+				// (or the etag isn't passed as part of the request - but with chrome it always is)
+				$matchesEtag = !isset($_SERVER['HTTP_IF_NONE_MATCH']) || $_SERVER['HTTP_IF_NONE_MATCH'] == $etag;
+
+				if($ifModifiedSince >= self::$modification_date && $matchesEtag) {
 					if($body) {
 						$body->setStatusCode(304);
 						$body->setBody('');

@@ -9,6 +9,8 @@ class DirectorTest extends SapphireTest {
 
 	protected static $originalRequestURI;
 
+	protected $originalProtocolHeaders = array();
+
 	public function setUp() {
 		parent::setUp();
 
@@ -24,6 +26,16 @@ class DirectorTest extends SapphireTest {
 				'Locale' => 'en_NZ'
 			)
 		));
+
+		$headers = array(
+			'HTTP_X_FORWARDED_PROTOCOL', 'HTTPS', 'SSL'
+		);
+
+		foreach($headers as $header) {
+			if(isset($_SERVER[$header])) {
+				$this->originalProtocolHeaders[$header] = $_SERVER[$header];
+			}
+		}
 	}
 	
 	public function tearDown() {
@@ -31,7 +43,13 @@ class DirectorTest extends SapphireTest {
 		
 		// Reinstate the original REQUEST_URI after it was modified by some tests
 		$_SERVER['REQUEST_URI'] = self::$originalRequestURI;
-		
+
+		if($this->originalProtocolHeaders) {
+			foreach($this->originalProtocolHeaders as $header => $value) {
+				$_SERVER[$header] = $value;
+			}
+		}
+
 		parent::tearDown();
 	}
 	
@@ -57,20 +75,20 @@ class DirectorTest extends SapphireTest {
 
 	public function testAlternativeBaseURL() {
 		// relative base URLs - you should end them in a /
-		Director::setBaseURL('/relativebase/');
+		Config::inst()->update('Director', 'alternate_base_url', '/relativebase/');
 		$this->assertEquals('/relativebase/', Director::baseURL());
 		$this->assertEquals(Director::protocolAndHost() . '/relativebase/', Director::absoluteBaseURL());
 		$this->assertEquals(Director::protocolAndHost() . '/relativebase/subfolder/test',
 			Director::absoluteURL('subfolder/test'));
 
 		// absolute base URLs - you should end them in a /
-		Director::setBaseURL('http://www.example.org/');
+		Config::inst()->update('Director', 'alternate_base_url', 'http://www.example.org/');
 		$this->assertEquals('http://www.example.org/', Director::baseURL());
 		$this->assertEquals('http://www.example.org/', Director::absoluteBaseURL());
 		$this->assertEquals('http://www.example.org/subfolder/test', Director::absoluteURL('subfolder/test'));
 
 		// Setting it to false restores functionality
-		Director::setBaseURL(false);
+		Config::inst()->update('Director', 'alternate_base_url', false);
 		$this->assertEquals(BASE_URL.'/', Director::baseURL());
 		$this->assertEquals(Director::protocolAndHost().BASE_URL.'/', Director::absoluteBaseURL(BASE_URL));
 		$this->assertEquals(Director::protocolAndHost().BASE_URL . '/subfolder/test',
@@ -191,40 +209,6 @@ class DirectorTest extends SapphireTest {
 		}
 	}
 	
-	public function testURLParam() {
-		// 2.4 only
-		$originalDeprecation = Deprecation::dump_settings();
-		Deprecation::notification_version('2.4');
-
-		Director::test('DirectorTestRule/myaction/myid/myotherid');
-		// TODO Works on the assumption that urlParam() is not unset after a test run, which is dodgy
-		$this->assertEquals(Director::urlParam('Action'), 'myaction');
-		$this->assertEquals(Director::urlParam('ID'), 'myid');
-		$this->assertEquals(Director::urlParam('OtherID'), 'myotherid');
-
-		Deprecation::restore_settings($originalDeprecation);
-	}
-	
-	public function testURLParams() {
-		// 2.4 only
-		$originalDeprecation = Deprecation::dump_settings();
-		Deprecation::notification_version('2.4');
-
-		Director::test('DirectorTestRule/myaction/myid/myotherid');
-		// TODO Works on the assumption that urlParam() is not unset after a test run, which is dodgy
-		$this->assertEquals(
-			Director::urlParams(), 
-			array(
-				'Controller' => 'DirectorTestRequest_Controller',
-				'Action' => 'myaction', 
-				'ID' => 'myid', 
-				'OtherID' => 'myotherid'
-			)
-		);
-
-		Deprecation::restore_settings($originalDeprecation);
-	}
-	
 	/**
 	 * Tests that additional parameters specified in the routing table are 
 	 * saved in the request 
@@ -261,7 +245,7 @@ class DirectorTest extends SapphireTest {
 	}
 
 	public function testForceSSLOnSubPagesPattern() {
-		$_SERVER['REQUEST_URI'] = Director::baseURL() . 'Security/login';
+		$_SERVER['REQUEST_URI'] = Director::baseURL() . Config::inst()->get('Security', 'login_url');
 		$output = Director::forceSSL(array('/^Security/'));
 		$this->assertEquals($output, 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
 	}
@@ -274,6 +258,13 @@ class DirectorTest extends SapphireTest {
 		$_SERVER['REQUEST_URI'] = Director::baseURL() . 'just-another-page/sub-url';
 		$output = Director::forceSSL(array('/^admin/', '/^Security/'));
 		$this->assertFalse($output);
+	}
+
+	public function testForceSSLAlternateDomain() {
+		Config::inst()->update('Director', 'alternate_base_url', '/');
+		$_SERVER['REQUEST_URI'] = Director::baseURL() . 'admin';
+		$output = Director::forceSSL(array('/^admin/'), 'secure.mysite.com');
+		$this->assertEquals($output, 'https://secure.mysite.com/admin');
 	}
 
 	/**
@@ -308,6 +299,47 @@ class DirectorTest extends SapphireTest {
 		$this->assertEquals($headers, Director::extract_request_headers($request));
 	}
 
+	public function testUnmatchedRequestReturns404() {
+		$this->assertEquals(404, Director::test('no-route')->getStatusCode());
+	}
+
+	public function testIsHttps() {
+		// nothing available
+		$headers = array(
+			'HTTP_X_FORWARDED_PROTOCOL', 'HTTPS', 'SSL'
+		);
+
+		foreach($headers as $header) {
+			if(isset($_SERVER[$header])) {
+				unset($_SERVER['HTTP_X_FORWARDED_PROTOCOL']);
+			}
+		}
+
+		$this->assertFalse(Director::is_https());
+
+		$_SERVER['HTTP_X_FORWARDED_PROTOCOL'] = 'https';
+		$this->assertTrue(Director::is_https());
+
+		$_SERVER['HTTP_X_FORWARDED_PROTOCOL'] = 'http';
+		$this->assertFalse(Director::is_https());
+
+		$_SERVER['HTTP_X_FORWARDED_PROTOCOL'] = 'ftp';
+		$this->assertFalse(Director::is_https());
+
+		// https via HTTPS
+		$_SERVER['HTTPS'] = 'true';
+		$this->assertTrue(Director::is_https());
+
+		$_SERVER['HTTPS'] = '1';
+		$this->assertTrue(Director::is_https());
+
+		$_SERVER['HTTPS'] = 'off';
+		$this->assertFalse(Director::is_https());
+
+		// https via SSL
+		$_SERVER['SSL'] = '';
+		$this->assertTrue(Director::is_https());
+	}
 }
 
 class DirectorTestRequest_Controller extends Controller implements TestOnly {

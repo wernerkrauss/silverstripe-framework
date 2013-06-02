@@ -147,20 +147,20 @@ class SearchContext extends Object {
 			$searchParamArray = $searchParams;
 		}
 
- 		foreach($searchParamArray as $key => $value) {
+		foreach($searchParamArray as $key => $value) {
 			$key = str_replace('__', '.', $key);
 			if($filter = $this->getFilter($key)) {
 				$filter->setModel($this->modelClass);
 				$filter->setValue($value);
 				if(! $filter->isEmpty()) {
-					$filter->apply($query->dataQuery());
+					$query = $query->alterDataQuery(array($filter, 'apply'));
 				}
 			}
 		}
 		
- 		if($this->connective != "AND") {
- 			throw new Exception("SearchContext connective '$this->connective' not supported after ORM-rewrite.");
- 		}
+		if($this->connective != "AND") {
+			throw new Exception("SearchContext connective '$this->connective' not supported after ORM-rewrite.");
+		}
 		
 		return $query;
 	}

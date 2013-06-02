@@ -14,11 +14,10 @@ require_once("model/DB.php");
 class DatabaseAdmin extends Controller {
 
 	/// SECURITY ///
-	static $allowed_actions = array(
+	private static $allowed_actions = array(
 		'index',
 		'build',
 		'cleanup',
-		'testinstall',
 		'import'
 	);
 	
@@ -74,14 +73,12 @@ class DatabaseAdmin extends Controller {
 
 
 	/**
-	 * Display a simple HTML menu of database admin helpers.
+	 * When we're called as /dev/build, that's actually the index. Do the same
+	 * as /dev/build/build.
 	 */
 	public function index() {
-		echo "<h2>Database Administration Helpers</h2>";
-		echo "<p><a href=\"build\">Add missing database fields (similar to sanity check).</a></p>";
-		echo "<p><a href=\"../images/flush\">Flush <b>all</b> of the generated images.</a></p>";
+		return $this->build();
 	}
-
 
 	/**
 	 * Updates the database schema, creating tables & fields as necessary.
@@ -264,15 +261,6 @@ class DatabaseAdmin extends Controller {
 		}
 	}
 
-
-	/**
-	 * Method used to check mod_rewrite is working correctly in the installer.
-	 */
-	public function testinstall() {
-		echo "OK";
-	}
-
-
 	/**
 	 * Remove invalid records from tables - that is, records that don't have
 	 * corresponding records in their parent class tables.
@@ -308,8 +296,8 @@ class DatabaseAdmin extends Controller {
 					foreach($subclasses as $subclass) {
 						$id = $record['ID'];
 						if(($record['ClassName'] != $subclass) &&
-							 (!is_subclass_of($record['ClassName'], $subclass)) &&
-							 (isset($recordExists[$subclass][$id]))) {
+							(!is_subclass_of($record['ClassName'], $subclass)) &&
+								(isset($recordExists[$subclass][$id]))) {
 							$sql = "DELETE FROM \"$subclass\" WHERE \"ID\" = $record[ID]";
 							echo "<li>$sql";
 							DB::query($sql);

@@ -96,7 +96,19 @@ class SSViewer_Scope {
 			$this->upIndex, $this->currentIndex);
 		return $this;
 	}
-	
+
+	/**
+	 * Gets the current object and resets the scope.
+	 *
+	 * @return object
+	 */
+	public function self() {
+		$result = $this->itemIterator ? $this->itemIterator->current() : $this->item;
+		$this->resetLocalScope();
+
+		return $result;
+	}
+
 	public function pushScope(){
 		$newLocalIndex = count($this->itemStack)-1;
 		
@@ -141,7 +153,7 @@ class SSViewer_Scope {
 	
 	public function __call($name, $arguments) {
 		$on = $this->itemIterator ? $this->itemIterator->current() : $this->item;
-		$retval = call_user_func_array(array($on, $name), $arguments);
+		$retval = $on ? call_user_func_array(array($on, $name), $arguments) : null;
 		
 		$this->resetLocalScope();
 		return $retval;
@@ -521,25 +533,30 @@ class SSViewer_DataPresenter extends SSViewer_Scope {
 class SSViewer {
 	
 	/**
+	 * @config
 	 * @var boolean $source_file_comments
 	 */
-	protected static $source_file_comments = false;
+	private static $source_file_comments = false;
 	
 	/**
 	 * Set whether HTML comments indicating the source .SS file used to render this page should be
 	 * included in the output.  This is enabled by default
 	 *
+	 * @deprecated 3.2 Use the "SSViewer.source_file_comments" config setting instead
 	 * @param boolean $val
 	 */
 	public static function set_source_file_comments($val) {
-		self::$source_file_comments = $val;
+		Deprecation::notice('3.2', 'Use the "SSViewer.source_file_comments" config setting instead');
+		Config::inst()->update('SSViewer', 'source_file_comments', $val);
 	}
 	
 	/**
+	 * @deprecated 3.2 Use the "SSViewer.source_file_comments" config setting instead
 	 * @return boolean
 	 */
 	public static function get_source_file_comments() {
-		return self::$source_file_comments;
+		Deprecation::notice('3.2', 'Use the "SSViewer.source_file_comments" config setting instead');
+		return Config::inst()->get('SSViewer', 'source_file_comments');
 	}
 	
 	/**
@@ -554,14 +571,26 @@ class SSViewer {
 	protected $rewriteHashlinks = true;
 	
 	/**
-	 * @var string
+	 * @config
+	 * @var string The used "theme", which usually consists of templates, images and stylesheets.
+	 * Only used when {@link $theme_enabled} is set to TRUE.
 	 */
-	protected static $current_theme = null;
-	
+	private static $theme = null;
+
 	/**
-	 * @var string
+	 * @config
+	 * @var boolean Use the theme. Set to FALSE in order to disable themes,
+	 * which can be useful for scenarios where theme overrides are temporarily undesired,
+	 * such as an administrative interface separate from the website theme. 
+	 * It retains the theme settings to be re-enabled, for example when a website content
+	 * needs to be rendered from within this administrative interface.
 	 */
-	protected static $current_custom_theme = null;
+	private static $theme_enabled = true;
+
+	/**
+	 * @var boolean
+	 */
+	protected $includeRequirements = true;
 
 	/**
 	 * Create a template from a string instead of a .ss file
@@ -573,29 +602,31 @@ class SSViewer {
 	}
 	
 	/**
+	 * @deprecated 3.2 Use the "SSViewer.theme" config setting instead
 	 * @param string $theme The "base theme" name (without underscores). 
 	 */
 	public static function set_theme($theme) {
-		self::$current_theme = $theme;
-		//Static publishing needs to have a theme set, otherwise it defaults to the content controller theme
-		if(!is_null($theme))
-			self::$current_custom_theme=$theme;
+		Deprecation::notice('3.2', 'Use the "SSViewer.theme" config setting instead');
+		Config::inst()->update('SSViewer', 'theme', $theme);
 	}
 	
 	/**
+	 * @deprecated 3.2 Use the "SSViewer.theme" config setting instead
 	 * @return string 
 	 */
 	public static function current_theme() {
-		return self::$current_theme;
+		Deprecation::notice('3.2', 'Use the "SSViewer.theme" config setting instead');
+		return Config::inst()->get('SSViewer', 'theme');
 	}
 	
 	/**
 	 * Returns the path to the theme folder
 	 *
-	 * @return String
+	 * @return string
 	 */
 	public static function get_theme_folder() {
-		return self::current_theme() ? THEMES_DIR . "/" . self::current_theme() : project();
+		$theme = Config::inst()->get('SSViewer', 'theme');
+		return $theme ? THEMES_DIR . "/" . $theme : project();
 	}
 
 	/**
@@ -613,7 +644,7 @@ class SSViewer {
 
 		foreach (scandir($path) as $item) {
 			if ($item[0] != '.' && is_dir("$path/$item")) {
-				if ($subthemes || !strpos($item, '_')) {
+				if ($subthemes || strpos($item, '_') === false) {
 					$themes[$item] = $item;
 				}
 			}
@@ -626,7 +657,8 @@ class SSViewer {
 	 * @return string
 	 */
 	public static function current_custom_theme(){
-		return self::$current_custom_theme;
+		Deprecation::notice('3.2', 'Use the "SSViewer.theme" and "SSViewer.theme_enabled" config settings instead');
+		return Config::inst()->get('SSViewer', 'theme_enabled') ? Config::inst()->get('SSViewer', 'theme') : null;
 	}
 	
 	/**
@@ -653,21 +685,34 @@ class SSViewer {
 		if(!is_array($templateList) && substr((string) $templateList,-3) == '.ss') {
 			$this->chosenTemplates['main'] = $templateList;
 		} else {
+			if(Config::inst()->get('SSViewer', 'theme_enabled')) {
+				$theme = Config::inst()->get('SSViewer', 'theme');
+			} else {
+				$theme = null;
+			}
 			$this->chosenTemplates = SS_TemplateLoader::instance()->findTemplates(
-				$templateList, self::current_theme()
+				$templateList, $theme
 			);
 		}
 
 		if(!$this->chosenTemplates) {
-		  $templateList = (is_array($templateList)) ? $templateList : array($templateList);
-		  
-		  user_error("None of these templates can be found in theme '"
-			. self::current_theme() . "': ". implode(".ss, ", $templateList) . ".ss", E_USER_WARNING);
+			$templateList = (is_array($templateList)) ? $templateList : array($templateList);
+
+			user_error(
+				"None of these templates can be found in theme '"
+				. Config::inst()->get('SSViewer', 'theme') . "': "
+				. implode(".ss, ", $templateList) . ".ss", 
+				E_USER_WARNING
+			);
 		}
 	}
 	
 	/**
-	 * Returns true if at least one of the listed templates exists
+	 * Returns true if at least one of the listed templates exists.
+	 *
+	 * @param array $templates
+	 *
+	 * @return boolean
 	 */
 	public static function hasTemplate($templates) {
 		$manifest = SS_TemplateLoader::instance()->getManifest();
@@ -681,30 +726,51 @@ class SSViewer {
 	
 	/**
 	 * Set a global rendering option.
+	 *
 	 * The following options are available:
 	 *  - rewriteHashlinks: If true (the default), <a href="#..."> will be rewritten to contain the 
 	 *    current URL.  This lets it play nicely with our <base> tag.
 	 *  - If rewriteHashlinks = 'php' then, a piece of PHP script will be inserted before the hash 
 	 *    links: "<?php echo $_SERVER['REQUEST_URI']; ?>".  This is useful if you're generating a 
 	 *    page that will be saved to a .php file and may be accessed from different URLs.
+	 *
+	 * @deprecated 3.2 Use the "SSViewer.rewrite_hash_links" config setting instead
+	 * @param string $optionName
+	 * @param mixed $optionVal
 	 */
 	public static function setOption($optionName, $optionVal) {
-		SSViewer::$options[$optionName] = $optionVal;
+		if($optionName == 'rewriteHashlinks') {
+			Deprecation::notice('3.2', 'Use the "SSViewer.rewrite_hash_links" config setting instead');
+			Config::inst()->update('SSViewer', 'rewrite_hash_links', $optionVal);
+		} else {
+			Deprecation::notice('3.2', 'Use the "SSViewer.' . $optionName . '" config setting instead');
+			Config::inst()->update('SSViewer', $optionName, $optionVal);
+		}
 	}
 	
 	/**
- 	 * @param String
- 	 * @return Mixed
+ 	 * @deprecated 3.2 Use the "SSViewer.rewrite_hash_links" config setting instead
+ 	 * @param string
+ 	 * @return mixed
 	 */
 	public static function getOption($optionName) {
-		return SSViewer::$options[$optionName];
+		if($optionName == 'rewriteHashlinks') {
+			Deprecation::notice('3.2', 'Use the "SSViewer.rewrite_hash_links" config setting instead');
+			return Config::inst()->get('SSViewer', 'rewrite_hash_links');
+		} else {
+			Deprecation::notice('3.2', 'Use the "SSViewer.' . $optionName . '" config setting instead');
+			return Config::inst()->get('SSViewer', $optionName);
+		}
 	}
-	
-	protected static $options = array(
-		'rewriteHashlinks' => true,
-	);
-    
+
+	/**
+	 * @config
+	 * @var boolean
+	 */
+	private static $rewrite_hash_links = true;
+
 	protected static $topLevel = array();
+
 	public static function topLevel() {
 		if(SSViewer::$topLevel) {
 			return SSViewer::$topLevel[sizeof(SSViewer::$topLevel)-1];
@@ -717,7 +783,7 @@ class SSViewer {
 	 */
 	public function dontRewriteHashlinks() {
 		$this->rewriteHashlinks = false;
-		self::$options['rewriteHashlinks'] = false;
+		Config::inst()->update('SSViewer', 'rewrite_hash_links', false);
 		return $this;
 	}
 	
@@ -728,11 +794,17 @@ class SSViewer {
 	/**
 	 * @param string $identifier A template name without '.ss' extension or path
 	 * @param string $type The template type, either "main", "Includes" or "Layout"
+	 *
 	 * @return string Full system path to a template file
 	 */
 	public static function getTemplateFileByType($identifier, $type) {
 		$loader = SS_TemplateLoader::instance();
-		$found  = $loader->findTemplates("$type/$identifier", self::current_theme());
+		if(Config::inst()->get('SSViewer', 'theme_enabled')) {
+			$theme = Config::inst()->get('SSViewer', 'theme');
+		} else {
+			$theme = null;
+		}
+		$found  = $loader->findTemplates("$type/$identifier", $theme);
 
 		if ($found) {
 			return $found['main'];
@@ -766,6 +838,7 @@ class SSViewer {
 
 	/**
 	 * Set the cache object to use when storing / retrieving partial cache blocks.
+	 *
 	 * @param Zend_Cache_Core $cache
 	 */
 	public function setPartialCacheStore($cache) {
@@ -773,11 +846,21 @@ class SSViewer {
 	}
 
 	/**
-	 * Get the cache object to use when storing / retrieving partial cache blocks
+	 * Get the cache object to use when storing / retrieving partial cache blocks.
+	 *
 	 * @return Zend_Cache_Core
 	 */
 	public function getPartialCacheStore() {
 		return $this->partialCacheStore ? $this->partialCacheStore : SS_Cache::factory('cacheblock');
+	}
+
+	/**
+	 * Flag whether to include the requirements in this response.
+	 *
+	 * @param boolean
+	 */
+	public function includeRequirements($incl = true) {
+		$this->includeRequirements = $incl;
 	}
 
 	/**
@@ -790,10 +873,11 @@ class SSViewer {
 	 * @param Object $item - The item to use as the root scope for the template
 	 * @param array|null $overlay - Any variables to layer on top of the scope
 	 * @param array|null $underlay - Any variables to layer underneath the scope
+	 *
 	 * @return string - The result of executing the template
 	 */
 	protected function includeGeneratedTemplate($cacheFile, $item, $overlay, $underlay) {
-		if(isset($_GET['showtemplate']) && $_GET['showtemplate']) {
+		if(isset($_GET['showtemplate']) && $_GET['showtemplate'] && Permission::check('ADMIN')) {
 			$lines = file($cacheFile);
 			echo "<h2>Template: $cacheFile</h2>";
 			echo "<pre>";
@@ -814,16 +898,19 @@ class SSViewer {
 
 	/**
 	 * The process() method handles the "meat" of the template processing.
-	 * It takes care of caching the output (via {@link SS_Cache}),
-	 * as well as replacing the special "$Content" and "$Layout"
-	 * placeholders with their respective subtemplates.
+	 *
+	 * It takes care of caching the output (via {@link SS_Cache}), as well as 
+	 * replacing the special "$Content" and "$Layout" placeholders with their 
+	 * respective subtemplates.
+	 *
 	 * The method injects extra HTML in the header via {@link Requirements::includeInHTML()}.
 	 * 
 	 * Note: You can call this method indirectly by {@link ViewableData->renderWith()}.
 	 * 
 	 * @param ViewableData $item
-	 * @param SS_Cache $cache Optional cache backend
-	 * @return String Parsed template output.
+	 * @param SS_Cache $cache Optional cache backend.
+	 *
+	 * @return HTMLText Parsed template output.
 	 */
 	public function process($item, $arguments = null) {
 		SSViewer::$topLevel[] = $item;
@@ -863,30 +950,37 @@ class SSViewer {
 		foreach(array('Content', 'Layout') as $subtemplate) {
 			if(isset($this->chosenTemplates[$subtemplate])) {
 				$subtemplateViewer = new SSViewer($this->chosenTemplates[$subtemplate]);
+				$subtemplateViewer->includeRequirements(false);
 				$subtemplateViewer->setPartialCacheStore($this->getPartialCacheStore());
 
 				$underlay[$subtemplate] = $subtemplateViewer->process($item, $arguments);
 			}
 		}
 
-		$val = $this->includeGeneratedTemplate($cacheFile, $item, $arguments, $underlay);
-		$output = Requirements::includeInHTML($template, $val);
+		$output = $this->includeGeneratedTemplate($cacheFile, $item, $arguments, $underlay);
+		
+		if($this->includeRequirements) {
+			$output = Requirements::includeInHTML($template, $output);
+		}
 		
 		array_pop(SSViewer::$topLevel);
 
 		// If we have our crazy base tag, then fix # links referencing the current page.
-		if($this->rewriteHashlinks && self::$options['rewriteHashlinks']) {
+		
+		$rewrite = Config::inst()->get('SSViewer', 'rewrite_hash_links');
+		if($this->rewriteHashlinks && $rewrite) {
 			if(strpos($output, '<base') !== false) {
-				if(SSViewer::$options['rewriteHashlinks'] === 'php') { 
+				if($rewrite === 'php') { 
 					$thisURLRelativeToBase = "<?php echo strip_tags(\$_SERVER['REQUEST_URI']); ?>"; 
 				} else { 
 					$thisURLRelativeToBase = strip_tags($_SERVER['REQUEST_URI']); 
 				}
+
 				$output = preg_replace('/(<a[^>]+href *= *)"#/i', '\\1"' . $thisURLRelativeToBase . '#', $output);
 			}
 		}
 
-		return $output;
+		return DBField::create_field('HTMLText', $output, null, array('shortcodes' => false));
 	}
 
 	/**
@@ -895,11 +989,17 @@ class SSViewer {
 	 */
 	public static function execute_template($template, $data, $arguments = null) {
 		$v = new SSViewer($template);
+		$v->includeRequirements(false);
+
 		return $v->process($data, $arguments);
 	}
 
 	public static function parseTemplateContent($content, $template="") {
-		return SSTemplateParser::compileString($content, $template, Director::isDev() && self::$source_file_comments);
+		return SSTemplateParser::compileString(
+			$content, 
+			$template, 
+			Director::isDev() && Config::inst()->get('SSViewer', 'source_file_comments')
+		);
 	}
 
 	/**

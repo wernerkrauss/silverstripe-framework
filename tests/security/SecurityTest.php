@@ -6,7 +6,7 @@
  * @subpackage tests
  */
 class SecurityTest extends FunctionalTest {
-	static $fixture_file = 'MemberTest.yml';
+	protected static $fixture_file = 'MemberTest.yml';
 	
 	protected $autoFollowRedirection = false;
 	
@@ -28,8 +28,8 @@ class SecurityTest extends FunctionalTest {
 		Authenticator::set_default_authenticator('MemberAuthenticator');
 
 		// And that the unique identified field is 'Email'
-		$this->priorUniqueIdentifierField = Member::get_unique_identifier_field();
-		Member::set_unique_identifier_field('Email');
+		$this->priorUniqueIdentifierField = Member::config()->unique_identifier_field;
+		Member::config()->unique_identifier_field = 'Email';
 
 		parent::setUp();
 	}
@@ -47,7 +47,7 @@ class SecurityTest extends FunctionalTest {
 		Authenticator::set_default_authenticator($this->priorDefaultAuthenticator);
 
 		// Restore unique identifier field
-		Member::set_unique_identifier_field($this->priorUniqueIdentifierField);
+		Member::config()->unique_identifier_field = $this->priorUniqueIdentifierField;
 		
 		parent::tearDown();
 	}
@@ -57,7 +57,10 @@ class SecurityTest extends FunctionalTest {
 		
 		$response = $this->get('SecurityTest_SecuredController');
 		$this->assertEquals(302, $response->getStatusCode());
-		$this->assertContains('Security/login', $response->getHeader('Location'));
+		$this->assertContains(
+			Config::inst()->get('Security', 'login_url'), 
+			$response->getHeader('Location')
+		);
 
 		$this->logInWithPermission('ADMIN');		
 		$response = $this->get('SecurityTest_SecuredController');
@@ -74,7 +77,7 @@ class SecurityTest extends FunctionalTest {
 		$this->session()->inst_set('loggedInAs', $member->ID);
 
 		/* View the Security/login page */
-		$response = $this->get('Security/login');
+		$response = $this->get(Config::inst()->get('Security', 'login_url'));
 		
 		$items = $this->cssParser()->getBySelector('#MemberLoginForm_LoginForm input.action');
 		
@@ -108,7 +111,7 @@ class SecurityTest extends FunctionalTest {
 		$this->autoFollowRedirection = true;
 		
 		/* Attempt to get into the admin section */
-		$response = $this->get('Security/login/');
+		$response = $this->get(Config::inst()->get('Security', 'login_url'));
 		
 		$items = $this->cssParser()->getBySelector('#MemberLoginForm_LoginForm input.text');
 
@@ -222,7 +225,12 @@ class SecurityTest extends FunctionalTest {
 		// Load password link from email
 		$admin = DataObject::get_by_id('Member', $admin->ID);
 		$this->assertNotNull($admin->AutoLoginHash, 'Hash has been written after lost password');
-		$response = $this->get('Security/changepassword/?h=' . $admin->AutoLoginHash);
+
+		// We don't have access to the token - generate a new token and hash pair.
+		$token = $admin->generateAutologinTokenAndStoreHash();
+
+		// Check.
+		$response = $this->get('Security/changepassword/?m='.$admin->ID.'&t=' . $token);
 		$this->assertEquals(302, $response->getStatusCode());
 		$this->assertEquals(Director::baseUrl() . 'Security/changepassword', $response->getHeader('Location'));
 		
@@ -241,7 +249,7 @@ class SecurityTest extends FunctionalTest {
 		$local = i18n::get_locale();
 		i18n::set_locale('en_US');
 
-		Member::lock_out_after_incorrect_logins(5);
+		Member::config()->lock_out_after_incorrect_logins = 5;
 		
 		/* LOG IN WITH A BAD PASSWORD 7 TIMES */
 
@@ -302,7 +310,7 @@ class SecurityTest extends FunctionalTest {
 	}
 	
 	public function testAlternatingRepeatedLoginAttempts() {
-		Member::lock_out_after_incorrect_logins(3);
+		Member::config()->lock_out_after_incorrect_logins = 3;
 		
 		// ATTEMPTING LOG-IN TWICE WITH ONE ACCOUNT AND TWICE WITH ANOTHER SHOULDN'T LOCK ANYBODY OUT
 
@@ -331,7 +339,7 @@ class SecurityTest extends FunctionalTest {
 	}
 	
 	public function testUnsuccessfulLoginAttempts() {
-		Security::set_login_recording(true);
+		Security::config()->login_recording = true;
 		
 		/* UNSUCCESSFUL ATTEMPTS WITH WRONG PASSWORD FOR EXISTING USER ARE LOGGED */
 		$this->doTestLoginForm('sam@silverstripe.com', 'wrongpassword');
@@ -354,7 +362,7 @@ class SecurityTest extends FunctionalTest {
 	}
 	
 	public function testSuccessfulLoginAttempts() {
-		Security::set_login_recording(true);
+		Security::config()->login_recording = true;
 		
 		/* SUCCESSFUL ATTEMPTS ARE LOGGED */
 		$this->doTestLoginForm('sam@silverstripe.com', '1nitialPassword');
@@ -391,7 +399,7 @@ class SecurityTest extends FunctionalTest {
 	public function doTestLoginForm($email, $password, $backURL = 'test/link') {
 		$this->get('Security/logout');
 		$this->session()->inst_set('BackURL', $backURL);
-		$this->get('Security/login');
+		$this->get(Config::inst()->get('Security', 'login_url'));
 		
 		return $this->submitForm(
 			"MemberLoginForm_LoginForm", 

@@ -10,7 +10,7 @@
 
 
 	<div class="ss-uploadfield-item-info">
-		<label class="ss-uploadfield-fromcomputer ss-ui-button ss-ui-action-constructive" title="<% _t('AssetUploadField.FROMCOMPUTERINFO', 'Upload from your computer') %>" data-icon="drive-upload">
+		<label class="ss-uploadfield-fromcomputer ss-ui-button ss-ui-action-constructive" title="<% _t('AssetUploadField.FROMCOMPUTERINFO', 'Upload from your computer') %>" data-icon="drive-upload-large">
 			<% _t('AssetUploadField.TOUPLOAD', 'Choose files to upload...') %>
 			<input id="$id" name="$getName" class="$extraClass ss-uploadfield-fromcomputer-fileinput" data-config="$configString" type="file"<% if $multiple %> multiple="multiple"<% end_if %> title="<% _t('AssetUploadField.FROMCOMPUTER', 'Choose files from your computer') %>" />
 		</label>
@@ -28,9 +28,11 @@
 	</div>
 	
 	<span class="ss-uploadfield-view-allowed-extensions"> 
+		<span class="description">
 
-		<em><% _t('AssetAdmin.ALLOWEDEXTS', 'Allowed extensions') %></em>
-		$Extensions
+			<a href="#" class="toggle"><% _t('AssetAdmin.SHOWALLOWEDEXTS', 'Show allowed extensions') %></a>
+			<p class="toggle-content">$Extensions</p>
+		</span>	
 	</span>	
 
 	<div class="clear"><!-- --></div>

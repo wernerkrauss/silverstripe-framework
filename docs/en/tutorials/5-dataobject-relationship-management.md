@@ -34,11 +34,11 @@ Let's create the `Student` and `Project` objects.
 	:::php
 	<?php
 	class Student extends DataObject {
-		static $db = array(
+		private static $db = array(
 			'Name' => 'Varchar',
 			'University' => 'Varchar',
 		);
-		static $has_one = array(
+		private static $has_one = array(
 			'Project' => 'Project'
 		);	
 	}
@@ -48,7 +48,7 @@ Let's create the `Student` and `Project` objects.
 	:::php
 	<?php
 	class Project extends Page {
-		static $has_many = array(
+		private static $has_many = array(
 			'Students' => 'Student'
 		);
 	}
@@ -90,7 +90,7 @@ The restriction is enforced through the `$allowed_children` directive.
 	:::php
 	<?php
 	class ProjectsHolder extends Page {
-		static $allowed_children = array(
+		private static $allowed_children = array(
 			'Project'
 		);
 	}
@@ -114,7 +114,7 @@ But what about creating `Student` records?
 
 Since students are related to a single project, we will
 allow editing them right the on the CMS interface in the `Project` page type.
-We do this through a powerful field called `[GridField](/topics/grid-field)`.
+We do this through a powerful field called `[GridField](/reference/grid-field)`.
 All customization to fields for a page type are managed through a method called
 `getCMSFields()`, so let's add it there:
 
@@ -194,10 +194,10 @@ The first step is to create the `Mentor` object and set the relation with the `P
 	:::php
 	<?php
 	class Mentor extends DataObject {
-		static $db = array(
+		private static $db = array(
 			'Name' => 'Varchar',
 		);
-		static $belongs_many_many = array(
+		private static $belongs_many_many = array(
 			'Projects' => 'Project'
 		);
 	}
@@ -207,7 +207,7 @@ The first step is to create the `Mentor` object and set the relation with the `P
 	:::php
 	class Project extends Page {
 		// ...
-		static $many_many = array(
+		private static $many_many = array(
 			'Mentors' => 'Mentor'
 		);
 	}
@@ -278,7 +278,8 @@ a named list of object.
 **themes/simple/templates/Layout/ProjectsHolder.ss**
 
 	:::ss
-	<div class="content-container typography">	
+	<% include SideBar %>
+	<div class="content-container unit size3of4 lastUnit">
 		<article>
 			<h1>$Title</h1>
 			<div class="content">
@@ -292,19 +293,19 @@ a named list of object.
 						</tr>
 					</thead>
 					<tbody>
-					<% loop Children %>
+					<% loop $Children %>
 						<tr>
 							<td>
 								<a href="$Link">$Title</a>
 							</td>	
 							<td>
-								<% loop Students %>	                            
-									$Name ($University)<% if Last !=1 %>,<% end_if %>
+								<% loop $Students %>	                            
+									$Name ($University)<% if $Last !=1 %>,<% end_if %>
 								<% end_loop %>
 							</td>    
 							<td>
-								<% loop Mentor %>
-									$Name<% if Last !=1 %>,<% end_if %>
+								<% loop $Mentor %>
+									$Name<% if $Last !=1 %>,<% end_if %>
 								<% end_loop %>
 							</td>
 						</tr>
@@ -314,7 +315,6 @@ a named list of object.
 			</div>
 		</article>
 	</div>
-	<% include SideBar %>
 
 Navigate to the holder page through your website navigation,
 or the "Preview" feature in the CMS. You should see a list of all projects now.
@@ -336,15 +336,16 @@ we can access the "Students" and "Mentors" relationships directly in the templat
 **themes/simple/templates/Layout/Project.ss**
 
 	:::ss
-	<div class="content-container typography">	
+	<% include SideBar %>
+	<div class="content-container unit size3of4 lastUnit">
 		<article>
 			<h1>$Title</h1>
 			<div class="content">
 				$Content
 				<h2>Students</h2>
-				<% if Students %>
+				<% if $Students %>
 					<ul>
-					<% loop Students %>
+					<% loop $Students %>
 						<li>$Name ($University)</li>
 					<% end_loop %>
 					</ul>
@@ -352,9 +353,9 @@ we can access the "Students" and "Mentors" relationships directly in the templat
 					<p>No students found</p>
 				<% end_if %>
 				<h2>Mentors</h2>
-				<% if Mentors %>
+				<% if $Mentors %>
 					<ul>
-					<% loop Mentors %>
+					<% loop $Mentors %>
 						<li>$Name</li>
 					<% end_loop %>
 					</ul>
@@ -364,7 +365,6 @@ we can access the "Students" and "Mentors" relationships directly in the templat
 			</div>
 		</article>
 	</div>
-	<% include SideBar %>
 
 Follow the link to a project detail from from your holder page,
 or navigate to it through the submenu provided by the theme.
@@ -392,7 +392,7 @@ To use this template, we need to add a new method to our student class:
 
 Replace the student template code in both `Project.ss`
 and `ProjectHolder.ss` templates with the new placeholder, `$Info`.
-That's the code enclosed in `<% loop Students %>` and `<% end_loop %>`.
+That's the code enclosed in `<% loop $Students %>` and `<% end_loop %>`.
 With this pattern, you can increase code reuse across templates.
 
 ## Summary

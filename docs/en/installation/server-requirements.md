@@ -25,7 +25,7 @@ Our web-based [PHP installer](/installation) can check if you meet the requireme
   * SQL Server 2008+ (requires ["mssql" module](http://silverstripe.org/microsoft-sql-server-database/))
   * Support for [Oracle](http://www.silverstripe.org/oracle-database-module/) and [SQLite](http://silverstripe.org/sqlite-database/) is not commercially supported, but is under development by our open source community.
  * One of the following web server products: 
-  * Apache 1.3+ with mod_rewrite and "AllowOverride All" set
+  * Apache 2.0+ with mod_rewrite and "AllowOverride All" set
   * IIS 7+
   * Support for Lighttpd, IIS 6, and other web servers may work if you are familiar with configuring those products.
  * We recommend enabling content compression (for example with mod_deflate) to speed up the delivery of HTML, CSS, and JavaScript.
@@ -36,13 +36,13 @@ Our web-based [PHP installer](/installation) can check if you meet the requireme
 
 ## Web server hardware requirements
 
-Hardware requirements vary widely depending on the traffic to your website, the complexity its logic (i.e., PHP), and its size (i.e., database.) By default, all pages are dynamic, and thus access both the database and execute PHP code to generate. SilverStripe can cache full pages and segments of templates to dramatically increase performance.
+Hardware requirements vary widely depending on the traffic to your website, the complexity of its logic (i.e., PHP), and its size (i.e., database.) By default, all pages are dynamic, and thus access both the database and execute PHP code to generate. SilverStripe can cache full pages and segments of templates to dramatically increase performance.
 
 A typical website page on a conservative single CPU machine (e.g., Intel 2Ghz) takes roughly 300ms to generate. This comfortably allows over a million page views per month. Caching and other optimisations can improve this by a factor of ten or even one hundred times. SilverStripe CMS can be used in multiple-server architectures to improve scalability and redunancy.
 
 ## Client side (CMS) requirements
 
-SilverStripe CMS is designed to work well with Firefox 3.0+ and Internet Explorer 7.0+. We aim to provide satisfactory experiences in Apple Safari and Google Chrome. SilverStripe CMS works well across Windows, Linux, and Mac operating systems.
+SilverStripe CMS is designed to work well with Google Chrome, Mozilla Firefox and Internet Explorer 8+. We aim to provide satisfactory experiences in Apple Safari. SilverStripe CMS works well across Windows, Linux, and Mac operating systems.
 
 ## End user requirements ##
 

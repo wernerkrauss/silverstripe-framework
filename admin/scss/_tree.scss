@@ -33,6 +33,10 @@
 			&.disabled > a {
 				color: #aaaaaa;
 			}
+			// Expand/collapse arrows
+			& > .jstree-icon {
+				cursor: pointer;
+			}
 		}
 		ins {
 			display: inline-block;
@@ -103,15 +107,12 @@
 				background: transparent !important;
 				width: 100%;
 			}
-			a{
+			a, a:hover{
 				@extend %no-margin-padding;
 				text-indent: -9999px !important;
 				width: 100%;
 				border-right-width: 0px !important;
-				border-left-width: 0px !important;
-				&:hover{
-					@extend a;
-				}
+				border-left-width: 0px !important;				
 			}
 			ins, 
 			span, 
@@ -153,7 +154,7 @@
 
 	li.jstree-open > ul {
 		display: block;
-		margin-left:-13px;
+		margin-left: -13px;
 		li ul {
 			margin-left:2px;
 		}
@@ -308,7 +309,11 @@
 				margin-right: 5px;
 			}
 			&.vakata-hover > a{
-				@extend a:hover;
+				padding: 1px 10px;
+				background: #3875d7;
+				@include background-image(linear-gradient(top, #3875d7 20%, #2a62bc 90%));
+				color: #FFF;
+				border: none;
 			} 
 		}
 	}
@@ -403,7 +408,7 @@
 					background-position: -56px -36px;
 				}
 			}
-			&.deletedonlive {
+			&.status-deletedonlive {
 				.text {
 					text-decoration: line-through;
 				}
@@ -413,6 +418,19 @@
 					background-color: $color-cms-batchactions-menu-selected-background;
 				}
 			} 
+			&.readonly {
+				color: $color-text-disabled;
+				padding-left: 18px;
+
+				// Don't show drag icons or required spacing
+				a, a:link {
+					margin: 0;
+					padding: 0;
+				}
+				.jstree-icon {
+					display: none;
+				}
+			}
 		}	
 		a, a:link {
 			color:  $color-text-blue-link;
@@ -436,17 +454,18 @@
 			margin-right: 6px;
 			margin-top:  -1px;
 			@include border-radius(2px, 2px);
-			&.modified, &.addedtodraft  {
+	
+			&.status-modified, &.status-addedtodraft  {
 				color:  #7E7470;
 				border: 1px solid #C9B800;
 				background-color: #FFF0BC;
 			}
-			&.deletedonlive, &.removedfromdraft {
+			&.status-deletedonlive, &.status-removedfromdraft {
 				color:  #636363;
 				border: 1px solid #E49393;
 				background-color: #F2DADB;
 			}
-			&.workflow-approval {
+			&.status-workflow-approval {
 				color:  #56660C;
 				border: 1px solid #7C8816;
 				background-color: #DAE79A;
@@ -501,7 +520,7 @@
 			background-position:0 0; 
 		}
 		.jstree-open > ins { 
-			background-position:-20px 0; 
+			background-position:-20px 0;
 		}
 	}
 } 
@@ -519,7 +538,7 @@ a .jstree-pageicon {
 	li.class-VirtualPage > & {
 		background-position: 0 -32px;
 	}
-	li.class-ErrorPage > a & {
+	li.class-ErrorPage > & {
 		background-position: 0 -112px;
 	}
 }

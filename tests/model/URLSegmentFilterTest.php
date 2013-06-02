@@ -5,12 +5,27 @@
  */
 class URLSegmentFilterTest extends SapphireTest {
 	
+	protected $usesDatabase = false;
+	
 	public function testReplacesCommonEnglishSymbols() {
 		$f = new URLSegmentFilter();
 		$f->setAllowMultibyte(false);
 		$this->assertEquals(
 			'john-and-spencer', 
 			$f->filter('John & Spencer')
+		);
+	}
+	
+	public function testReplacesWhitespace() {
+		$f = new URLSegmentFilter();
+		$f->setAllowMultibyte(false);
+		$this->assertEquals(
+			'john-and-spencer', 
+			$f->filter('John and Spencer')
+		);
+		$this->assertEquals(
+			'john-and-spencer', 
+			$f->filter('John+and+Spencer')
 		);
 	}
 	
@@ -22,7 +37,15 @@ class URLSegmentFilterTest extends SapphireTest {
 			$f->filter('Brötchen')
 		);
 	}
-	
+
+	public function testReplacesCommonNonAsciiCharacters() {
+		$f = new URLSegmentFilter();
+		$this->assertEquals(
+			urlencode('aa1-'),
+			$f->filter('Aa1~!@#$%^*()_`-=;\':"[]\{}|,./<>?')
+		);
+	}
+
 	public function testRetainsNonAsciiUrlsWithAllowMultiByteOption() {
 		$f = new URLSegmentFilter();
 		$f->setAllowMultibyte(true);
@@ -48,5 +71,10 @@ class URLSegmentFilterTest extends SapphireTest {
 			$f->filter('Tim&Struppi')
 		);
 	}
-	
+
+	public function testReplacesDots() {
+		$filter = new URLSegmentFilter();
+		$this->assertEquals('url-contains-dot', $filter->filter('url-contains.dot'));
+	}
+
 }

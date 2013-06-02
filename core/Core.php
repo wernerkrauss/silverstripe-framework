@@ -13,7 +13,7 @@
  * Initialized constants:
  * - BASE_URL: Full URL to the webroot, e.g. "http://my-host.com/my-webroot" (no trailing slash).
  * - BASE_PATH: Absolute path to the webroot, e.g. "/var/www/my-webroot" (no trailing slash).
- *   See Director::baseFolder(). Can be overwritten by Director::setBaseFolder().
+ *   See Director::baseFolder(). Can be overwritten by Config::inst()->update('Director', 'alternate_base_folder', ).
  * - TEMP_FOLDER: Absolute path to temporary folder, used for manifest and template caches. Example: "/var/tmp"
  *   See getTempFolder(). No trailing slash.
  * - MODULES_DIR: Not used at the moment
@@ -44,20 +44,45 @@
 error_reporting(E_ALL | E_STRICT);
 
 /**
- * Include _ss_environment.php files
+ * Include _ss_environment.php file
  */
-$envFiles = array(
-	'_ss_environment.php',
-	'../_ss_environment.php',
-	'../../_ss_environment.php',
-	'../../../_ss_environment.php');
-
-foreach($envFiles as $envFile) {
-	if(@file_exists($envFile)) {
-		define('SS_ENVIRONMENT_FILE', $envFile);
-		include_once($envFile);
-		break;
-	}
+//define the name of the environment file
+$envFile = '_ss_environment.php';
+//define the dirs to start scanning from (have to add the trailing slash)
+// we're going to check the realpath AND the path as the script sees it
+$dirsToCheck = array(
+	realpath('.'),
+	dirname($_SERVER['SCRIPT_FILENAME'])
+);
+//if they are the same, remove one of them
+if ($dirsToCheck[0] == $dirsToCheck[1]) {
+	unset($dirsToCheck[1]);
+}
+foreach ($dirsToCheck as $dir) {
+	//check this dir and every parent dir (until we hit the base of the drive)
+	// or until we hit a dir we can't read
+	do {
+		//add the trailing slash we need to concatenate properly
+		$dir .= DIRECTORY_SEPARATOR;
+		//if it's readable, go ahead
+		if (@is_readable($dir)) {
+			//if the file exists, then we include it, set relevant vars and break out
+			if (file_exists($dir . $envFile)) {
+				define('SS_ENVIRONMENT_FILE', $dir . $envFile);
+				include_once(SS_ENVIRONMENT_FILE);
+				//break out of BOTH loops because we found the $envFile
+				break(2);
+			}
+		}
+		else {
+			//break out of the while loop, we can't read the dir
+			break;
+		}
+		//go up a directory
+		$dir = dirname($dir);
+	//here we need to check that the path of the last dir and the next one are
+	// not the same, if they are, we have hit the root of the drive
+	} while (dirname($dir) != $dir);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -116,6 +141,10 @@ if(!isset($_SERVER['HTTP_HOST'])) {
 		if($_REQUEST) stripslashes_recursively($_REQUEST);
 		if($_GET) stripslashes_recursively($_GET);
 		if($_POST) stripslashes_recursively($_POST);
+		if($_COOKIE) stripslashes_recursively($_COOKIE);
+		// No more magic_quotes!
+		trigger_error('get_magic_quotes_gpc support is being removed from Silverstripe. Please set this to off in ' .
+			' your php.ini and see http://php.net/manual/en/security.magicquotes.php', E_USER_WARNING);
 	}
 	
 	/**
@@ -179,20 +208,23 @@ define('SAPPHIRE_ADMIN_PATH', FRAMEWORK_ADMIN_PATH);
 
 define('THIRDPARTY_DIR', FRAMEWORK_DIR . '/thirdparty');
 define('THIRDPARTY_PATH', BASE_PATH . '/' . THIRDPARTY_DIR);
-define('ASSETS_DIR', 'assets');
+
+if(!defined('ASSETS_DIR')) {
+	define('ASSETS_DIR', 'assets');
+}
 define('ASSETS_PATH', BASE_PATH . '/' . ASSETS_DIR);
 
 ///////////////////////////////////////////////////////////////////////////////
 // INCLUDES
 
 if(defined('CUSTOM_INCLUDE_PATH')) {
-	$includePath = CUSTOM_INCLUDE_PATH . PATH_SEPARATOR
+	$includePath = '.' . PATH_SEPARATOR . CUSTOM_INCLUDE_PATH . PATH_SEPARATOR
 		. FRAMEWORK_PATH . PATH_SEPARATOR
 		. FRAMEWORK_PATH . '/parsers' . PATH_SEPARATOR
 		. THIRDPARTY_PATH . PATH_SEPARATOR
 		. get_include_path();
 } else {
-	$includePath = FRAMEWORK_PATH . PATH_SEPARATOR
+	$includePath = '.' . PATH_SEPARATOR . FRAMEWORK_PATH . PATH_SEPARATOR
 		. FRAMEWORK_PATH . '/parsers' . PATH_SEPARATOR
 		. THIRDPARTY_PATH . PATH_SEPARATOR
 		. get_include_path();
@@ -243,6 +275,7 @@ gc_enable();
 require_once 'cache/Cache.php';
 require_once 'core/Object.php';
 require_once 'core/ClassInfo.php';
+require_once 'core/Config.php';
 require_once 'view/TemplateGlobalProvider.php';
 require_once 'control/Director.php';
 require_once 'dev/Debug.php';
@@ -251,7 +284,10 @@ require_once 'dev/Backtrace.php';
 require_once 'dev/ZendLog.php';
 require_once 'dev/Log.php';
 require_once 'filesystem/FileFinder.php';
+require_once 'core/manifest/ManifestCache.php';
 require_once 'core/manifest/ClassLoader.php';
+require_once 'core/manifest/ConfigManifest.php';
+require_once 'core/manifest/ConfigStaticManifest.php';
 require_once 'core/manifest/ClassManifest.php';
 require_once 'core/manifest/ManifestFileFinder.php';
 require_once 'core/manifest/TemplateLoader.php';
@@ -275,16 +311,26 @@ $flush = (isset($_GET['flush']) || isset($_REQUEST['url']) && (
 ));
 $manifest = new SS_ClassManifest(BASE_PATH, false, $flush);
 
+// Register SilverStripe's class map autoload
 $loader = SS_ClassLoader::instance();
 $loader->registerAutoloader();
 $loader->pushManifest($manifest);
 
+// Fall back to Composer's autoloader (e.g. for PHPUnit), if composer is used
+if(file_exists(BASE_PATH . '/vendor/autoload.php')) {
+	require_once BASE_PATH . '/vendor/autoload.php';
+}
+
+// Now that the class manifest is up, load the configuration
+$configManifest = new SS_ConfigStaticManifest(BASE_PATH, false, $flush);
+Config::inst()->pushConfigStaticManifest($configManifest);
+
 // Now that the class manifest is up, load the configuration
 $configManifest = new SS_ConfigManifest(BASE_PATH, false, $flush);
-Config::inst()->pushConfigManifest($configManifest);
+Config::inst()->pushConfigYamlManifest($configManifest);
 
 SS_TemplateLoader::instance()->pushManifest(new SS_TemplateManifest(
-	BASE_PATH, false, isset($_GET['flush'])
+	BASE_PATH, project(), false, isset($_GET['flush'])
 ));
 
 // If in live mode, ensure deprecation, strict and notices are not reported
@@ -303,19 +349,6 @@ Debug::loadErrorHandlers();
 
 ///////////////////////////////////////////////////////////////////////////////
 // HELPER FUNCTIONS
-
-function getSysTempDir() {
-	Deprecation::notice(3.0, 'Please use PHP function get_sys_temp_dir() instead.');
-	return sys_get_temp_dir();
-}
-
-/**
- * @deprecated 3.0 Please use {@link SS_ClassManifest::getItemPath()}.
- */
-function getClassFile($className) {
-	Deprecation::notice('3.0', 'Use SS_ClassManifest::getItemPath() instead.');
-	return SS_ClassLoader::instance()->getManifest()->getItemPath($className);
-}
 
 /**
  * Creates a class instance by the "singleton" design pattern.

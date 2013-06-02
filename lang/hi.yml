@@ -253,7 +253,7 @@ hi:
     RolesAddEditLink: 'भूमिकाओं का प्रबंधन करे '
     SINGULARNAME: Group
     Sort: 'Sort Order'
-    has_many_Permissions: 'अनुमतियाँ'
+    has_many_Permissions: अनुमतियाँ
     many_many_Members: सदस्य
   GroupImportForm:
     Help1: '<p>Import one or more groups in <em>CSV</em> format (comma-separated values). <small><a href="#" class="toggle-advanced">Show advanced usage</a></small></p>'

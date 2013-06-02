@@ -10,9 +10,9 @@ class RestfulServiceTest extends SapphireTest {
 	
 	public function setUp() {
 		// backup the project unique identifier field
-		$this->member_unique_identifier_field = Member::get_unique_identifier_field();
+		$this->member_unique_identifier_field = Member::config()->unique_identifier_field;
 
-		Member::set_unique_identifier_field('Email');
+		Member::config()->unique_identifier_field = 'Email';
 
 		parent::setUp(); 
 	} 
@@ -20,9 +20,9 @@ class RestfulServiceTest extends SapphireTest {
 	public function tearDown() {
 		parent::tearDown(); 
 
-		// set old member::get_unique_identifier_field value 
+		// set old Member::config()->unique_identifier_field value 
 		if ($this->member_unique_identifier_field) { 
-			Member::set_unique_identifier_field($this->member_unique_identifier_field); 
+			Member::config()->unique_identifier_field = $this->member_unique_identifier_field; 
 		}
 	} 
 
@@ -37,7 +37,7 @@ class RestfulServiceTest extends SapphireTest {
 		$service->setQueryString($params);
 		$responseBody = $service->request($url)->getBody();
 		foreach ($params as $key => $value) {
- 			$this->assertContains("<request_item name=\"$key\">$value</request_item>", $responseBody);
+			$this->assertContains("<request_item name=\"$key\">$value</request_item>", $responseBody);
 			$this->assertContains("<get_item name=\"$key\">$value</get_item>", $responseBody);
 		}
 	}
@@ -52,7 +52,7 @@ class RestfulServiceTest extends SapphireTest {
 		$service->setQueryString($params);
 		$responseBody = $service->request($url)->getBody();
 		foreach ($params as $key => $value) {
- 			$this->assertContains("<request_item name=\"$key\">$value</request_item>", $responseBody);
+			$this->assertContains("<request_item name=\"$key\">$value</request_item>", $responseBody);
 			$this->assertContains("<get_item name=\"$key\">$value</get_item>", $responseBody);
 		}
 	}
@@ -67,7 +67,7 @@ class RestfulServiceTest extends SapphireTest {
 		$url .= '?' . http_build_query($params);
 		$responseBody = $service->request($url)->getBody();
 		foreach ($params as $key => $value) {
- 			$this->assertContains("<request_item name=\"$key\">$value</request_item>", $responseBody);
+			$this->assertContains("<request_item name=\"$key\">$value</request_item>", $responseBody);
 			$this->assertContains("<get_item name=\"$key\">$value</get_item>", $responseBody);
 		}
 	}
@@ -145,21 +145,60 @@ class RestfulServiceTest extends SapphireTest {
 	
 	/**
 	 * Simulate cached response file for testing error requests that are supposed to have cache files
+	 *
+	 * @todo Generate the cachepath without hardcoding the cache data
 	 */
 	private function createFakeCachedResponse($connection, $subUrl) {
 		$fullUrl = $connection->getAbsoluteRequestURL($subUrl);
-		$cachedir = TEMP_FOLDER;	// Default silverstripe cache
-		$cache_file = md5($fullUrl);	// Encoded name of cache file
-		$cache_path = $cachedir."/xmlresponse_$cache_file";
+		//these are the defaul values that one would expect in the
+		$basicAuthStringMethod = new ReflectionMethod('RestfulServiceTest_MockErrorService', 'getBasicAuthString');
+		$basicAuthStringMethod->setAccessible(true);
+		$cachePathMethod = new ReflectionMethod('RestfulServiceTest_MockErrorService', 'getCachePath');
+		$cachePathMethod->setAccessible(true);
+		$cache_path = $cachePathMethod->invokeArgs($connection, array(array(
+			$fullUrl,
+			'GET',
+			null,
+			array(),
+			array(),
+			$basicAuthStringMethod->invoke($connection)
+		)));
+
 		$cacheResponse = new RestfulService_Response("Cache response body");
 		$store = serialize($cacheResponse);
 		file_put_contents($cache_path, $store);
 	}
+
+	public function testHttpHeaderParseing() {
+		$headers = "content-type: text/html; charset=UTF-8\r\n".
+					"Server: Funky/1.0\r\n".
+					"Set-Cookie: foo=bar\r\n".
+					"Set-Cookie: baz=quux\r\n".
+					"Set-Cookie: bar=foo\r\n";
+		$expected = array(
+			'Content-Type' => 'text/html; charset=UTF-8',
+			'Server' => 'Funky/1.0',
+			'Set-Cookie' => array(
+				'foo=bar',
+				'baz=quux',
+				'bar=foo'
+			)
+		);
+		$headerFunction = new ReflectionMethod('RestfulService', 'parseRawHeaders');
+		$headerFunction->setAccessible(true);
+		$this->assertEquals(
+			$expected,
+			$headerFunction->invoke(
+				new RestfulService(Director::absoluteBaseURL(),0), $headers
+			)
+		);
+	}
+
 }
 
 class RestfulServiceTest_Controller extends Controller implements TestOnly {
 
-	public static $allowed_actions = array(
+	private static $allowed_actions = array(
 		'index',
 		'httpErrorWithoutCache',
 		'httpErrorWithCache'

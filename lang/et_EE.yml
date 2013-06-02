@@ -211,8 +211,8 @@ et_EE:
     NONE: puudub
   GridAction:
     DELETE_DESCRIPTION: Kustuta
-    Delete: Kustuta
-    UnlinkRelation: 'Tühista linkimine'
+    Delete: Delete
+    UnlinkRelation: Unlink
   GridField:
     Add: 'Lisa {name}'
     Filter: Filtreeri
@@ -333,7 +333,7 @@ et_EE:
     SAVEDUP: Salvestatud.
     VersionUnknown: tundmatu
   LeftAndMain_Menu.ss:
-    Hello: Tere!
+    Hello: Hi
     LOGOUT: 'Logi välja'
   LoginAttempt:
     Email: 'E-posti aadress'

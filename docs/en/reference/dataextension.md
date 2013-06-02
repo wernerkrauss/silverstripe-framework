@@ -9,16 +9,12 @@ implementation. Have a look at `[api:Object->useCustomClass()]`.
 
 ## Usage
 
-Your extension will nee to be a subclass of `[api:DataExtension]` or the `[api:Extension]` class.
+Your extension will need to be a subclass of `[api:DataExtension]` or the `[api:Extension]` class.
 
 	:::php
 	<?php
-	
-	// mysite/code/CustomMember.php
-	
-	class CustomMember extends DataExtension {
-	
-	}
+	// mysite/code/MyMemberExtension.php
+	class MyMemberExtension extends DataExtension {}
 
 This defines your own extension where you can add your own functions, database fields or other properties you want.
 After you create this extension however it does not yet apply it to your object. Next you need to tell SilverStripe what
@@ -26,22 +22,23 @@ class you want to extend.
 
 ### Adding a extension to a built-in class
 
-Sometimes you will want to add extension to classes that you didn't make.  For example, you might want to add the
-ForumRole extension to the `[api:Member]` object.
+Sometimes you will want to add extension to classes that you can't cleanly subclass. 
+For example, you might want to add a `MyMemberExtension` class to the `[api:Member]` object.
 
+In order to active this extension, you'd add the following to your [config.yml](/topics/configuration).
+
+	:::yml
+	Member:
+	  extensions:
+	    - MyMemberExtension
+
+Alternatively, you can add extensions through PHP code as well (in your `config.php` file), 
+which means they can be used in conditional configuration. 
 
 	:::php
-	Object::add_extension('Class You Want To Override', 'Your Class Name');
-
-
-For example above we want to override Member with a Custom Member so we would write the following
-
-	:::php
-	// add to mysite/_config.php	
-	Object::add_extension('Member', 'CustomMember');
+	Member::add_extension('MyMemberExtension');
 
 ##  Implementation
-
 
 ###  Adding extra database fields
 
@@ -52,10 +49,10 @@ The function should return a map where the keys are the names of the static vari
 
 	:::php
 	class CustomMember extends DataExtension {
-		static $db = array(
+		private static $db = array(
 			'AvatarURL' => 'Varchar',
 		);
-		static $has_one = array(
+		private static $has_one = array(
 			'RelatedMember' => 'Member',
 		);
 	}
@@ -80,6 +77,57 @@ The `$`fields parameter is passed by reference, as it is an object.
 	  $fields->push(new TextField('Position', 'Position Title'));
 	  $fields->push(new UploadField('Image', 'Profile Image'));
 	}
+
+### Adding/modifying fields prior to extensions
+
+User code can intervene in the process of extending cms fields by using `beforeUpdateCMSFields`
+in its implementation of `getCMSFields`. This can be useful in cases where user code will add
+fields to a dataobject that should be present in the `$fields` parameter when passed to
+`updateCMSFields` in extensions.
+
+This method is preferred to disabling, enabling, and calling cms field extensions manually.
+
+	:::php
+	function getCMSFields() {
+		$this->beforeUpdateCMSFields(function($fields) {
+			// Include field which must be present when updateCMSFields is called on extensions
+			$fields->addFieldToTab("Root.Main", new TextField('Detail', 'Details', null, 255));
+		});
+
+		$fields = parent::getCMSFields();
+		// ... additional fields here
+		return $fields;
+	}
+
+### Object extension injection points
+
+`Object` now has two additional methods, `beforeExtending` and `afterExtending`, each of which takes a
+method name and a callback to be executed immediately before and after `Object::extend()` is called on
+extensions.
+
+This is useful in many cases where working with modules such as `Translatable` which operate on
+`DataObject` fields that must exist in the `FieldList` at the time that `$this->extend('UpdateCMSFields')`
+is called.
+
+<div class="notice" markdown='1'>
+Please note that each callback is only ever called once, and then cleared, so multiple extensions
+to the same function require that a callback is registered each time, if necessary.
+</div>
+
+Example: A class that wants to control default values during object initialisation. The code
+needs to assign a value if not specified in self::$defaults, but before extensions have been called:
+
+	:::php
+	function __construct() {
+		$self = $this;
+		$this->beforeExtending('populateDefaults', function() uses ($self) {
+			if(empty($self->MyField)) {
+				$self->MyField = 'Value we want as a default if not specified in $defaults, but set before extensions';
+			}
+		});
+		parent::__construct();
+	}
+
 
 ### Custom database generation
 
@@ -127,9 +175,9 @@ extended by.
 	:::php
 	class Customer extends DataObject {
 	
-	 static $has_one = array('Account'=>'Account');
+	 private static $has_one = array('Account'=>'Account');
 	
-	 static $extensions = array(
+	 private static $extensions = array(
 	    'CustomerWorkflow'
 	 );
 	
@@ -137,11 +185,11 @@ extended by.
 	
 	class Account extends DataObject {
 	
-	 static $db = array(
+	 private static $db = array(
 	     'IsMarkedForDeletion'=>'Boolean'
 	 );
 	
-	 static $has_many = array('Customers'=>'Customer');
+	 private static $has_many = array('Customers'=>'Customer');
 	
 	}
 	

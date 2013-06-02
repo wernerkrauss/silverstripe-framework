@@ -26,6 +26,10 @@ class MySQLDatabase extends SS_Database {
 	 */
 	private $database;
 
+	/**
+	 * @config
+	 * @var String
+	 */
 	private static $connection_charset = null;
 
 	private $supportsTransactions = true;
@@ -39,9 +43,12 @@ class MySQLDatabase extends SS_Database {
 	 * However, sites created before version 2.4.0 should leave this unset or data that isn't 7-bit
 	 * safe will be corrupted.  As such, the installer comes with this set in mysite/_config.php by
 	 * default in versions 2.4.0 and later.
+	 *
+	 * @deprecated 3.1 Use "MySQLDatabase.connection_charset" config setting instead
 	 */
 	public static function set_connection_charset($charset = 'utf8') {
-		self::$connection_charset = $charset;
+		Deprecation::notice('3.2', 'Use "MySQLDatabase.connection_charset" config setting instead');
+		Config::inst()->update('MySQLDatabase', 'connection_charset', $charset);
 	}
 
 	/**
@@ -54,7 +61,12 @@ class MySQLDatabase extends SS_Database {
 	 *  - timezone: (optional) The timezone offset. For example: +12:00, "Pacific/Auckland", or "SYSTEM"
 	 */
 	public function __construct($parameters) {
-		$this->dbConn = new MySQLi($parameters['server'], $parameters['username'], $parameters['password']);
+		if(!empty($parameters['port'])) {
+			$this->dbConn = new MySQLi($parameters['server'], $parameters['username'], $parameters['password'],
+				'', $parameters['port']);
+		} else {
+			$this->dbConn = new MySQLi($parameters['server'], $parameters['username'], $parameters['password']);
+		}
 		
 		if($this->dbConn->connect_error) {
 			$this->databaseError("Couldn't connect to MySQL database | " . $this->dbConn->connect_error);
@@ -62,8 +74,8 @@ class MySQLDatabase extends SS_Database {
 		
 		$this->query("SET sql_mode = 'ANSI'");
 
-		if(self::$connection_charset) {
-			$this->dbConn->set_charset(self::$connection_charset);
+		if(Config::inst()->get('MySQLDatabase', 'connection_charset')) {
+			$this->dbConn->set_charset(Config::inst()->get('MySQLDatabase', 'connection_charset'));
 		}
 
 		$this->active = $this->dbConn->select_db($parameters['database']);
@@ -269,8 +281,8 @@ class MySQLDatabase extends SS_Database {
 		if($alteredIndexes) foreach($alteredIndexes as $k => $v) {
 			$alterList[] .= "DROP INDEX \"$k\"";
 			$alterList[] .= "ADD ". $this->getIndexSqlDefinition($k, $v);
- 		}
- 		
+		}
+		
 		if($alteredOptions && isset($alteredOptions[get_class($this)])) {
 			if(!isset($this->indexList[$tableName])) {
 				$this->indexList[$tableName] = $this->indexList($tableName);
@@ -298,7 +310,7 @@ class MySQLDatabase extends SS_Database {
 			}
 		}
 
- 		$alterations = implode(",\n", $alterList);
+		$alterations = implode(",\n", $alterList);
 		$this->query("ALTER TABLE \"$tableName\" $alterations");
 	}
 	
@@ -467,9 +479,9 @@ class MySQLDatabase extends SS_Database {
 
 		$indexSpec = trim($indexSpec);
 		if($indexSpec[0] != '(') list($indexType, $indexFields) = explode(' ',$indexSpec,2);
-	    else $indexFields = $indexSpec;
+		else $indexFields = $indexSpec;
 
-	    if(!isset($indexType))
+		if(!isset($indexType))
 			$indexType = "index";
 
 		if($indexType=='using')
@@ -499,15 +511,15 @@ class MySQLDatabase extends SS_Database {
 		$indexSpec=$this->convertIndexSpec($indexSpec);
 
 		$indexSpec = trim($indexSpec);
-	    if($indexSpec[0] != '(') {
-	    	list($indexType, $indexFields) = explode(' ',$indexSpec,2);
-	    } else {
-	    	$indexFields = $indexSpec;
-	    }
+		if($indexSpec[0] != '(') {
+			list($indexType, $indexFields) = explode(' ',$indexSpec,2);
+		} else {
+			$indexFields = $indexSpec;
+		}
 
-	    if(!$indexType) {
-	    	$indexType = "index";
-	    }
+		if(!$indexType) {
+			$indexType = "index";
+		}
 
 		$this->query("ALTER TABLE \"$tableName\" DROP INDEX \"$indexName\"");
 		$this->query("ALTER TABLE \"$tableName\" ADD $indexType \"$indexName\" $indexFields");
@@ -822,19 +834,19 @@ class MySQLDatabase extends SS_Database {
 		if(!class_exists('File')) throw new Exception('MySQLDatabase->searchEngine() requires "File" class');
 		
 		$fileFilter = '';
-	 	$keywords = Convert::raw2sql($keywords);
+		$keywords = Convert::raw2sql($keywords);
 		$htmlEntityKeywords = htmlentities($keywords, ENT_NOQUOTES, 'UTF-8');
 
 		$extraFilters = array('SiteTree' => '', 'File' => '');
 
-	 	if($booleanSearch) $boolean = "IN BOOLEAN MODE";
+		if($booleanSearch) $boolean = "IN BOOLEAN MODE";
 
-	 	if($extraFilter) {
-	 		$extraFilters['SiteTree'] = " AND $extraFilter";
+		if($extraFilter) {
+			$extraFilters['SiteTree'] = " AND $extraFilter";
 
-	 		if($alternativeFileFilter) $extraFilters['File'] = " AND $alternativeFileFilter";
-	 		else $extraFilters['File'] = $extraFilters['SiteTree'];
-	 	}
+			if($alternativeFileFilter) $extraFilters['File'] = " AND $alternativeFileFilter";
+			else $extraFilters['File'] = $extraFilters['SiteTree'];
+		}
 
 		// Always ensure that only pages with ShowInSearch = 1 can be searched
 		$extraFilters['SiteTree'] .= " AND ShowInSearch <> 0";
@@ -982,7 +994,7 @@ class MySQLDatabase extends SS_Database {
 		$boolean = $booleanSearch ? "IN BOOLEAN MODE" : "";
 		$fieldNames = '"' . implode('", "', $fields) . '"';
 
-	 	$SQL_keywords = Convert::raw2sql($keywords);
+		$SQL_keywords = Convert::raw2sql($keywords);
 		$SQL_htmlEntityKeywords = Convert::raw2sql(htmlentities($keywords, ENT_NOQUOTES, 'UTF-8'));
 
 		return "(MATCH ($fieldNames) AGAINST ('$SQL_keywords' $boolean) + MATCH ($fieldNames)"
@@ -1054,6 +1066,28 @@ class MySQLDatabase extends SS_Database {
 	 */
 	public function transactionEnd($chain = false){
 		$this->query('COMMIT AND ' . ($chain ? '' : 'NO ') . 'CHAIN;');
+	}
+
+	/**
+	 * Generate a WHERE clause for text matching.
+	 * 
+	 * @param String $field Quoted field name
+	 * @param String $value Escaped search. Can include percentage wildcards.
+	 * @param boolean $exact Exact matches or wildcard support.
+	 * @param boolean $negate Negate the clause.
+	 * @param boolean $caseSensitive Enforce case sensitivity if TRUE or FALSE.
+	 *                               Stick with default collation if set to NULL.
+	 * @return String SQL
+	 */
+	public function comparisonClause($field, $value, $exact = false, $negate = false, $caseSensitive = null) {
+		if($exact && $caseSensitive === null) {
+			$comp = ($negate) ? '!=' : '=';
+		} else {
+			$comp = ($caseSensitive) ? 'LIKE BINARY' : 'LIKE';
+			if($negate) $comp = 'NOT ' . $comp;
+		}
+		
+		return sprintf("%s %s '%s'", $field, $comp, $value);
 	}
 
 	/**
@@ -1129,7 +1163,7 @@ class MySQLDatabase extends SS_Database {
 	 * @param string $date2 to be substracted of $date1, can be either 'now', literal datetime like
 	 *                      '1973-10-14 10:30:00' or field name, e.g. '"SiteTree"."Created"'
 	 * @return string SQL datetime expression to query for the interval between $date1 and $date2 in seconds which
-	 *                is the result of the substraction
+	 *                    is the result of the substraction
 	 */
 	public function datetimeDifferenceClause($date1, $date2) {
 

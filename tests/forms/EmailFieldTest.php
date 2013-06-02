@@ -30,9 +30,8 @@ class EmailFieldTest extends FunctionalTest {
 		$val = new EmailFieldTest_Validator();
 		try {
 			$field->validate($val);
-			if (!$expectSuccess) {
-				$this->assertTrue(false,$checkText . " (/$email/ passed validation, but not expected to)");
-			}
+			// If we expect failure and processing gets here without an exception, the test failed
+			$this->assertTrue($expectSuccess,$checkText . " (/$email/ passed validation, but not expected to)");
 		} catch (Exception $e) {
 			if ($e instanceof PHPUnit_Framework_AssertionFailedError) throw $e; // re-throw assertion failure
 			else if ($expectSuccess) {
@@ -74,7 +73,7 @@ class EmailFieldTest_Validator extends Validator {
 
 class EmailFieldTest_Controller extends Controller implements TestOnly {
 
-	static $url_handlers = array(
+	private static $url_handlers = array(
 		'$Action//$ID/$OtherID' => "handleAction",
 	);
 

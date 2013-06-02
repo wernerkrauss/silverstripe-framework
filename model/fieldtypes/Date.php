@@ -148,8 +148,7 @@ class Date extends DBField {
 	 */
 	public function FormatI18N($formattingString) {
 		if($this->value) {
-			$fecfrm = strftime($formattingString, strtotime($this->value));
-			return utf8_encode($fecfrm);
+			return strftime($formattingString, strtotime($this->value));
 		}
 	}
 	
@@ -197,58 +196,68 @@ class Date extends DBField {
 	}
 	
 	/**
-	 * Returns the number of seconds/minutes/hours/days or months since the timestamp
+	 * Returns the number of seconds/minutes/hours/days or months since the timestamp.
+	 *
+	 * @param boolean $includeSeconds Show seconds, or just round to "less than a minute".
+	 * @return  String
 	 */
-	public function Ago() {
+	public function Ago($includeSeconds = true) {
 		if($this->value) {
-			if(strtotime($this->value) == time() || time() > strtotime($this->value)) {
+			$time = SS_Datetime::now()->Format('U');
+			if(strtotime($this->value) == $time || $time > strtotime($this->value)) {
 				return _t(
 					'Date.TIMEDIFFAGO',
 					"{difference} ago",
 					'Natural language time difference, e.g. 2 hours ago',
-					array('difference' => $this->TimeDiff())
+					array('difference' => $this->TimeDiff($includeSeconds))
 				);
 			} else {
 				return _t(
 					'Date.TIMEDIFFIN',
 					"in {difference}",
 					'Natural language time difference, e.g. in 2 hours',
-					array('difference' => $this->TimeDiff())
+					array('difference' => $this->TimeDiff($includeSeconds))
 				);
 			}
 		}
 	}
 
-	public function TimeDiff() {
+	/**
+	 * @param boolean $includeSeconds Show seconds, or just round to "less than a minute".
+	 * @return  String
+	 */
+	public function TimeDiff($includeSeconds = true) {
+		if(!$this->value) return false;
 
-		if($this->value) {
-			$ago = abs(time() - strtotime($this->value));
-			
-			if($ago < 60) {
-				$span = $ago;
-				return ($span != 1) ? "{$span} "._t("Date.SECS", " secs") : "{$span} "._t("Date.SEC", " sec");
-			}
-			if($ago < 3600) {
-				$span = round($ago/60);
-				return ($span != 1) ? "{$span} "._t("Date.MINS", " mins") : "{$span} "._t("Date.MIN", " min");
-			}
-			if($ago < 86400) {
-				$span = round($ago/3600);
-				return ($span != 1) ? "{$span} "._t("Date.HOURS", " hours") : "{$span} "._t("Date.HOUR", " hour");
-			}
-			if($ago < 86400*30) {
-				$span = round($ago/86400);
-				return ($span != 1) ? "{$span} "._t("Date.DAYS", " days") : "{$span} "._t("Date.DAY", " day");
-			}
-			if($ago < 86400*365) {
-				$span = round($ago/86400/30);
-				return ($span != 1) ? "{$span} "._t("Date.MONTHS", " months") : "{$span} "._t("Date.MONTH", " month");
-			}
-			if($ago > 86400*365) {
-				$span = round($ago/86400/365);
-				return ($span != 1) ? "{$span} "._t("Date.YEARS", " years") : "{$span} "._t("Date.YEAR", " year");
-			}
+		$time = SS_Datetime::now()->Format('U');
+		$ago = abs($time - strtotime($this->value));
+		
+		if($ago < 60 && $includeSeconds) {
+			$span = $ago;
+			$result = ($span != 1) ? "{$span} "._t("Date.SECS", "secs") : "{$span} "._t("Date.SEC", "sec");
+		} elseif($ago < 60) {
+			$result = _t('Date.LessThanMinuteAgo', 'less than a minute');
+		} elseif($ago < 3600) {
+			$span = round($ago/60);
+			$result = ($span != 1) ? "{$span} "._t("Date.MINS", "mins") : "{$span} "._t("Date.MIN", "min");
+		} elseif($ago < 86400) {
+			$span = round($ago/3600);
+			$result = ($span != 1) ? "{$span} "._t("Date.HOURS", "hours") : "{$span} "._t("Date.HOUR", "hour");
+		} elseif($ago < 86400*30) {
+			$span = round($ago/86400);
+			$result = ($span != 1) ? "{$span} "._t("Date.DAYS", "days") : "{$span} "._t("Date.DAY", "day");
+		} elseif($ago < 86400*365) {
+			$span = round($ago/86400/30);
+			$result = ($span != 1) ? "{$span} "._t("Date.MONTHS", "months") : "{$span} "._t("Date.MONTH", "month");
+		} elseif($ago > 86400*365) {
+			$span = round($ago/86400/365);
+			$result = ($span != 1) ? "{$span} "._t("Date.YEARS", "years") : "{$span} "._t("Date.YEAR", "year");
 		}
+		
+		// Replace duplicate spaces, backwards compat with existing translations
+		$result = preg_replace('/\s+/', ' ', $result);
+
+		return $result;
 	}
 	
 	/**
@@ -302,7 +311,7 @@ class Date extends DBField {
 	 * @return boolean
 	 */
 	public function InPast() {
-		return strtotime($this->value) < time();
+		return strtotime($this->value) < SS_Datetime::now()->Format('U');
 	}
 	
 	/**
@@ -310,7 +319,7 @@ class Date extends DBField {
 	 * @return boolean
 	 */
 	public function InFuture() {
-		return strtotime($this->value) > time();
+		return strtotime($this->value) > SS_Datetime::now()->Format('U');
 	}
 	
 	/**
@@ -318,7 +327,7 @@ class Date extends DBField {
 	 * @return boolean
 	 */
 	public function IsToday() {
-		return (date('Y-m-d', strtotime($this->value)) == date('Y-m-d', time()));
+		return (date('Y-m-d', strtotime($this->value)) == SS_Datetime::now()->Format('Y-m-d'));
 	}
 
 	/**
@@ -330,23 +339,23 @@ class Date extends DBField {
 	
 	
 	public function days_between($fyear, $fmonth, $fday, $tyear, $tmonth, $tday){
-	  return abs((mktime ( 0, 0, 0, $fmonth, $fday, $fyear) - mktime ( 0, 0, 0, $tmonth, $tday, $tyear))/(60*60*24));
+		return abs((mktime ( 0, 0, 0, $fmonth, $fday, $fyear) - mktime ( 0, 0, 0, $tmonth, $tday, $tyear))/(60*60*24));
 	}
 	
 	public function day_before($fyear, $fmonth, $fday){
-	  return date ("Y-m-d", mktime (0,0,0,$fmonth,$fday-1,$fyear));
+		return date ("Y-m-d", mktime (0,0,0,$fmonth,$fday-1,$fyear));
 	}
 	
 	public function next_day($fyear, $fmonth, $fday){
-	  return date ("Y-m-d", mktime (0,0,0,$fmonth,$fday+1,$fyear));
+		return date ("Y-m-d", mktime (0,0,0,$fmonth,$fday+1,$fyear));
 	}
 	
 	public function weekday($fyear, $fmonth, $fday){ // 0 is a Monday
-	  return (((mktime ( 0, 0, 0, $fmonth, $fday, $fyear) - mktime ( 0, 0, 0, 7, 17, 2006))/(60*60*24))+700000) % 7;
+		return (((mktime ( 0, 0, 0, $fmonth, $fday, $fyear) - mktime ( 0, 0, 0, 7, 17, 2006))/(60*60*24))+700000) % 7;
 	}
 	
 	public function prior_monday($fyear, $fmonth, $fday){
-	  return date ("Y-m-d", mktime (0,0,0,$fmonth,$fday-$this->weekday($fyear, $fmonth, $fday),$fyear)); 
+		return date ("Y-m-d", mktime (0,0,0,$fmonth,$fday-$this->weekday($fyear, $fmonth, $fday),$fyear)); 
 	}
 	
 	/**
@@ -377,6 +386,15 @@ class Date extends DBField {
 	}
 	
 	public function scaffoldFormField($title = null, $params = null) {
-		return new DateField($this->name, $title);
+		$field = DateField::create($this->name, $title);
+		
+		// Show formatting hints for better usability
+		$field->setDescription(sprintf(
+			_t('FormField.Example', 'e.g. %s', 'Example format'),
+			Convert::raw2xml(Zend_Date::now()->toString($field->getConfig('dateformat')))
+		));
+		$field->setAttribute('placeholder', $field->getConfig('dateformat'));
+		
+		return $field;
 	}
 }

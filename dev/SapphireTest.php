@@ -10,6 +10,12 @@ require_once 'TestRunner.php';
  * @subpackage testing
  */
 class SapphireTest extends PHPUnit_Framework_TestCase {
+	
+	/** @config */
+	private static $dependencies = array(
+		'fixtureFactory' => '%$FixtureFactory',
+	);
+
 	/**
 	 * Path to fixture data for this test run.
 	 * If passed as an array, multiple fixture files will be loaded.
@@ -18,12 +24,15 @@ class SapphireTest extends PHPUnit_Framework_TestCase {
 	 * 
 	 * @var string|array
 	 */
-	static $fixture_file = null;
+	protected static $fixture_file = null;
+
+	/**
+	 * @var FixtureFactory
+	 */
+	protected $fixtureFactory;
 	
 	/**
-	 * Set whether to include this test in the TestRunner or to skip this.
-	 *
-	 * @var bool
+	 * @var bool Set whether to include this test in the TestRunner or to skip this.
 	 */
 	protected $skipTest = false;
 	
@@ -123,6 +132,9 @@ class SapphireTest extends PHPUnit_Framework_TestCase {
 		return self::$is_running_test;
 	}
 
+	public static function set_is_running_test($bool) {
+		self::$is_running_test = $bool;	
+	}
 
 	/**
 	 * Set the manifest to be used to look up test classes by helper functions
@@ -137,11 +149,19 @@ class SapphireTest extends PHPUnit_Framework_TestCase {
 	public static function get_test_class_manifest() {
 		return self::$test_class_manifest;
 	}
-	
+
+	/**
+	 * @return String
+	 */
+	public static function get_fixture_file() {
+		return static::$fixture_file;
+	}
+
 	/**
 	 * @var array $fixtures Array of {@link YamlFixture} instances
+	 * @deprecated 3.1 Use $fixtureFactory instad
 	 */
-	protected $fixtures; 
+	protected $fixtures = array(); 
 	
 	protected $model;
 	
@@ -160,11 +180,11 @@ class SapphireTest extends PHPUnit_Framework_TestCase {
 		// Mark test as being run
 		$this->originalIsRunningTest = self::$is_running_test;
 		self::$is_running_test = true;
-		
+
 		// i18n needs to be set to the defaults or tests fail
 		i18n::set_locale(i18n::default_locale());
-		i18n::set_date_format(null);
-		i18n::set_time_format(null);
+		i18n::config()->date_format = null;
+		i18n::config()->time_format = null;
 		
 		// Set default timezone consistently to avoid NZ-specific dependencies
 		date_default_timezone_set('UTC');
@@ -173,7 +193,7 @@ class SapphireTest extends PHPUnit_Framework_TestCase {
 		$this->originalMemberPasswordValidator = Member::password_validator();
 		$this->originalRequirements = Requirements::backend();
 		Member::set_password_validator(null);
-		Cookie::set_report_errors(false);
+		Config::inst()->update('Cookie', 'report_errors', false);
 		
 		if(class_exists('RootURLController')) RootURLController::reset();
 		if(class_exists('Translatable')) Translatable::reset();
@@ -183,17 +203,21 @@ class SapphireTest extends PHPUnit_Framework_TestCase {
 		Hierarchy::reset();
 		if(Controller::has_curr()) Controller::curr()->setSession(new Session(array()));
 		Security::$database_is_ready = null;
-		
-		$this->originalTheme = SSViewer::current_theme();
-		
-		if(class_exists('SiteTree')) {
-			// Save nested_urls state, so we can restore it later
-			$this->originalNestedURLsState = SiteTree::nested_urls();
-		}
 
-		$className = get_class($this);
-		$fixtureFile = eval("return {$className}::\$fixture_file;");
+		// Add controller-name auto-routing
+		Config::inst()->update('Director', 'rules', array(
+			'$Controller//$Action/$ID/$OtherID' => '*'
+		));
+		
+		$fixtureFile = static::get_fixture_file();
+
 		$prefix = defined('SS_DATABASE_PREFIX') ? SS_DATABASE_PREFIX : 'ss_';
+
+		// Set up email
+		$this->originalMailer = Email::mailer();
+		$this->mailer = new TestMailer();
+		Email::set_mailer($this->mailer);
+		Config::inst()->remove('Email', 'send_all_emails_to');
 		
 		// Todo: this could be a special test model
 		$this->model = DataModel::inst();
@@ -234,8 +258,8 @@ class SapphireTest extends PHPUnit_Framework_TestCase {
 						if($resolvedPath) $fixtureFilePath = $resolvedPath;
 					}
 					
-					$fixture = new YamlFixture($fixtureFilePath);
-					$fixture->saveIntoDatabase($this->model);
+					$fixture = Injector::inst()->create('YamlFixture', $fixtureFilePath);
+					$fixture->writeInto($this->getFixtureFactory());
 					$this->fixtures[] = $fixture;
 
 					// backwards compatibility: Load first fixture into $this->fixture
@@ -247,17 +271,11 @@ class SapphireTest extends PHPUnit_Framework_TestCase {
 			$this->logInWithPermission("ADMIN");
 		}
 		
-		// Set up email
-		$this->originalMailer = Email::mailer();
-		$this->mailer = new TestMailer();
-		Email::set_mailer($this->mailer);
-		Email::send_all_emails_to(null);
-		
 		// Preserve memory settings
 		$this->originalMemoryLimit = ini_get('memory_limit');
 		
 		// turn off template debugging
-		SSViewer::set_source_file_comments(false);
+		Config::inst()->update('SSViewer', 'source_file_comments', false);
 		
 		// Clear requirements
 		Requirements::clear();
@@ -272,13 +290,15 @@ class SapphireTest extends PHPUnit_Framework_TestCase {
 	 * for tearing down the state again.
 	 */
 	public function setUpOnce() {
+		$isAltered = false;
+
 		// Remove any illegal extensions that are present
 		foreach($this->illegalExtensions as $class => $extensions) {
 			foreach($extensions as $extension) {
-				if (Object::has_extension($class, $extension)) {
+				if ($class::has_extension($extension)) {
 					if(!isset($this->extensionsToReapply[$class])) $this->extensionsToReapply[$class] = array();
 					$this->extensionsToReapply[$class][] = $extension;
-					Object::remove_extension($class, $extension);
+					$class::remove_extension($extension);
 					$isAltered = true;
 				}
 			}
@@ -288,17 +308,17 @@ class SapphireTest extends PHPUnit_Framework_TestCase {
 		foreach($this->requiredExtensions as $class => $extensions) {
 			$this->extensionsToRemove[$class] = array();
 			foreach($extensions as $extension) {
-				if(!Object::has_extension($class, $extension)) {
+				if(!$class::has_extension($extension)) {
 					if(!isset($this->extensionsToRemove[$class])) $this->extensionsToReapply[$class] = array();
 					$this->extensionsToRemove[$class][] = $extension;
-					Object::add_extension($class, $extension);
+					$class::add_extension($extension);
 					$isAltered = true;
 				}
 			}
 		}
 		
 		// If we have made changes to the extensions present, then migrate the database schema.
-		if($this->extensionsToReapply || $this->extensionsToRemove || $this->extraDataObjects) {
+		if($isAltered || $this->extensionsToReapply || $this->extensionsToRemove || $this->extraDataObjects) {
 			if(!self::using_temp_db()) self::create_temp_db();
 			$this->resetDBSchema(true);
 		}
@@ -319,56 +339,55 @@ class SapphireTest extends PHPUnit_Framework_TestCase {
 			// Remove extensions added for testing
 			foreach($this->extensionsToRemove as $class => $extensions) {
 				foreach($extensions as $extension) {
-					Object::remove_extension($class, $extension);
+					$class::remove_extension($extension);
 				}
 			}
 
 			// Reapply ones removed
 			foreach($this->extensionsToReapply as $class => $extensions) {
 				foreach($extensions as $extension) {
-					Object::add_extension($class, $extension);
+					$class::add_extension($extension);
 				}
 			}
 		}
-		
+
 		if($this->extensionsToReapply || $this->extensionsToRemove || $this->extraDataObjects) {
 			$this->resetDBSchema();
 		}
 	}
 	
 	/**
-	 * Array
+	 * @return FixtureFactory
 	 */
-	protected $fixtureDictionary;
-	
+	public function getFixtureFactory() {
+		if(!$this->fixtureFactory) $this->fixtureFactory = Injector::inst()->create('FixtureFactory');
+		return $this->fixtureFactory;
+	}
+
+	public function setFixtureFactory(FixtureFactory $factory) {
+		$this->fixtureFactory = $factory;
+		return $this;
+	}
 	
 	/**
 	 * Get the ID of an object from the fixture.
+	 * 
 	 * @param $className The data class, as specified in your fixture file.  Parent classes won't work
 	 * @param $identifier The identifier string, as provided in your fixture file
 	 * @return int
 	 */
 	protected function idFromFixture($className, $identifier) {
-		if(!$this->fixtures) {
-			user_error("You've called idFromFixture() but you haven't specified static \$fixture_file.\n",
-				E_USER_WARNING);
-			return;
-		}
-		
-		foreach($this->fixtures as $fixture) {
-			$match = $fixture->idFromFixture($className, $identifier);
-			if($match) return $match;
+		$id = $this->getFixtureFactory()->getId($className, $identifier);
+
+		if(!$id) {
+			user_error(sprintf(
+				"Couldn't find object '%s' (class: %s)",
+				$identifier,
+				$className
+			), E_USER_ERROR);
 		}
 
-		$fixtureFiles = Config::inst()->get(get_class($this), 'fixture_file', Config::FIRST_SET);
-		user_error(sprintf(
-			"Couldn't find object '%s' (class: %s) in files %s",
-			$identifier,
-			$className,
-			(is_array($fixtureFiles)) ? implode(',', $fixtureFiles) : $fixtureFiles
-		), E_USER_ERROR);
-		
-		return false;
+		return $id;
 	}
 	
 	/**
@@ -379,46 +398,27 @@ class SapphireTest extends PHPUnit_Framework_TestCase {
 	 * @return A map of fixture-identifier => object-id
 	 */
 	protected function allFixtureIDs($className) {
-		if(!$this->fixtures) {
-			user_error("You've called allFixtureIDs() but you haven't specified static \$fixture_file.\n",
-				E_USER_WARNING);
-			return;
-		}
-		
-		$ids = array();
-		foreach($this->fixtures as $fixture) {
-			$ids += $fixture->allFixtureIDs($className);
-		}
-		
-		return $ids;
+		return $this->getFixtureFactory()->getIds($className);
 	}
 
 	/**
 	 * Get an object from the fixture.
+	 * 
 	 * @param $className The data class, as specified in your fixture file.  Parent classes won't work
 	 * @param $identifier The identifier string, as provided in your fixture file
 	 */
 	protected function objFromFixture($className, $identifier) {
-		if(!$this->fixtures) {
-			user_error("You've called objFromFixture() but you haven't specified static \$fixture_file.\n",
-				E_USER_WARNING);
-			return;
-		}
-		
-		foreach($this->fixtures as $fixture) {
-			$match = $fixture->objFromFixture($className, $identifier);
-			if($match) return $match;
-		}
+		$obj = $this->getFixtureFactory()->get($className, $identifier);
 
-		$fixtureFiles = Config::inst()->get(get_class($this), 'fixture_file', Config::FIRST_SET);
-		user_error(sprintf(
-			"Couldn't find object '%s' (class: %s) in files %s",
-			$identifier,
-			$className,
-			(is_array($fixtureFiles)) ? implode(',', $fixtureFiles) : $fixtureFiles
-		), E_USER_ERROR);
+		if(!$obj) {
+			user_error(sprintf(
+				"Couldn't find object '%s' (class: %s)",
+				$identifier,
+				$className
+			), E_USER_ERROR);	
+		}
 		
-		return false;
+		return $obj;
 	}
 	
 	/**
@@ -429,20 +429,18 @@ class SapphireTest extends PHPUnit_Framework_TestCase {
 	 * @param $fixtureFile The location of the .yml fixture file, relative to the site base dir
 	 */
 	public function loadFixture($fixtureFile) {
-		$parser = new Spyc();
-		$fixtureContent = $parser->load(Director::baseFolder().'/'.$fixtureFile);
-		
-		$fixture = new YamlFixture($fixtureFile);
-		$fixture->saveIntoDatabase($this->model);
+		$fixture = Injector::inst()->create('YamlFixture', $fixtureFile);
+		$fixture->writeInto($this->getFixtureFactory());
 		$this->fixtures[] = $fixture;
 	}
 	
 	/**
 	 * Clear all fixtures which were previously loaded through
-	 * {@link loadFixture()}.
+	 * {@link loadFixture()} 
 	 */
 	public function clearFixtures() {
 		$this->fixtures = array();
+		$this->getFixtureFactory()->clear();
 	}
 	
 	/**
@@ -471,33 +469,28 @@ class SapphireTest extends PHPUnit_Framework_TestCase {
 		ini_set('memory_limit', ($this->originalMemoryLimit) ? $this->originalMemoryLimit : -1);
 
 		// Restore email configuration
-		Email::set_mailer($this->originalMailer);
-		$this->originalMailer = null;
-		$this->mailer = null;
+		if($this->originalMailer) {
+			Email::set_mailer($this->originalMailer);
+			$this->originalMailer = null;
+		}
+		$this->mailer = null;	
 
 		// Restore password validation
-		Member::set_password_validator($this->originalMemberPasswordValidator);
+		if($this->originalMemberPasswordValidator) {
+			Member::set_password_validator($this->originalMemberPasswordValidator);	
+		}
 		
 		// Restore requirements
-		Requirements::set_backend($this->originalRequirements);
+		if($this->originalRequirements) {
+			Requirements::set_backend($this->originalRequirements);	
+		}
 
 		// Mark test as no longer being run - we use originalIsRunningTest to allow for nested SapphireTest calls
 		self::$is_running_test = $this->originalIsRunningTest;
 		$this->originalIsRunningTest = null;
 
-		// Reset theme setting
-		SSViewer::set_theme($this->originalTheme);
-
 		// Reset mocked datetime
 		SS_Datetime::clear_mock_now();
-		
-		if(class_exists('SiteTree')) {
-			// Restore nested_urls state
-			if ( $this->originalNestedURLsState )
-				SiteTree::enable_nested_urls();
-			else
-				SiteTree::disable_nested_urls();
-		}
 		
 		// Stop the redirection that might have been requested in the test.
 		// Note: Ideally a clean Controller should be created for each test. 
@@ -508,6 +501,17 @@ class SapphireTest extends PHPUnit_Framework_TestCase {
 			$controller->response->removeHeader('Location');
 		}
 	}
+
+	public static function assertContains($needle, $haystack, $message = '', $ignoreCase = FALSE, $checkForObjectIdentity = TRUE) {
+		if ($haystack instanceof DBField) $haystack = (string)$haystack;
+		parent::assertContains($needle, $haystack, $message, $ignoreCase, $checkForObjectIdentity);
+	}
+
+	public static function assertNotContains($needle, $haystack, $message = '', $ignoreCase = FALSE, $checkForObjectIdentity = TRUE) {
+		if ($haystack instanceof DBField) $haystack = (string)$haystack;
+		parent::assertNotContains($needle, $haystack, $message, $ignoreCase, $checkForObjectIdentity);
+	}
+
 	/**
 	 * Clear the log of emails sent
 	 */
@@ -540,21 +544,20 @@ class SapphireTest extends PHPUnit_Framework_TestCase {
 	 *               'customHeaders', 'htmlContent', inlineImages'
 	 */
 	public function assertEmailSent($to, $from = null, $subject = null, $content = null) {
-		// To do - this needs to be turned into a "real" PHPUnit ass
-		if(!$this->findEmail($to, $from, $subject, $content)) {
-			
-			$infoParts = "";
-			$withParts = array();
-			if($to) $infoParts .= " to '$to'";
-			if($from) $infoParts .= " from '$from'";
-			if($subject) $withParts[] = "subject '$subject'";
-			if($content) $withParts[] = "content '$content'";
-			if($withParts) $infoParts .= " with " . implode(" and ", $withParts);
-			
-			throw new PHPUnit_Framework_AssertionFailedError(
-                "Failed asserting that an email was sent$infoParts."
-            );
-		}
+		$found = (bool)$this->findEmail($to, $from, $subject, $content);
+
+		$infoParts = "";
+		$withParts = array();
+		if($to) $infoParts .= " to '$to'";
+		if($from) $infoParts .= " from '$from'";
+		if($subject) $withParts[] = "subject '$subject'";
+		if($content) $withParts[] = "content '$content'";
+		if($withParts) $infoParts .= " with " . implode(" and ", $withParts);
+
+		$this->assertTrue(
+			$found,
+			"Failed asserting that an email was sent$infoParts."
+		);
 	}
 
 
@@ -594,14 +597,12 @@ class SapphireTest extends PHPUnit_Framework_TestCase {
 			}
 
 			// We couldn't find a match - assertion failed
-			if(!$matched) {
-				throw new PHPUnit_Framework_AssertionFailedError(
-	                "Failed asserting that the SS_List contains an item matching "
-						. var_export($match, true) . "\n\nIn the following SS_List:\n" 
-						. $this->DOSSummaryForMatch($dataObjectSet, $match)
-	            );
-			}
-
+			$this->assertTrue(
+				$matched,
+				"Failed asserting that the SS_List contains an item matching "
+				. var_export($match, true) . "\n\nIn the following SS_List:\n" 
+				. $this->DOSSummaryForMatch($dataObjectSet, $match)
+			);
 		}
 	} 
 	
@@ -640,23 +641,21 @@ class SapphireTest extends PHPUnit_Framework_TestCase {
 			}
 
 			// We couldn't find a match - assertion failed
-			if(!$matched) {
-				throw new PHPUnit_Framework_AssertionFailedError(
-	                "Failed asserting that the SS_List contains an item matching "
-						. var_export($match, true) . "\n\nIn the following SS_List:\n" 
-						. $this->DOSSummaryForMatch($dataObjectSet, $match)
-	            );
-			}
+			$this->assertTrue(
+				$matched,
+				"Failed asserting that the SS_List contains an item matching "
+				. var_export($match, true) . "\n\nIn the following SS_List:\n" 
+				. $this->DOSSummaryForMatch($dataObjectSet, $match)
+			);
 		}
 		
 		// If we have leftovers than the DOS has extra data that shouldn't be there
-		if($extracted) {
+		$this->assertTrue(
+			(count($extracted) == 0),
 			// If we didn't break by this point then we couldn't find a match
-			throw new PHPUnit_Framework_AssertionFailedError(
-	            "Failed asserting that the SS_List contained only the given items, the "
-					. "following items were left over:\n" . var_export($extracted, true)
-	        );
-		}
+			"Failed asserting that the SS_List contained only the given items, the "
+			. "following items were left over:\n" . var_export($extracted, true)
+		);
 	} 
 
 	/**
@@ -676,12 +675,11 @@ class SapphireTest extends PHPUnit_Framework_TestCase {
 		foreach($dataObjectSet as $item) $extracted[] = $item->toMap();
 
 		foreach($extracted as $i => $item) {
-			if(!$this->dataObjectArrayMatch($item, $match)) {
-				throw new PHPUnit_Framework_AssertionFailedError(
-		            "Failed asserting that the the following item matched " 
-					. var_export($match, true) . ": " . var_export($item, true)
-		        );
-			}
+			$this->assertTrue(
+				$this->dataObjectArrayMatch($item, $match),
+				"Failed asserting that the the following item matched " 
+				. var_export($match, true) . ": " . var_export($item, true)
+			);
 		}
 	} 
 	
@@ -769,7 +767,7 @@ class SapphireTest extends PHPUnit_Framework_TestCase {
 		$dbConn->selectDatabase($dbname);
 		$dbConn->createDatabase();
 
-		$st = new SapphireTest();
+		$st = Injector::inst()->create('SapphireTest');
 		$st->resetDBSchema();
 		
 		// Reinstate PHPUnit error handling
@@ -799,6 +797,8 @@ class SapphireTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function resetDBSchema($includeExtraDataObjects = false) {
 		if(self::using_temp_db()) {
+			DataObject::reset();
+
 			// clear singletons, they're caching old extension info which is used in DatabaseAdmin->doBuild()
 			Injector::inst()->unregisterAllObjects();
 
@@ -860,6 +860,7 @@ class SapphireTest extends PHPUnit_Framework_TestCase {
 		}
 		
 		$this->cache_generatedMembers[$permCode]->logIn();
+		return $this->cache_generatedMembers[$permCode]->ID;
 	}
 	
 	/**

@@ -4,7 +4,7 @@
  * @subpackage tests
  */
 class MemberTest extends FunctionalTest {
-	static $fixture_file = 'MemberTest.yml';
+	protected static $fixture_file = 'MemberTest.yml';
 	
 	protected $orig = array();
 	protected $local = null; 
@@ -29,19 +29,19 @@ class MemberTest extends FunctionalTest {
 	}
 
 	public function __destruct() {
-        i18n::set_default_locale($this->local);
-    }
+		i18n::set_default_locale($this->local);
+	}
 
 	public function setUp() {
 		parent::setUp();
 		
-		$this->orig['Member_unique_identifier_field'] = Member::get_unique_identifier_field();
-		Member::set_unique_identifier_field('Email');
+		$this->orig['Member_unique_identifier_field'] = Member::config()->unique_identifier_field;
+		Member::config()->unique_identifier_field = 'Email';
 		Member::set_password_validator(null);
 	}
 	
 	public function tearDown() {
-		Member::set_unique_identifier_field($this->orig['Member_unique_identifier_field']);
+		Member::config()->unique_identifier_field = $this->orig['Member_unique_identifier_field'];
 
 		parent::tearDown();
 	}
@@ -81,7 +81,7 @@ class MemberTest extends FunctionalTest {
 		$memberWithPassword->write();
 		$this->assertEquals(
 			$memberWithPassword->PasswordEncryption, 
-			Security::get_password_encryption_algorithm(),
+			Security::config()->password_encryption_algorithm,
 			'Password encryption is set for new member records on first write (with setting "Password")'
 		);
 		
@@ -99,8 +99,8 @@ class MemberTest extends FunctionalTest {
 		$member->PasswordEncryption = 'sha1_v2.4';
 		$member->write();
 		
-		$origAlgo = Security::get_password_encryption_algorithm();
-		Security::set_password_encryption_algorithm('none');
+		$origAlgo = Security::config()->password_encryption_algorithm;
+		Security::config()->password_encryption_algorithm = 'none';
 	
 		$member->Password = 'mynewpassword';
 		$member->write();
@@ -112,7 +112,24 @@ class MemberTest extends FunctionalTest {
 		$result = $member->checkPassword('mynewpassword');
 		$this->assertTrue($result->valid());
 		
-		Security::set_password_encryption_algorithm($origAlgo);
+		Security::config()->password_encryption_algorithm = $origAlgo;
+	}
+
+	public function testKeepsEncryptionOnEmptyPasswords() {
+		$member = new Member();
+		$member->Password = 'mypassword';
+		$member->PasswordEncryption = 'sha1_v2.4';
+		$member->write();
+		
+		$member->Password = '';
+		$member->write();
+		
+		$this->assertEquals(
+			$member->PasswordEncryption, 
+			'sha1_v2.4'
+		);
+		$result = $member->checkPassword('');
+		$this->assertTrue($result->valid());
 	}
 	
 	public function testSetPassword() {
@@ -261,7 +278,7 @@ class MemberTest extends FunctionalTest {
 	 * Test that the PasswordExpiry date is set when passwords are changed
 	 */
 	public function testPasswordExpirySetting() {
-		Member::set_password_expiry(90);
+		Member::config()->password_expiry_days = 90;
 		
 		$member = $this->objFromFixture('Member', 'test');
 		$this->assertNotNull($member);
@@ -271,7 +288,7 @@ class MemberTest extends FunctionalTest {
 		$expiryDate = date('Y-m-d', time() + 90*86400);		
 		$this->assertEquals($expiryDate, $member->PasswordExpiry);
 	
-		Member::set_password_expiry(null);
+		Member::config()->password_expiry_days = null;
 		$valid = $member->changePassword("Xx?1234235");
 		$this->assertTrue($valid->valid());
 	
@@ -432,7 +449,7 @@ class MemberTest extends FunctionalTest {
 		/* Logged in users can edit their own record */
 		$this->session()->inst_set('loggedInAs', $member->ID);
 		$this->assertTrue($member->canView());
-		$this->assertTrue($member->canDelete());
+		$this->assertFalse($member->canDelete());
 		$this->assertTrue($member->canEdit());
 		
 		/* Other uses cannot view, delete or edit others records */
@@ -470,7 +487,7 @@ class MemberTest extends FunctionalTest {
 		$this->assertFalse($member->canEdit());
 		
 		/* Apply a extension that allows viewing in any case (most likely the case for member profiles) */
-		Object::add_extension('Member', 'MemberTest_ViewingAllowedExtension');
+		Member::add_extension('MemberTest_ViewingAllowedExtension');
 		$member2 = $this->objFromFixture('Member', 'staffmember');
 		
 		$this->assertTrue($member2->canView());
@@ -478,8 +495,8 @@ class MemberTest extends FunctionalTest {
 		$this->assertFalse($member2->canEdit());
 	
 		/* Apply a extension that denies viewing of the Member */
-		Object::remove_extension('Member', 'MemberTest_ViewingAllowedExtension');
-		Object::add_extension('Member', 'MemberTest_ViewingDeniedExtension');
+		Member::remove_extension('MemberTest_ViewingAllowedExtension');
+		Member::add_extension('MemberTest_ViewingDeniedExtension');
 		$member3 = $this->objFromFixture('Member', 'managementmember');
 		
 		$this->assertFalse($member3->canView());
@@ -487,15 +504,15 @@ class MemberTest extends FunctionalTest {
 		$this->assertFalse($member3->canEdit());
 	
 		/* Apply a extension that allows viewing and editing but denies deletion */
-		Object::remove_extension('Member', 'MemberTest_ViewingDeniedExtension');
-		Object::add_extension('Member', 'MemberTest_EditingAllowedDeletingDeniedExtension');
+		Member::remove_extension('MemberTest_ViewingDeniedExtension');
+		Member::add_extension('MemberTest_EditingAllowedDeletingDeniedExtension');
 		$member4 = $this->objFromFixture('Member', 'accountingmember');
 		
 		$this->assertTrue($member4->canView());
 		$this->assertFalse($member4->canDelete());
 		$this->assertTrue($member4->canEdit());
 		
-		Object::remove_extension('Member', 'MemberTest_EditingAllowedDeletingDeniedExtension');
+		Member::remove_extension('MemberTest_EditingAllowedDeletingDeniedExtension');
 		$this->addExtensions($extensions);
 	}
 	
@@ -603,7 +620,7 @@ class MemberTest extends FunctionalTest {
 	 */
 	protected function addExtensions($extensions) {
 		if($extensions) foreach($extensions as $extension) {
-			Object::add_extension('Member', $extension);
+			Member::add_extension($extension);
 		}
 		return $extensions;
 	}
@@ -619,9 +636,66 @@ class MemberTest extends FunctionalTest {
 	 */
 	protected function removeExtensions($extensions) {
 		if($extensions) foreach($extensions as $extension) {
-			Object::remove_extension('Member', $extension);
+			Member::remove_extension($extension);
 		}
 		return $extensions;
+	}
+
+	public function testGenerateAutologinTokenAndStoreHash() {
+		$enc = new PasswordEncryptor_Blowfish();
+
+		$m = new Member();
+		$m->PasswordEncryption = 'blowfish';
+		$m->Salt = $enc->salt('123');
+
+		$token = $m->generateAutologinTokenAndStoreHash();
+
+		$this->assertEquals($m->encryptWithUserSettings($token), $m->AutoLoginHash, 'Stores the token as ahash.');
+	}
+
+	public function testValidateAutoLoginToken() {
+		$enc = new PasswordEncryptor_Blowfish();
+
+		$m1 = new Member();
+		$m1->PasswordEncryption = 'blowfish';
+		$m1->Salt = $enc->salt('123');
+		$m1Token = $m1->generateAutologinTokenAndStoreHash();
+
+		$m2 = new Member();
+		$m2->PasswordEncryption = 'blowfish';
+		$m2->Salt = $enc->salt('456');
+		$m2Token = $m2->generateAutologinTokenAndStoreHash();
+		
+		$this->assertTrue($m1->validateAutoLoginToken($m1Token), 'Passes token validity test against matching member.');
+		$this->assertFalse($m2->validateAutoLoginToken($m1Token), 'Fails token validity test against other member.');
+	}
+
+	public function testCanDelete() {
+		$admin1 = $this->objFromFixture('Member', 'admin');
+		$admin2 = $this->objFromFixture('Member', 'other-admin');
+		$member1 = $this->objFromFixture('Member', 'grouplessmember');
+		$member2 = $this->objFromFixture('Member', 'noformatmember');
+
+		$this->assertTrue(
+			$admin1->canDelete($admin2),
+			'Admins can delete other admins'
+		);
+		$this->assertTrue(
+			$member1->canDelete($admin2),
+			'Admins can delete non-admins'
+		);
+		$this->assertFalse(
+			$admin1->canDelete($admin1),
+			'Admins can not delete themselves'
+		);
+		$this->assertFalse(
+			$member1->canDelete($member2),
+			'Non-admins can not delete other non-admins'
+		);
+		$this->assertFalse(
+			$member1->canDelete($member1),
+			'Non-admins can not delete themselves'
+		);
 	}
 
 }

@@ -1,11 +1,12 @@
 <?php
+
 /**
- * @package tests
- *
- * @todo Test with columnn headers and custom mappings
+ * @package framework
+ * @subpackage tests
  */
 class CsvBulkLoaderTest extends SapphireTest {
-	static $fixture_file = 'CsvBulkLoaderTest.yml';
+
+	protected static $fixture_file = 'CsvBulkLoaderTest.yml';
 
 	protected $extraDataObjects = array(
 		'CsvBulkLoaderTest_Team',
@@ -55,7 +56,7 @@ class CsvBulkLoaderTest extends SapphireTest {
 	
 		$this->assertEquals(4, $resultDataObject->Count(),
 			'Test if existing data is deleted before new data is added'); 
-	 	}
+		}
 	
 	/**
 	 * Test import with manual column mapping
@@ -151,7 +152,10 @@ class CsvBulkLoaderTest extends SapphireTest {
 		$loader = new CsvBulkLoader('CsvBulkLoaderTest_Player');
 		$filepath = $this->getCurrentAbsolutePath() . '/CsvBulkLoaderTest_PlayersWithId.csv';
 		$loader->duplicateChecks = array(
-			'ExternalIdentifier' => 'ExternalIdentifier' 
+			'ExternalIdentifier' => 'ExternalIdentifier',
+			'NonExistantIdentifier' => 'ExternalIdentifier',
+			'ExternalIdentifier' => 'ExternalIdentifier',
+			'AdditionalIdentifier' => 'ExternalIdentifier'
 		);
 		$results = $loader->load($filepath);
 		$createdPlayers = $results->Created();
@@ -168,8 +172,10 @@ class CsvBulkLoaderTest extends SapphireTest {
 		// HACK need to update the loaded record from the database
 		$player = DataObject::get_by_id('CsvBulkLoaderTest_Player', $player->ID);
 		$this->assertEquals($player->FirstName, 'JohnUpdated', 'Test updating of existing records works');
-		$this->assertEquals($player->Biography, 'He\'s a good guy',
-			'Test retaining of previous information on duplicate when overwriting with blank field');
+
+		// null values are valid imported
+		// $this->assertEquals($player->Biography, 'He\'s a good guy',
+		//	'Test retaining of previous information on duplicate when overwriting with blank field');
 	}
 	
 	public function testLoadWithCustomImportMethods() {
@@ -189,6 +195,25 @@ class CsvBulkLoaderTest extends SapphireTest {
 		$this->assertEquals($player->IsRegistered, "1");
 	}
 	
+	public function testLoadWithCustomImportMethodDuplicateMap() {
+		$loader = new CsvBulkLoaderTest_CustomLoader('CsvBulkLoaderTest_Player');
+		$filepath = $this->getCurrentAbsolutePath() . '/CsvBulkLoaderTest_PlayersWithHeader.csv';
+		$loader->columnMap = array(
+			'FirstName' => '->updatePlayer',
+			'Biography' => '->updatePlayer', 
+			'Birthday' => 'Birthday',
+			'IsRegistered' => 'IsRegistered'
+		);
+
+		$results = $loader->load($filepath);
+
+		$createdPlayers = $results->Created();
+		$player = $createdPlayers->First();
+
+		$this->assertEquals($player->FirstName, "John. He's a good guy. ");
+	}
+
+
 	protected function getLineCount(&$file) {
 		$i = 0;
 		while(fgets($file) !== false) $i++;
@@ -202,24 +227,28 @@ class CsvBulkLoaderTest_CustomLoader extends CsvBulkLoader implements TestOnly {
 	public function importFirstName(&$obj, $val, $record) {
 		$obj->FirstName = "Customized {$val}";
 	}
+
+	public function updatePlayer(&$obj, $val, $record) {
+		$obj->FirstName .= $val . '. ';
+	}
 }
 
 class CsvBulkLoaderTest_Team extends DataObject implements TestOnly {
 	
-	static $db = array(
+	private static $db = array(
 		'Title' => 'Varchar(255)',
 		'TeamSize' => 'Int',
 	);	
 	
-	static $has_many = array(
+	private static $has_many = array(
 		'Players' => 'CsvBulkLoaderTest_Player',
 	);
 	
 }
 
 class CsvBulkLoaderTest_Player extends DataObject implements TestOnly {
-	
-	static $db = array(
+
+	private static $db = array(
 		'FirstName' => 'Varchar(255)',
 		'Biography' => 'HTMLText',
 		'Birthday' => 'Date',
@@ -227,7 +256,7 @@ class CsvBulkLoaderTest_Player extends DataObject implements TestOnly {
 		'IsRegistered' => 'Boolean'
 	);
 	
-	static $has_one = array(
+	private static $has_one = array(
 		'Team' => 'CsvBulkLoaderTest_Team',
 		'Contract' => 'CsvBulkLoaderTest_PlayerContract'
 	);
@@ -249,8 +278,9 @@ class CsvBulkLoaderTest_Player extends DataObject implements TestOnly {
 	}
 }
 
+
 class CsvBulkLoaderTest_PlayerContract extends DataObject implements TestOnly {
-	static $db = array(
+	private static $db = array(
 		'Amount' => 'Currency',
 	);
 }

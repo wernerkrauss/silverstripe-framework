@@ -39,6 +39,8 @@ The default HTML template is located in `framework/templates/email/GenericEmail.
 *  Choose your template with **setTemplate()**
 *  Populate any custom data into the template before sending with **populateTemplate()**
 
+Example:
+
 	:::php
 	$email = new Email($from, $to, $subject, $body);
 	$email->setTemplate('MyEmail');
@@ -46,15 +48,13 @@ The default HTML template is located in `framework/templates/email/GenericEmail.
 	// You can call this multiple times or bundle everything into an array, including DataSetObjects
 	$email->populateTemplate(Member::currentUser());
 	
-	$welcomeMsg = 'Thank you for joining on '.date('Y-m-d'.'!';
-	$email->populateTemplate(
-				array(
-					'WelcomeMessage' => $welcomeMsg, // Accessible in template via $WelcomeMessage
-				)
-			);
+	$welcomeMsg = 'Thank you for joining on '.date('Y-m-d'.'!');
+	
+	$email->populateTemplate(array(
+		'WelcomeMessage' => $welcomeMsg, // Accessible in template via $WelcomeMessage
+	));
 	
 	$email->send();
-
 
 
 ### Subclassing
@@ -69,7 +69,6 @@ Class definition:
 	    $from = 'email@email.com',
 	    $ss_template = 'MyEmail';
 	}
-	?>
 
 
 Usage:
@@ -79,24 +78,25 @@ Usage:
 	$email = new MyEmail();
 	$email->populateTemplate(Member::currentUser()); // This will populate the template, $to, $from etc variables if they exist
 	$email->send(); // Will immediately send an HTML email with appropriate plain-text content
-	?>
 
 
 ### Administrator Emails
 
-The static function `Email::setAdminEmail()` can be called from a `_config.php` file to set the address that these
-emails should originate from. This address is used if the `from` field is empty.
+You can influence the default sender address of emails through the `Email.admin_email`
+[configuration setting](/topics/configuration). This address is used if the `from` field is empty.
 
 ### Redirecting Emails
 
-*  `Email::send_all_emails_to($address)` will redirect all emails sent to the given address.  Handy for testing!
-*  `Email::cc_all_emails_to()` and `Email::bcc_all_emails_to()` will keep the email going to its original recipients, but
+Further [configuration settings](/topics/configuration) relating to email rewriting:
+
+*  `Email.send_all_emails_to` will redirect all emails sent to the given address.  Handy for testing!
+*  `Email.cc_all_emails_to` and `Email.bcc_all_emails_to` will keep the email going to its original recipients, but
 add an additional recipient in the BCC/CC header.  Good for monitoring system-generated correspondence on the live
 systems.
 
 	:::php
-	if(Director::isLive()) Email::bcc_all_emails_to("client@example.com");
-	else Email::send_all_emails_to("developer@example.com"); 
+	if(Director::isLive()) Config::inst()->update('Email', 'bcc_all_emails_to', "client@example.com");
+	else Config::inst()->update('Email', 'send_all_emails_to', "developer@example.com"); 
 
 
 ### Setting Custom Headers

@@ -128,9 +128,9 @@ class ViewableDataTest extends SapphireTest {
  */
 class ViewableDataTest_Castable extends ViewableData {
 	
-	public static $default_cast = 'ViewableData_Caster';
+	private static $default_cast = 'ViewableData_Caster';
 	
-	public static $casting = array (
+	private static $casting = array (
 		'alwaysCasted'    => 'ViewableDataTest_RequiresCasting',
 		'castedUnsafeXML' => 'ViewableData_UnescaptedCaster'
 	);
@@ -155,9 +155,9 @@ class ViewableDataTest_Castable extends ViewableData {
 		return $this->unsafeXML();
 	}
 
-    	public function forTemplate() {
-        	return 'castable';
-    	}
+	public function forTemplate() {
+		return 'castable';
+	}
 }
 
 class ViewableDataTest_RequiresCasting extends ViewableData {
@@ -205,7 +205,7 @@ class ViewableDataTest_Container extends ViewableData {
 }
 
 class ViewableDataTest_CastingClass extends ViewableData {
-	public static $casting = array(
+	private static $casting = array(
 		'Field'         => 'CastingType',
 		'Argument'      => 'ArgumentType(Argument)',
 		'ArrayArgument' => 'ArrayArgumentType(array(foo, bar))'

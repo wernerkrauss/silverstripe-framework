@@ -2,17 +2,15 @@
 
 	<div class="cms-content-header north">
 		<% with EditForm %>
-			<div class="cms-content-header-info">
-				<h2>
+			<div class="cms-content-header-info">				
 				<% with Controller %>
 					<% include CMSBreadcrumbs %>
-				<% end_with %>
-				</h2>
+				<% end_with %>				
 			</div>
 			<% if Fields.hasTabset %>
 				<% with Fields.fieldByName('Root') %>
 				<div class="cms-content-header-tabs">
-					<ul>
+					<ul class="cms-tabset-nav-primary">
 					<% loop Tabs %>
 						<li<% if extraClass %> class="$extraClass"<% end_if %>><a href="#$id">$Title</a></li>
 					<% end_loop %>

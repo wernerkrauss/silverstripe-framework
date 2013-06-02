@@ -46,9 +46,10 @@ as they run some additional sanity checks. They require the "phing" tool.
 Create a 'translation-staging' branch in your module before starting,
 and merge it back manually to your 'master' as required.
 
-	pear install phing/phing
-	cp build.properties.default
-	cp build.properties # Add your own getlocalization config to 'build.properties'
+Install the [buildtools](https://github.com/silverstripe/silverstripe-buildtools) project.
+
+	# Add your own getlocalization config to 'build.properties'
+	cp buildtools/build.properties.default build.properties
 	phing -Dmodule=<yourmodule> -propertyfile build.properties translations-sync
 
 ### Merge back existing translations
@@ -84,7 +85,7 @@ and committed to a special "translation-staging" branch on github.
 You can download individual files by opening them on github.com (inside the `lang/` folder), and using the "Raw" view.
 Place those files in the appropriate directories on a local silverstripe installation. 
 
- * ["translation-staging" branch for framework module](https://github.com/silverstripe/sapphire/tree/translation-staging)
+ * ["translation-staging" branch for framework module](https://github.com/silverstripe/silverstripe-framework/tree/translation-staging)
  * ["translation-staging" branch for cms module](https://github.com/silverstripe/silverstripe-cms/tree/translation-staging)
 
 # Related

@@ -31,13 +31,12 @@ class PhoneNumberField extends FormField {
 		$fields = new FieldGroup( $this->name );
 		$fields->setID("{$this->name}_Holder");
 		list($countryCode, $areaCode, $phoneNumber, $extension) = $this->parseValue();
-		$hasTitle = false;
 
-    if ($this->value=="") {
-      $countryCode=$this->countryCode;
-      $areaCode=$this->areaCode;
-      $extension=$this->ext;
-    }
+		if ($this->value=="") {
+			$countryCode=$this->countryCode;
+			$areaCode=$this->areaCode;
+			$extension=$this->ext;
+		}
 		
 		if($this->countryCode !== null) {
 			$fields->push(new NumericField($this->name.'[Country]', '+', $countryCode, 4));
@@ -51,15 +50,18 @@ class PhoneNumberField extends FormField {
 		}
 		
 		if($this->ext !== null) {
-			$field->push(new NumericField( $this->name.'[Extension]', 'ext', $extension, 6));
+			$fields->push(new NumericField( $this->name.'[Extension]', 'ext', $extension, 6));
 		}
+
+		$description = $this->getDescription();
+		if($description) $fields->getChildren()->First()->setDescription($description);
 
 		foreach($fields as $field) {
 			$field->setDisabled($this->isDisabled());
 			$field->setReadonly($this->isReadonly());
 		}
 			
-		return $field;
+		return $fields;
 	}
 	
 	public function setValue( $value ) {
@@ -94,7 +96,7 @@ class PhoneNumberField extends FormField {
 			preg_match( '/^(?:(?:\+(\d+))?\s*\((\d+)\))?\s*([0-9A-Za-z]*)\s*(?:[#]\s*(\d+))?$/', $this->value, $parts);
 		else
 			return array( '', '', $this->value, '' );
-            
+
 		if(is_array($parts)) array_shift( $parts );
 
 		for ($x=0;$x<=3;$x++) {

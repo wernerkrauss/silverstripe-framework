@@ -289,14 +289,12 @@ request](http://docs.jquery.com/Frequently_Asked_Questions#Why_do_my_events_stop
 ### Assume Element Collections
 
 jQuery is based around collections of DOM elements, the library functions typically handle multiple elements (where it
-makes sense). Encapsulate your code by nesting your jQuery commands inside a `jQuery().each()` call.
-
-Example: ComplexTableField implements a paginated table with a pop-up for displaying 
+makes sense). Encapsulate your code by nesting your jQuery commands inside a `jQuery().each()` call. Example:
 
 	:::js
-	$('div.ComplexTableField').each(function() {
-	  // This is the over code for the tr elements inside a ComplexTableField.
-	  $(this).find('tr').hover(
+	$('.MyCustomField').each(function() {
+	  // This is the over code for the elements inside a MyCustomField.
+	  $(this).hover(
 	    // ...
 	  );
 	});
@@ -378,7 +376,7 @@ Template:
 
 	:::ss
 	<ul>
-	<% loop Results %>
+	<% loop $Results %>
 	  <li id="Result-$ID">$Title</li>
 	<% end_loop %>
 	</ul>
@@ -408,7 +406,7 @@ HTML
 
 	:::ss
 	<form action"#">
-	  <div class="autocomplete {url:'MyController/autocomplete'}">
+	  <div class="autocomplete {url:'my-controller-route/autocomplete'}">
 	    <input type="text" name="title" />
 	    <div class="results" style="display: none;">
 	  </div>
@@ -648,4 +646,3 @@ afraid to experiment with using other approaches.
 * [css](css)
 * [Unobtrusive Javascript](http://www.onlinetools.org/articles/unobtrusivejavascript/chapter1.html)
 * [Quirksmode: In-depth Javascript Resources](http://www.quirksmode.org/resources.html)
-* [behaviour.js documentation](http://open.silverstripe.org/browser/modules/sapphire/branches/2.4/thirdparty/behaviour/README.md)

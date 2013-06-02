@@ -96,6 +96,7 @@
 
 							$.ajax({
 								'url': self.data('urlSavetreenode'),
+								'type': 'POST',
 								'data': {
 									ID: nodeID, 
 									ParentID: newParentID,
@@ -153,8 +154,8 @@
 						"select_limit" : 1,
 						'initially_select': [this.find('.current').attr('id')]
 					},
-					 "crrm": {
-						 'move': {
+					"crrm": {
+						'move': {
 							// Check if a node is allowed to be moved.
 							// Caution: Runs on every drag over a new node
 							'check_move': function(data) {
@@ -286,10 +287,13 @@
 
 				// Copy attributes. We can't replace the node completely
 				// without removing or detaching its children nodes.
-				for(var i=0; i<newNode[0].attributes.length; i++){
-					var attr = newNode[0].attributes[i];
-					node.attr(attr.name, attr.value);
-				}
+				$.each(['id', 'style', 'class', 'data-pagetype'], function(i, attrName) {
+					node.attr(attrName, newNode.attr(attrName));
+				});
+
+				// To avoid conflicting classes when the node gets its content replaced (see below)
+				// Filter out all previous status flags if they are not in the class property of the new node
+				origClasses = origClasses.replace(/status-[^\s]*/, '');
 
 				// Replace inner content
 				var origChildren = node.children('ul').detach();
@@ -454,7 +458,7 @@
 			}
 		});
 		
-		$('.cms-tree-view-modes input.view-mode').entwine({
+		$('.cms-content-batchactions input[name=view-mode-batchactions]').entwine({
 			onmatch: function() {
 				// set active by default
 				this.redraw();
@@ -470,8 +474,8 @@
 				if(window.debug) console.log('redraw', this.attr('class'), this.get(0));
 				
 				$('.cms-tree')
-					.toggleClass('draggable', this.val() == 'draggable')
-					.toggleClass('multiple', this.val() == 'multiselect');
+					.toggleClass('draggable', !this.is(':checked'))
+					.toggleClass('multiple', this.is(':checked'));
 			}
 		});
 	});

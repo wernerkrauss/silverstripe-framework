@@ -1,6 +1,13 @@
 <?php
 
 class DataQueryTest extends SapphireTest {
+
+	protected $extraDataObjects = array(
+		'DataQueryTest_A',
+		'DataQueryTest_B',
+		'DataQueryTest_D',
+	);
+
 	/**
 	 * Test the leftJoin() and innerJoin method of the DataQuery object
 	 */
@@ -31,6 +38,12 @@ class DataQueryTest extends SapphireTest {
 			'DataQuery::applyRelation should return the name of the related object.');
 		$this->assertEquals('DataQueryTest_B', $dq->applyRelation('ManyTestBs'),
 			'DataQuery::applyRelation should return the name of the related object.');
+	}
+
+	public function testRelationOrderWithCustomJoin() {
+		$dataQuery = new DataQuery('DataQueryTest_B');
+		$dataQuery->innerJoin('DataQueryTest_D', '"DataQueryTest_D"."RelationID" = "DataQueryTest_B"."ID"');
+		$dataQuery->execute();
 	}
 
 	public function testDisjunctiveGroup() {
@@ -106,38 +119,46 @@ class DataQueryTest extends SapphireTest {
 
 
 class DataQueryTest_A extends DataObject implements TestOnly {
-	public static $db = array(
+	private static $db = array(
 		'Name' => 'Varchar',
 	);
 
-	public static $has_one = array(
+	private static $has_one = array(
 		'TestC' => 'DataQueryTest_C',
 	);
 }
 
 class DataQueryTest_B extends DataQueryTest_A {
-	public static $db = array(
+	private static $db = array(
 		'Title' => 'Varchar',
 	);
 
-	public static $has_one = array(
+	private static $has_one = array(
 		'TestC' => 'DataQueryTest_C',
 	);
 }
 
 class DataQueryTest_C extends DataObject implements TestOnly {
-	public static $has_one = array(
+
+	private static $has_one = array(
 		'TestA' => 'DataQueryTest_A',
 		'TestB' => 'DataQueryTest_B',
 	);
 
-	public static $has_many = array(
+	private static $has_many = array(
 		'TestAs' => 'DataQueryTest_A',
 		'TestBs' => 'DataQueryTest_B',
 	);
 
-	public static $many_many = array(
+	private static $many_many = array(
 		'ManyTestAs' => 'DataQueryTest_A',
 		'ManyTestBs' => 'DataQueryTest_B',
+	);
+}
+
+class DataQueryTest_D extends DataObject implements TestOnly {
+
+	private static $has_one = array(
+		'Relation' => 'DataQueryTest_B',
 	);
 }

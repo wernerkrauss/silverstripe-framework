@@ -43,9 +43,9 @@ require_once 'Zend/Date.php';
  * 
  * ## Example: German dates with separate fields for day, month, year
  * 
- * 	$f = new DateField('MyDate');
- * 	$f->setLocale('de_DE');
- * 	$f->setConfig('dmyfields');
+ *   $f = new DateField('MyDate');
+ *   $f->setLocale('de_DE');
+ *   $f->setConfig('dmyfields', true);
  * 
  * # Validation
  * 
@@ -58,9 +58,10 @@ require_once 'Zend/Date.php';
 class DateField extends TextField {
 	
 	/**
+	 * @config
 	 * @var array
 	 */
-	static $default_config = array(
+	private static $default_config = array(
 		'showcalendar' => false,
 		'jslocale' => null,
 		'dmyfields' => false,
@@ -94,13 +95,12 @@ class DateField extends TextField {
 			$this->locale = i18n::get_locale();
 		}
 		
-		$this->config = self::$default_config;
-		
+		$this->config = $this->config()->default_config;
 		if(!$this->getConfig('dateformat')) {
 			$this->setConfig('dateformat', i18n::get_date_format());
 		}
 		
-		foreach (self::$default_config AS $defaultK => $defaultV) {
+		foreach ($this->config()->default_config AS $defaultK => $defaultV) {
 			if ($defaultV) {
 				if ($defaultK=='locale')
 					$this->locale = $defaultV;
@@ -279,11 +279,23 @@ class DateField extends TextField {
 	}
 	
 	public function performReadonlyTransformation() {
-		$field = new DateField_Disabled($this->name, $this->title, $this->dataValue());
-		$field->setForm($this->form);
+		$field = $this->castedCopy('DateField_Disabled');
+		$field->setValue($this->dataValue());
 		$field->readonly = true;
 		
 		return $field;
+	}
+
+	public function castedCopy($class) {
+		$copy = new $class($this->name);
+		if($copy->hasMethod('setConfig')) {
+			$config = $this->getConfig();
+			foreach($config as $k => $v) {
+				$copy->setConfig($k, $v);
+			}
+		}
+
+		return parent::castedCopy($copy);
 	}
 
 	/**
@@ -309,16 +321,14 @@ class DateField extends TextField {
 	}
 	
 	/**
+	 * @deprecated 3.2 Use the "DateField.default_config" config setting instead
 	 * @param String $k
 	 * @param mixed $v
 	 * @return boolean
 	 */
 	public static function set_default_config($k, $v) {
-	  if (array_key_exists($k,self::$default_config)) {
-		self::$default_config[$k]=$v;
-		return true;
-	  }
-	  return false;
+		Deprecation::notice('3.2', 'Use the "DateField.default_config" config setting instead');
+		return Config::inst()->update('DateField', 'default_config', array($k => $v));
 	}
 
 	/**
@@ -445,7 +455,11 @@ class DateField extends TextField {
 	 * @return mixed|array
 	 */
 	public function getConfig($name = null) {
-		return $name ? $this->config[$name] : $this->config;
+		if($name) {
+			return isset($this->config[$name]) ? $this->config[$name] : null;
+		} else {
+			return $this->config;
+		}
 	}
 }
 
@@ -505,10 +519,10 @@ class DateField_View_JQuery extends Object {
 	protected $jqueryLocaleFile = '';	
 	
 	/**
-	 * @var array Maps values from {@link i18n::$all_locales()} to 
+	 * @var array Maps values from {@link i18n::$all_locales} to 
 	 * localizations existing in jQuery UI.
 	 */
-	static $locale_map = array(
+	private static $locale_map = array(
 		'en_GB' => 'en-GB',
 		'en_US' => 'en', 
 		'en_NZ' => 'en-GB', 
@@ -567,7 +581,7 @@ class DateField_View_JQuery extends Object {
 			// Include language files (if required)
 			if ($this->jqueryLocaleFile){
 				Requirements::javascript($this->jqueryLocaleFile);
- 			}
+			}
 			
 			Requirements::javascript(FRAMEWORK_DIR . "/javascript/DateField.js");
 		}
@@ -583,12 +597,13 @@ class DateField_View_JQuery extends Object {
 	 */
 	protected function getLang() {
 		$locale = $this->getField()->getLocale();
+		$map = $this->config()->locale_map;
 		if($this->getField()->getConfig('jslocale')) {
 			// Undocumented config property for now, might move to the jQuery view helper
 			$lang = $this->getField()->getConfig('jslocale');
-		} else if(array_key_exists($locale, self::$locale_map)) {
+		} else if(array_key_exists($locale, $map)) {
 			// Specialized mapping for combined lang properties
-			$lang = self::$locale_map[$locale];
+			$lang = $map[$locale];
 		} else {
 			// Fall back to default lang (meaning "en_US" turns into "en")
 			$lang = i18n::get_lang_from_locale($locale);
@@ -609,51 +624,51 @@ class DateField_View_JQuery extends Object {
 	public static function convert_iso_to_jquery_format($format) {
 		$convert = array(
 			'/([^d])d([^d])/' => '$1d$2',
-		  '/^d([^d])/' => 'd$1',
-		  '/([^d])d$/' => '$1d',
-		  '/dd/' => 'dd',
-		  '/SS/' => '',
-		  '/eee/' => 'd',
-		  '/e/' => 'N',
-		  '/D/' => '',
-		  '/EEEE/' => 'DD',
-		  '/EEE/' => 'D', 
-		  '/w/' => '',
+			'/^d([^d])/' => 'd$1',
+			'/([^d])d$/' => '$1d',
+			'/dd/' => 'dd',
+			'/SS/' => '',
+			'/eee/' => 'd',
+			'/e/' => 'N',
+			'/D/' => '',
+			'/EEEE/' => 'DD',
+			'/EEE/' => 'D', 
+			'/w/' => '',
 			// make single "M" lowercase
-		  '/([^M])M([^M])/' => '$1m$2',
+			'/([^M])M([^M])/' => '$1m$2',
 			// make single "M" at start of line lowercase
-		  '/^M([^M])/' => 'm$1',
+			'/^M([^M])/' => 'm$1',
 				// make single "M" at end of line lowercase
-		  '/([^M])M$/' => '$1m',
+			'/([^M])M$/' => '$1m',
 			// match exactly three capital Ms not preceeded or followed by an M
-		  '/(?<!M)MMM(?!M)/' => 'M',
+			'/(?<!M)MMM(?!M)/' => 'M',
 			// match exactly two capital Ms not preceeded or followed by an M
-		  '/(?<!M)MM(?!M)/' => 'mm',
+			'/(?<!M)MM(?!M)/' => 'mm',
 			// match four capital Ms (maximum allowed)
-		  '/MMMM/' => 'MM',
-		  '/l/' => '',
-		  '/YYYY/' => 'yy',
-		  '/yyyy/' => 'yy',
-		  // See http://open.silverstripe.org/ticket/7669
-		  '/y{1,3}/' => 'yy',
-		  '/a/' => '',
-		  '/B/' => '',
-		  '/hh/' => '',
-		  '/h/' => '',
-		  '/([^H])H([^H])/' => '',
-		  '/^H([^H])/' => '',
-		  '/([^H])H$/' => '',
-		  '/HH/' => '',
-		  // '/mm/' => '',
-		  '/ss/' => '',
-		  '/zzzz/' => '',
-		  '/I/' => '',
-		  '/ZZZZ/' => '',
-		  '/Z/' => '',
-		  '/z/' => '',
-		  '/X/' => '',
-		  '/r/' => '',
-		  '/U/' => '',
+			'/MMMM/' => 'MM',
+			'/l/' => '',
+			'/YYYY/' => 'yy',
+			'/yyyy/' => 'yy',
+			// See http://open.silverstripe.org/ticket/7669
+			'/y{1,3}/' => 'yy',
+			'/a/' => '',
+			'/B/' => '',
+			'/hh/' => '',
+			'/h/' => '',
+			'/([^H])H([^H])/' => '',
+			'/^H([^H])/' => '',
+			'/([^H])H$/' => '',
+			'/HH/' => '',
+			// '/mm/' => '',
+			'/ss/' => '',
+			'/zzzz/' => '',
+			'/I/' => '',
+			'/ZZZZ/' => '',
+			'/Z/' => '',
+			'/z/' => '',
+			'/X/' => '',
+			'/r/' => '',
+			'/U/' => '',
 		);
 		$patterns = array_keys($convert);
 		$replacements = array_values($convert);

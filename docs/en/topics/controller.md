@@ -3,7 +3,7 @@
 Base controller class.  You will extend this to take granular control over the 
 actions and url handling of aspects of your SilverStripe site.
 
-## Example
+## Usage
 
 The following example is for a simple `[api:Controller]` class. If you're using
 the cms module and looking at Page_Controller instances you won't need to setup
@@ -15,10 +15,15 @@ your own routes since the cms module handles these routes.
 	<?php
 	
 	class FastFood_Controller extends Controller {
-	    public function order($arguments) {
-	        print_r($arguments);
-	    }
+		
+		private static $allowed_actions = array('order');
+		
+		public function order(SS_HTTPRequest $request) {
+			print_r($request->allParams());
+		}
 	}
+
+## Routing
 
 `mysite/_config/routes.yml`
 
@@ -28,8 +33,8 @@ your own routes since the cms module handles these routes.
 	After: framework/routes#coreroutes
 	---
 	Director:
-  		rules:
-    		'fastfood/$Action/$ID/$Name': 'FastFood_Controller'
+	  rules:
+	    'fastfood//$Action/$ID/$Name': 'FastFood_Controller'
 
 
 Request for `/fastfood/order/24/cheesefries` would result in the following to 
@@ -44,6 +49,105 @@ making any code changes to your controller.
 	    [Name] => cheesefries
 	)
 
+<div class="warning" markdown='1'>
+	SilverStripe automatically adds a URL routing entry based on the controller's class name,
+	so a `MyController` class is accessible through `http://yourdomain.com/MyController`.
+</div>
+
+## Access Control
+
+### Through $allowed_actions
+
+All public methods on a controller are accessible by their name through the `$Action`
+part of the URL routing, so a `MyController->mymethod()` is accessible at
+`http://yourdomain.com/MyController/mymethod`. This is not always desireable,
+since methods can return internal information, or change state in a way
+that's not intended to be used through a URL endpoint.
+
+SilverStripe strongly recommends securing your controllers
+through defining a `$allowed_actions` array on the class,
+which allows whitelisting of methods, as well as a concise
+way to perform checks against permission codes or custom logic.
+
+	:::php
+	class MyController extends Controller {
+		
+		private static $allowed_actions = array(
+			// someaction can be accessed by anyone, any time
+			'someaction', 
+			// So can otheraction
+			'otheraction' => true, 
+			// restrictedaction can only be people with ADMIN privilege
+			'restrictedaction' => 'ADMIN', 
+			// complexaction can only be accessed if $this->canComplexAction() returns true
+			'complexaction' '->canComplexAction' 
+		);
+	}
+
+There's a couple of rules guiding these checks:
+
+ * Each class is only responsible for access control on the methods it defines
+ * If `$allowed_actions` is defined as an empty array, no actions are allowed
+ * If `$allowed_actions` is undefined, all public methods on the specific class are allowed 
+   (not recommended)
+ * Access checks on parent classes need to be overwritten via the Config API
+ * Only public methods can be made accessible
+ * If a method on a parent class is overwritten, access control for it has to be redefined as well
+ * An action named "index" is whitelisted by default, 
+   unless allowed_actions is defined as an empty array,
+   or the action is specifically restricted in there.
+ * Methods returning forms also count as actions which need to be defined
+ * Form action methods (targets of `FormAction`) should NOT be included in `$allowed_actions`,
+   they're handled separately through the form routing (see the ["forms" topic](/topics/forms))
+ * `$allowed_actions` can be defined on `Extension` classes applying to the controller.
+
+If the permission check fails, SilverStripe will return a "403 Forbidden" HTTP status.
+
+### Through the action
+
+Each method responding to a URL can also implement custom permission checks,
+e.g. to handle responses conditionally on the passed request data.
+
+	:::php
+	class MyController extends Controller {
+		
+		private static $allowed_actions = array('myaction');
+		
+		public function myaction($request) {
+			if(!$request->getVar('apikey')) {
+				return $this->httpError(403, 'No API key provided');
+			} 
+				
+			return 'valid';
+		}
+	}
+
+Unless you transform the response later in the request processing,
+it'll look pretty ugly to the user. Alternatively, you can use
+`ErrorPage::response_for(<status-code>)` to return a more specialized layout.
+
+Note: This is recommended as an addition for `$allowed_actions`, in order to handle
+more complex checks, rather than a replacement.
+
+### Through the init() method
+
+After checking for allowed_actions, each controller invokes its `init()` method,
+which is typically used to set up common state in the controller, and 
+include JavaScript and CSS files in the output which are used for any action.
+If an `init()` method returns a `SS_HTTPResponse` with either a 3xx or 4xx HTTP
+status code, it'll abort execution. This behaviour can be used to implement
+permission checks.
+
+	:::php
+	class MyController extends Controller {
+		
+		private static $allowed_actions = array();
+		
+		public function init() {
+			parent::init();
+			if(!Permission::check('ADMIN')) return $this->httpError(403);
+		}
+	}
 
 ## URL Handling
 
@@ -60,10 +164,25 @@ through `/fastfood/drivethrough/` to use the same order function.
 
 	:::php
 	class FastFood_Controller extends Controller {
-	    
+	    private static $allowed_actions = array('drivethrough');
 	    public static $url_handlers = array(
 	        'drivethrough/$Action/$ID/$Name' => 'order'
 	    );
+
+## Access Control
+
+### Through $allowed_actions
+
+ * If `$allowed_actions` is undefined, `null` or `array()`, no actions are accessible
+ * Each class is only responsible for access control on the methods it defines
+ * Access checks on parent classes need to be overwritten via the Config API
+ * Only public methods can be made accessible
+ * If a method on a parent class is overwritten, access control for it has to be redefined as well
+ * An action named "index" is whitelisted by default
+ * Methods returning forms also count as actions which need to be defined
+ * Form action methods (targets of `FormAction`) should NOT be included in `$allowed_actions`,
+   they're handled separately through the form routing (see the ["forms" topic](/topics/forms))
+ * `$allowed_actions` can be defined on `Extension` classes applying to the controller.
 
 ## URL Patterns
 
@@ -118,10 +237,12 @@ either `301` for permanent redirects, or `302` for temporary redirects (default)
 You can also limit access to actions on a controller using the static `$allowed_actions` array. This allows you to always allow an action, or restrict it to a specific permission or to call a method that checks if the action is allowed.
 
 For example, the default `Controller::$allowed_actions` is
-	static $allowed_actions = array(
+
+	private static $allowed_actions = array(
 		'handleAction',
 		'handleIndex',
 	);
+	
 which allows the `handleAction` and `handleIndex` methods to be called via a URL.
 
 To allow any action on your controller to be called you can either leave your `$allowed_actions` array empty or not have one at all. This is the default behaviour, however it is not recommended as it allows anything on your controller to be called via a URL, including view-specific methods.
@@ -129,14 +250,16 @@ To allow any action on your controller to be called you can either leave your `$
 The recommended approach is to explicitly state the actions that can be called via a URL. Any action not in the `$allowed_actions` array, excluding the default `index` method, is then unable to be called.
 
 To always allow an action to be called, you can either add the name of the action to the array or add a value of `true` to the array, using the name of the method as its index. For example
-	static $allowed_actions = array(
+	
+	private static $allowed_actions = array(
 		'MyAwesomeAction',
 		'MyOtherAction' => true
 	);
 
 
 To require that the current user has a certain permission before being allowed to call an action you add the action to the array as an index with the value being the permission code that user must have. For example
-	static $allowed_actions = array(
+
+	private static $allowed_actions = array(
 		'MyAwesomeAction',
 		'MyOtherAction' => true,
 		'MyLimitedAction' => 'CMS_ACCESS_CMSMain',
@@ -144,7 +267,8 @@ To require that the current user has a certain permission before being allowed t
 	);
 
 If neither of these are enough to decide if an action should be called, you can have the check use a method. The method must be on the controller class and return true if the action is allowed or false if it isn't. To do this add the action to the array as an index with the value being the name of the method to called preceded by '->'. You are able to pass static arguments to the method in much the same way as you can with extensions. Strings are enclosed in quotes, numeric values are written as numbers and true and false are written as true and false. For example
-	static $allowed_actions = array(
+	
+	private static $allowed_actions = array(
 		'MyAwesomeAction',
 		'MyOtherAction' => true,
 		'MyLimitedAction' => 'CMS_ACCESS_CMSMain',

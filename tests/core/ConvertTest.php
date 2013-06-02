@@ -1,10 +1,14 @@
 <?php
+
 /**
  * Test various functions on the {@link Convert} class.
+ *
  * @package framework
  * @subpackage tests
  */
 class ConvertTest extends SapphireTest {
+
+	protected $usesDatabase = false;
 
 	/**
 	 * Tests {@link Convert::raw2att()}
@@ -81,9 +85,18 @@ class ConvertTest extends SapphireTest {
 			'Newlines are retained. They should not be replaced with <br /> as it is not XML valid');
 	}
 	
-	public function testRaw2HtmlName() {
+	/**
+	 * Tests {@link Convert::raw2htmlid()}
+	 */
+	public function testRaw2HtmlID() {
 		$val1 = 'test test 123';
-		$this->assertEquals('testtest123', Convert::raw2htmlname($val1));
+		$this->assertEquals('test_test_123', Convert::raw2htmlid($val1));
+
+		$val1 = 'test[test][123]';
+		$this->assertEquals('test_test_123', Convert::raw2htmlid($val1));
+
+		$val1 = '[test[[test]][123]]';
+		$this->assertEquals('test_test_123', Convert::raw2htmlid($val1));
 	}
 	
 	/**
@@ -131,13 +144,13 @@ class ConvertTest extends SapphireTest {
 	 * @todo test toASCII()
 	 */
 	public function testRaw2URL() {
-		$orig = URLSegmentFilter::$default_allow_multibyte;
-		URLSegmentFilter::$default_allow_multibyte = false;
+		$orig = Config::inst()->get('URLSegmentFilter', 'default_allow_multibyte');
+		Config::inst()->update('URLSegmentFilter', 'default_allow_multibyte', false);
 		$this->assertEquals('foo', Convert::raw2url('foo'));
 		$this->assertEquals('foo-and-bar', Convert::raw2url('foo & bar'));
 		$this->assertEquals('foo-and-bar', Convert::raw2url('foo &amp; bar!'));
 		$this->assertEquals('foos-bar-2', Convert::raw2url('foo\'s [bar] (2)'));
-		URLSegmentFilter::$default_allow_multibyte = $orig;
+		Config::inst()->update('URLSegmentFilter', 'default_allow_multibyte', $orig);
 	}
 	
 	/**

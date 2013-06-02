@@ -12,11 +12,13 @@ detailed error messages for security reasons. You'll typically need to get your 
 information.
 
 If you can log-in to the CMS as an administrator, append `?isDev=1` to any URL to temporarily set your browsing session into
-"dev mode". If you can't log-in in the first place because of the error, add this directive to your `mysite/_config.php`
+"dev mode". If you can't log-in in the first place because of the error, add this directive to your `mysite/_config/config.yml`
 (don't forget to remove it afterwards!):
 
 	:::php
-	Director::set_environment_type('dev'); // temporary debugging statement
+	Director:
+	  # temporary debugging statement
+	  environment_type: 'dev'
 
 <div class="warning" markdown='1'>
 On "live" environments, the `?isDev=1` solution is preferred, as it means that your other visitors don't see ugly
@@ -50,22 +52,22 @@ handle the new code.  Here are some specifics situations:
 ## My edited CMS content doesn't show on the website
 
 If you've set up your site and it used to be working, but now it's suddenly totally broken, you may have forgotten to
-publish your draft content.  Go to the CMS and use the "publish" button.  You can visit `admin/publishall` to publish
+publish your draft content.  Go to the CMS and use the "publish" button.  You can visit `admin/pages/publishall` to publish
 every page on the site, if that's easier.
 
 ## I can see unparsed PHP output in my browser
 
 Please make sure all code inside `*.php` files is wrapped in classes. Due to the way `[api:ManifestBuilder]`
-includes all files with this extension, any **procedural code will be executed on every call**. Most common error here
+includes all files with this extension, any **procedural code will be executed on every call**. The most common error here
 is putting a test.php/phpinfo.php file in the document root. See [datamodel](/topics/datamodel) and [controllers](/topics/controller)
 for ways how to structure your code.
 
-Also, please check that you have PHP enabled on the webserver, and you're at least running PHP 5.1.
+Also, please check that you have PHP enabled on the webserver, and you're running PHP 5.1 or later.
 The web-based [SilverStripe installer](/installation) can help you with this.
 
 ## I've got file permission problems during installation
 
-The php installer needs to be able write files during installation, which should be restricted again afterwards. It
+The php installer needs to be able to write files during installation, which should be restricted again afterwards. It
 needs to create/have write-access to:
 
  * The main installation directory (for creating .htaccess file and assets directory)

@@ -6,15 +6,14 @@
  * ajax / iframe submissions
  */
 
- var ss = ss || {};
+var ss = ss || {};
 /**
  * Wrapper for HTML WYSIWYG libraries, which abstracts library internals
  * from interface concerns like inserting and editing links.
  * Caution: Incomplete and unstable API.
  */
- ss.editorWrappers = {};
- ss.editorWrappers.initial
- ss.editorWrappers.tinyMCE = (function() {
+ss.editorWrappers = {};
+ss.editorWrappers.tinyMCE = (function() {
 	return {
 		init: function(config) {
 			if(!ss.editorWrappers.tinyMCE.initialized) {
@@ -47,13 +46,29 @@
 		/**
 		 * Create a new instance based on a textarea field.
 		 *
+		 * Please proxy the events from your editor implementation into JS events
+		 * on the textarea field. For events that do not map directly, use the 
+		 * following naming scheme: editor<event>.
+		 *
 		 * @param String
 		 * @param Object Implementation specific configuration
 		 * @param Function
 		 */
-		create: function(domID, config, onSuccess) {
+		create: function(domID, config) {
 			var ed = new tinymce.Editor(domID, config);
-			ed.onInit.add(onSuccess);
+
+			// Patch TinyMCE events into underlying textarea field.
+			ed.onInit.add(function(ed) {
+				jQuery(ed.getElement()).trigger('editorinit');
+			});
+			ed.onChange.add(function(ed, l) {
+				// Update underlying textarea on every change, so external handlers
+				// such as changetracker have a chance to trigger properly.
+				ed.save();
+				jQuery(ed.getElement()).trigger('change');
+			});
+			// Add more events here as needed.
+
 			ed.render();
 		},
 		/**
@@ -105,6 +120,15 @@
 		 */
 		selectNode: function(node) {
 			this.getInstance().selection.select(node);
+		},
+		/**
+		 * Replace entire content
+		 * 
+		 * @param String HTML
+		 * @param Object opts
+		 */
+		setContent: function(html, opts) {
+			this.getInstance().execCommand('mceSetContent', false, html, opts);
 		},
 		/**
 		 * Insert content at the current caret position
@@ -245,15 +269,6 @@ ss.editorWrappers['default'] = ss.editorWrappers.tinyMCE;
 				return this.closest('form');
 			},
 
-			fromContainingForm: {
-				onbeforesubmitform: function(){
-					if(this.isChanged()) {
-						this.getEditor().save();
-						this.trigger('change'); // TinyMCE assigns value attr directly, which doesn't trigger change event
-					}
-				}
-			},
-
 			fromWindow: {
 				onload: function(){
 					this.redraw();
@@ -269,15 +284,30 @@ ss.editorWrappers['default'] = ss.editorWrappers.tinyMCE;
 				// Create editor instance and render it.
 				// Similar logic to adapter/jquery/jquery.tinymce.js, but doesn't rely on monkey-patching
 				// jQuery methods, and avoids replicate the script lazyloading which is already in place with jQuery.ondemand.
-				ed.create(this.attr('id'), config, function() {
-					// Delayed show because TinyMCE calls hide() via setTimeout on removing an element,
-					// which is called in quick succession with adding a new editor after ajax loading new markup
-					setTimeout(function() {
-						$(ed.getContainer()).show();
-					}, 10);
-				});
-				
+				ed.create(this.attr('id'), config);
+
 				this._super();
+			},
+
+			/**
+			 * Make sure the editor has flushed all it's buffers before the form is submitted.
+			 */
+			'from .cms-edit-form': {
+				onbeforesubmitform: function(e) {
+					this.getEditor().save();
+					this._super();
+				}
+			},
+
+			oneditorinit: function() {
+				// Delayed show because TinyMCE calls hide() via setTimeout on removing an element,
+				// which is called in quick succession with adding a new editor after ajax loading new markup
+
+				//storing the container object before setting timeout
+				var redrawObj = $(this.getEditor().getInstance().getContainer());
+				setTimeout(function() {
+					redrawObj.show();
+				}, 10);
 			},
 
 			'from .cms-container': {
@@ -458,7 +488,8 @@ ss.editorWrappers['default'] = ss.editorWrappers.tinyMCE;
 				/* NOP */
 			},
 			resetFields: function() {
-				/* NOP */
+				// Flush the tree drop down fields, as their content might get changed in other parts of the CMS, ie in Files and images
+				this.find('.tree-holder').empty();
 			}
 		});
 
@@ -484,32 +515,51 @@ ss.editorWrappers['default'] = ss.editorWrappers.tinyMCE;
 			redraw: function() {
 				this._super();
 
-				var linkType = this.find(':input[name=LinkType]:checked').val(), list = ['internal', 'external', 'file', 'email'];
+				var linkType = this.find(':input[name=LinkType]:checked').val(),
+					list = ['internal', 'external', 'file', 'email'];
 
 				this.addAnchorSelector();
 
 				// Toggle field visibility depending on the link type.
 				this.find('div.content .field').hide();
-				this.find('.field#LinkType').show();
-				this.find('.field#' + linkType).show();
-				if(linkType == 'internal' || linkType == 'anchor') this.find('.field#Anchor').show();
-				if(linkType !== 'email') this.find('.field#TargetBlank').show();
+				this.find('.field[id$="LinkType_Holder"]').show();
+				this.find('.field[id$="' + linkType +'_Holder"]').show();
+
+				if(linkType == 'internal' || linkType == 'anchor') {
+					this.find('.field[id$="Anchor_Holder"]').show();
+				}
+
+				if(linkType !== 'email') {
+					this.find('.field[id$="TargetBlank_Holder"]').show();
+				}
+
 				if(linkType == 'anchor') {
-					this.find('.field#AnchorSelector').show();
-					this.find('.field#AnchorRefresh').show();
+					this.find('.field[id$="AnchorSelector_Holder"]').show();
+					this.find('.field[id$="AnchorRefresh_Holder"]').show();
 				}
 			},
-			insertLink: function() {
-				var href, target = null, anchor = this.find(':input[name=Anchor]').val();
+			/**
+			 * @return Object Keys: 'href', 'target', 'title'
+			 */
+			getLinkAttributes: function() {
+				var href,
+					target = null,
+					anchor = this.find(':input[name=Anchor]').val();
 				
 				// Determine target
-				if(this.find(':input[name=TargetBlank]').is(':checked')) target = '_blank';
-				
+				if(this.find(':input[name=TargetBlank]').is(':checked')) {
+					target = '_blank';
+				}
+
 				// All other attributes
 				switch(this.find(':input[name=LinkType]:checked').val()) {
 					case 'internal':
 						href = '[sitetree_link,id=' + this.find(':input[name=internal]').val() + ']';
-						if(anchor) href += '#' + anchor;
+
+						if(anchor) {
+							href += '#' + anchor;
+						}
+
 						break;
 
 					case 'anchor':
@@ -534,22 +584,24 @@ ss.editorWrappers['default'] = ss.editorWrappers.tinyMCE;
 						break;
 				}
 
-				var attributes = {
+				return {
 					href : href, 
 					target : target, 
 					title : this.find(':input[name=Description]').val()
 				};
-
+			},
+			insertLink: function() {
 				this.modifySelection(function(ed){
-					ed.insertLink(attributes);
-				})
+					ed.insertLink(this.getLinkAttributes());
+				});
 
 				this.updateFromEditor();
 			},
 			removeLink: function() {
 				this.modifySelection(function(ed){
 					ed.removeLink();
-				})
+				});
+
 				this.close();
 			},
 			addAnchorSelector: function() {
@@ -682,7 +734,7 @@ ss.editorWrappers['default'] = ss.editorWrappers.tinyMCE;
 					email: RegExp.$1,
 					Description: title
 				};
-			} else if(href.match(/^(assets\/.*)$/) || href.match(/^\[file_link\s*(?:%20)?id=([0-9]+)\]?(#.*)?$/)) {
+			} else if(href.match(/^(assets\/.*)$/) || href.match(/^\[file_link\s*(?:\s*|%20|,)?id=([0-9]+)\]?(#.*)?$/)) {
 				return {
 					LinkType: 'file',
 					file: RegExp.$1,
@@ -766,8 +818,8 @@ ss.editorWrappers['default'] = ss.editorWrappers.tinyMCE;
 
 				// TODO Depends on managed mime type
 				if(node.is('img')) {
-					this.showFileView(node.data('url') || node.attr('src')).complete(function() {
-						$(this).updateFromNode(node);
+					this.showFileView(node.data('url') || node.attr('src')).done(function(filefield) {
+						filefield.updateFromNode(node);
 						self.toggleCloseButton();
 						self.redraw();
 					});
@@ -786,7 +838,7 @@ ss.editorWrappers['default'] = ss.editorWrappers.tinyMCE;
 				if(header) header[(hasItems) ? 'show' : 'hide']();
 
 				// Disable "insert" button if no files are selected
-				 this.find('.Actions :submit')
+				this.find('.Actions :submit')
 					.button(hasItems ? 'enable' : 'disable')
 					.toggleClass('ui-state-disabled', !hasItems); 
 					
@@ -802,6 +854,7 @@ ss.editorWrappers['default'] = ss.editorWrappers.tinyMCE;
 			resetFields: function() {				
 				this.find('.ss-htmleditorfield-file').remove(); // Remove any existing views
 				this.find('.ss-gridfield-items .ui-selected').removeClass('ui-selected'); // Unselect all items
+				this.find('li.ss-uploadfield-item').remove(); // Remove all selected items
 				this.redraw();
 
 				this._super();
@@ -809,25 +862,29 @@ ss.editorWrappers['default'] = ss.editorWrappers.tinyMCE;
 			getFileView: function(idOrUrl) {
 				return this.find('.ss-htmleditorfield-file[data-id=' + idOrUrl + ']');
 			},
-			showFileView: function(idOrUrl, successCallback) {
-				var self = this, params = (Number(idOrUrl) == idOrUrl) ? {ID: idOrUrl} : {FileURL: idOrUrl},
-					item = $('<div class="ss-htmleditorfield-file" />');
+			showFileView: function(idOrUrl) {
+				var self = this, params = (Number(idOrUrl) == idOrUrl) ? {ID: idOrUrl} : {FileURL: idOrUrl};
 
-				item.addClass('loading');
+				var item = $('<div class="ss-htmleditorfield-file loading" />');
 				this.find('.content-edit').append(item);
-				return $.ajax({
-					// url: this.data('urlViewfile') + '?ID=' + id,
+				
+				var dfr = $.Deferred();
+				
+				$.ajax({
 					url: $.path.addSearchParams(this.attr('action').replace(/MediaForm/, 'viewfile'), params),
 					success: function(html, status, xhr) {
-						var newItem = $(html);
+						var newItem = $(html).filter('.ss-htmleditorfield-file');
 						item.replaceWith(newItem);
 						self.redraw();
-						if(successCallback) successCallback.call(newItem, html, status, xhr);
+						dfr.resolve(newItem);
 					},
 					error: function() {
 						item.remove();
+						dfr.reject();
 					}
 				});
+				
+				return dfr.promise();
 			}
 		});
 
@@ -861,7 +918,8 @@ ss.editorWrappers['default'] = ss.editorWrappers.tinyMCE;
 					//get the uploaded file ID when this event triggers, signaling the upload has compeleted successfully
 					editFieldIDs.push($(this).data('id'));
 				});
-				var uploadedFiles = $('.ss-uploadfield-files').children('.ss-uploadfield-item');
+				// we only want this .ss-uploadfield-files - else we get all ss-uploadfield-files wich include the ones not related to #tinymce insertmedia
+				var uploadedFiles = $('.ss-uploadfield-files', this).children('.ss-uploadfield-item');
 				uploadedFiles.each(function(){
 					var uploadedID = $(this).data('fileid');
 					if ($.inArray(uploadedID, editFieldIDs) == -1) {
@@ -916,7 +974,7 @@ ss.editorWrappers['default'] = ss.editorWrappers.tinyMCE;
 
 				if (urlField.validate()) {
 					container.addClass('loading');
-					form.showFileView('http://' + urlField.val()).complete(function() {
+					form.showFileView('http://' + urlField.val()).done(function() {
 						container.removeClass('loading');
 					});
 					form.redraw();
@@ -1018,50 +1076,75 @@ ss.editorWrappers['default'] = ss.editorWrappers.tinyMCE;
 				};
 			},
 			getHTML: function() {
-				var el,
-					attrs = this.getAttributes(),
-					extraData = this.getExtraData(),
-					// imgEl = $('<img id="_ss_tmp_img" />');
-					imgEl = $('<img />').attr(attrs);
-					
-				if(extraData.CaptionText) {
-					el = $('<div style="width: ' + attrs['width'] + 'px;" class="captionImage ' + attrs['class'] + '"><p class="caption">' + extraData.CaptionText + '</p></div>').prepend(imgEl);
-				} else {
-					el = imgEl;
-				}
-				return $('<div />').append(el).html(); // Little hack to get outerHTML string
+				/* NOP */
 			},
 			/**
 			 * Logic similar to TinyMCE 'advimage' plugin, insertAndClose() method.
 			 */
 			insertHTML: function(ed) {
-				var form = this.closest('form'),
-				node = form.getSelection(), captionNode = node.closest('.captionImage');
+				var form = this.closest('form'), node = form.getSelection(), ed = form.getEditor();
 
-				if(node && node.is('img')) {
-					// If the image exists, update it to avoid complications with inserting TinyMCE HTML content
-					var attrs = this.getAttributes(), extraData = this.getExtraData();
-					node.attr(attrs);
-					// TODO Doesn't allow adding a caption to image after it was first added
-					if(captionNode.length) {
-						captionNode.find('.caption').text(extraData.CaptionText);
-						captionNode.css({width: attrs.width, height: attrs.height}).attr('class', attrs['class']);
+				// Get the attributes & extra data
+				var attrs = this.getAttributes(), extraData = this.getExtraData();
+
+				// Find the element we are replacing - either the img, it's wrapper parent, or nothing (if creating)
+				var replacee = (node && node.is('img')) ? node : null;
+				if (replacee && replacee.parent().is('.captionImage')) replacee = replacee.parent();
+
+				// Find the img node - either the existing img or a new one, and update it
+				var img = (node && node.is('img')) ? node : $('<img />');
+				img.attr(attrs);
+
+				// Any existing figure or caption node
+				var container = img.parent('.captionImage'), caption = container.find('.caption');
+
+				// If we've got caption text, we need a wrapping div.captionImage and sibling p.caption
+				if (extraData.CaptionText) {
+					if (!container.length) {
+						container = $('<div></div>');
 					}
-					// Undo needs to be added manually as we're doing direct DOM changes
-					ed.addUndo();
-				} else {
-					// Otherwise insert the whole HTML content
-					ed.repaint();
-					ed.insertContent(this.getHTML(), {skip_undo : 1});	
-					ed.addUndo(); // Not sure why undo is separate here, replicating TinyMCE logic
+
+					container.attr('class', 'captionImage '+attrs['class']).css('width', attrs.width);
+
+					if (!caption.length) {
+						caption = $('<p class="caption"></p>').appendTo(container);
+					}
+
+					caption.attr('class', 'caption '+attrs['class']).text(extraData.CaptionText);
+				}
+				// Otherwise forget they exist
+				else {
+					container = caption = null;
 				}
 
+				// The element we are replacing the replacee with
+				var replacer = container ? container : img;
+
+				// If we're replacing something, and it's not with itself, do so
+				if (replacee && replacee.not(replacer).length) {
+					replacee.replaceWith(replacer);
+				}
+
+				// If we have a wrapper element, make sure the img is the first child - img might be the
+				// replacee, and the wrapper the replacer, and we can't do this till after the replace has happened
+				if (container) {
+					container.prepend(img);
+				}
+
+				// If we don't have a replacee, then we need to insert the whole HTML
+				if (!replacee) {
+					// Otherwise insert the whole HTML content
+					ed.repaint();
+					ed.insertContent($('<div />').append(replacer).html(), {skip_undo : 1});
+				}
+
+				ed.addUndo();
 				ed.repaint();
 			},
 			updateFromNode: function(node) {
 				this.find(':input[name=AltText]').val(node.attr('alt'));
 				this.find(':input[name=Title]').val(node.attr('title'));
-				this.find(':input[name=CSSClass]').val(node.attr('class')).attr('disabled', 'disabled');
+				this.find(':input[name=CSSClass]').val(node.attr('class'));
 				this.find(':input[name=Width]').val(node.width());
 				this.find(':input[name=Height]').val(node.height());
 				this.find(':input[name=CaptionText]').val(node.siblings('.caption:first').text());
@@ -1164,7 +1247,9 @@ ss.editorWrappers['default'] = ss.editorWrappers.tinyMCE;
 				this.setOrigVal(parseInt(this.val(), 10));
 
 				// Default to a managable size for the HTML view. Can be overwritten by user after initialization
-				if(this.attr('name') == 'Width') this.closest('.ss-htmleditorfield-file').updateDimensions('Width', 600);
+				if(this.attr('name') == 'Width') {
+					this.closest('.ss-htmleditorfield-file').updateDimensions('Width', 600);
+				}
 
 			},
 			onunmatch: function() {
@@ -1242,7 +1327,7 @@ ss.editorWrappers['default'] = ss.editorWrappers.tinyMCE;
 		});
 
 
-		$('form.htmleditorfield-mediaform #ParentID .TreeDropdownField').entwine({
+		$('form.htmleditorfield-mediaform .field[id$="ParentID_Holder"] .TreeDropdownField').entwine({
 			onadd: function() {
 				this._super();
 
@@ -1292,6 +1377,17 @@ function sapphiremce_cleanup(type, value) {
 			this.removeAttribute('onresizestart');
 			this.removeAttribute('onresizeend');
 		});
+	}
+
+	// if we are inserting from a popup back into the editor
+	// add the changed class and update the Content value
+	if(type == 'insert_to_editor' && typeof tinyMCE.selectedInstance.editorId !== 'undefined') {
+		var field = jQuery('#' + tinyMCE.selectedInstance.editorId);
+		var original = field.val();
+		if (original != value) {
+			field.val(value).addClass('changed');
+			field.closest('form').addClass('changed');
+		}
 	}
 
 	return value;

@@ -25,7 +25,7 @@ when the form is submitted.
 			new RequiredFields(array('MyRequiredField'))
 		);
 		// Optional: Add a CSS class for custom styling
-		$form->dataFieldByName('MyRequiredField)->addExtraClass('required');
+		$form->dataFieldByName('MyRequiredField')->addExtraClass('required');
 		return $form;
 	}
 
@@ -49,6 +49,7 @@ Example: Validate postcodes based on the selected country (on the controller).
 
 	:::php
 	class MyController extends Controller {
+		private static $allowed_actions = array('Form');
 		public function Form() {
 			return Form::create($this, 'Form',
 				new FieldList(

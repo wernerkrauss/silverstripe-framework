@@ -65,7 +65,7 @@ class ArrayData extends ViewableData {
 			return new ArrayData($value);
 		} elseif (ArrayLib::is_associative($value)) {
 			return new ArrayData($value);
-	    } else {
+		} else {
 			return $value;
 		}
 	}
@@ -99,14 +99,6 @@ class ArrayData extends ViewableData {
 		$obj = new stdClass();
 		if ($arr) foreach($arr as $name => $value) $obj->$name = $value;
 		return $obj;
-	}
-	
-	/**
-	 * @deprecated 3.0 Use {@link ArrayData::toMap()}.
-	 */
-	public function getArray() {
-		Deprecation::notice('3.0', 'Use ArrayData::toMap() instead.');
-		return $this->toMap();
 	}
 
 }

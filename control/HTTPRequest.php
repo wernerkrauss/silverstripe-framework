@@ -104,6 +104,24 @@ class SS_HTTPRequest implements ArrayAccess {
 	 */
 	public function __construct($httpMethod, $url, $getVars = array(), $postVars = array(), $body = null) {
 		$this->httpMethod = strtoupper(self::detect_method($httpMethod, $postVars));
+		$this->setUrl($url);
+
+		$this->getVars = (array)$getVars;
+		$this->postVars = (array)$postVars;
+		$this->body = $body;
+	}
+
+	/**
+	 * Allow the setting of a URL
+	 *
+	 * This is here so that RootURLController can change the URL of the request
+	 * without us loosing all the other info attached (like headers)
+	 *
+	 * @param string The new URL
+	 *
+	 * @return SS_HTTPRequest The updated request
+	 */
+	public function setUrl($url) {
 		$this->url = $url;
 
 		// Normalize URL if its relative (strictly speaking), or has leading slashes
@@ -116,10 +134,8 @@ class SS_HTTPRequest implements ArrayAccess {
 		}
 		if($this->url) $this->dirParts = preg_split('|/+|', $this->url);
 		else $this->dirParts = array();
-		
-		$this->getVars = (array)$getVars;
-		$this->postVars = (array)$postVars;
-		$this->body = $body;
+
+		return $this;
 	}
 
 	/**
@@ -296,21 +312,21 @@ class SS_HTTPRequest implements ArrayAccess {
 	public function getURL($includeGetVars = false) {
 		$url = ($this->getExtension()) ? $this->url . '.' . $this->getExtension() : $this->url; 
 
-		 if ($includeGetVars) { 
-		 	// if we don't unset $vars['url'] we end up with /my/url?url=my/url&foo=bar etc 
- 			
- 			$vars = $this->getVars();
- 			unset($vars['url']);
+		if ($includeGetVars) { 
+			// if we don't unset $vars['url'] we end up with /my/url?url=my/url&foo=bar etc 
+			
+			$vars = $this->getVars();
+			unset($vars['url']);
 
- 			if (count($vars)) {
- 				$url .= '?' . http_build_query($vars);
- 			}
- 		}
- 		else if(strpos($url, "?") !== false) {
- 			$url = substr($url, 0, strpos($url, "?"));
- 		}
+			if (count($vars)) {
+				$url .= '?' . http_build_query($vars);
+			}
+		}
+		else if(strpos($url, "?") !== false) {
+			$url = substr($url, 0, strpos($url, "?"));
+		}
 
- 		return $url; 
+		return $url; 
 	}
 
 	/**
@@ -361,7 +377,9 @@ class SS_HTTPRequest implements ArrayAccess {
 	public function offsetUnset($offset) {}
 	
 	/**
-	 * Construct an SS_HTTPResponse that will deliver a file to the client
+	 * Construct an SS_HTTPResponse that will deliver a file to the client.
+	 * Caution: Since it requires $fileData to be passed as binary data (no stream support),
+	 * it's only advisable to send small files through this method.
 	 *
 	 * @static
 	 * @param $fileData
@@ -433,6 +451,9 @@ class SS_HTTPRequest implements ArrayAccess {
 			$shiftCount = sizeof($patternParts);
 		}
 
+		// Filter out any "empty" matching parts - either from an initial / or a trailing /
+		$patternParts = array_values(array_filter($patternParts));
+
 		$arguments = array();
 		foreach($patternParts as $i => $part) {
 			$part = trim($part);
@@ -501,9 +522,9 @@ class SS_HTTPRequest implements ArrayAccess {
 	 * @return string
 	 */
 	public function shiftAllParams() {
-		$keys     = array_keys($this->allParams);
-		$values   = array_values($this->allParams);
-		$value    = array_shift($values);
+		$keys    = array_keys($this->allParams);
+		$values  = array_values($this->allParams);
+		$value   = array_shift($values);
 
 		// push additional unparsed URL parts onto the parameter stack
 		if(array_key_exists($this->unshiftedButParsedParts, $this->dirParts)) {
@@ -610,7 +631,7 @@ class SS_HTTPRequest implements ArrayAccess {
 		for($i=0;$i<$count;$i++) {
 			$value = array_shift($this->dirParts);
 			
-			if(!$value) break;
+			if($value === null) break;
 			
 			$return[] = $value;
 		}
@@ -636,10 +657,10 @@ class SS_HTTPRequest implements ArrayAccess {
 	 */
 	public function getIP() {
 		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-	  		//check ip from share internet
+			//check ip from share internet
 			return $_SERVER['HTTP_CLIENT_IP'];
 		} elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-	  		//to check ip is pass from proxy
+			//to check ip is pass from proxy
 			return  $_SERVER['HTTP_X_FORWARDED_FOR'];
 		} elseif(isset($_SERVER['REMOTE_ADDR'])) {
 			return $_SERVER['REMOTE_ADDR'];
@@ -655,12 +676,12 @@ class SS_HTTPRequest implements ArrayAccess {
 	 * @return array
 	 */
 	public function getAcceptMimetypes($includeQuality = false) {
-	   $mimetypes = array();
-	   $mimetypesWithQuality = explode(',',$this->getHeader('Accept'));
-	   foreach($mimetypesWithQuality as $mimetypeWithQuality) {
-	      $mimetypes[] = ($includeQuality) ? $mimetypeWithQuality : preg_replace('/;.*/', '', $mimetypeWithQuality);
-	   }
-	   return $mimetypes;
+		$mimetypes = array();
+		$mimetypesWithQuality = explode(',',$this->getHeader('Accept'));
+		foreach($mimetypesWithQuality as $mimetypeWithQuality) {
+			$mimetypes[] = ($includeQuality) ? $mimetypeWithQuality : preg_replace('/;.*/', '', $mimetypeWithQuality);
+		}
+		return $mimetypes;
 	}
 	
 	/**
