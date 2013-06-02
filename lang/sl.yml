@@ -2,6 +2,7 @@ sl:
   AssetAdmin:
     ALLOWEDEXTS: 'Podaljševanje je dovoljeno.'
     NEWFOLDER: 'Nova mapa'
+    SHOWALLOWEDEXTS: 'Show allowed extensions'
   AssetTableField:
     CREATED: 'Naloženo na začetku'
     DIM: Dimenzije
@@ -59,9 +60,9 @@ sl:
     ERRORNOTADMIN: 'Uporabnik ni administrator tega spletnega mesta.'
     ERRORNOTREC: 'Ne prepoznam uporabniškega imena ali gesla'
   Boolean:
-    0: Ne
     ANY: Katerikoli
-    1: Da
+    NOANSWER: 'False'
+    YESANSWER: 'True'
   CMSLoadingScreen.ss:
     LOADING: 'Nalaganje ...'
     REQUIREJS: 'CMS zahteva, da imate omogočen JavaScript.'
@@ -70,6 +71,8 @@ sl:
     ACCESSALLINTERFACES: 'Dostop do vseh sklopov CMS'
     ACCESSALLINTERFACESHELP: 'Omogoča bolj specifične nastavitve za možnosti dostop.'
     SAVE: Shrani
+  CMSPageHistoryController_versions.ss:
+    PREVIEW: 'Website preview'
   CMSProfileController:
     MENUTITLE: 'Moj profil'
   ChangePasswordEmail.ss:
@@ -79,8 +82,8 @@ sl:
     HELLO: 'Pozdravljeni,'
     PASSWORD: Geslo
   CheckboxField:
-    - Ne
-    - Da
+    NOANSWER: 'False'
+    YESANSWER: 'True'
   ComplexTableField:
     CLOSEPOPUP: 'Zapri okno'
     SUCCESSADD2: 'Dodano {name}'
@@ -109,20 +112,21 @@ sl:
     PLURALNAME: 'Podatkovni objekti'
     SINGULARNAME: 'Podatkovni objekt'
   Date:
-    DAY: dan
-    DAYS: dni
-    HOUR: ura
-    HOURS: ure
+    DAY: day
+    DAYS: days
+    HOUR: hour
+    HOURS: hours
+    LessThanMinuteAgo: 'less than a minute'
     MIN: min
-    MINS: minute
-    MONTH: mesec
-    MONTHS: meseci
-    SEC: s
-    SECS: s
+    MINS: mins
+    MONTH: month
+    MONTHS: months
+    SEC: sec
+    SECS: secs
     TIMEDIFFAGO: '{difference} ago'
     TIMEDIFFIN: 'in {difference}'
-    YEAR: leto
-    YEARS: let
+    YEAR: year
+    YEARS: years
   DateField:
     NOTSET: 'ni nastavljeno'
     TODAY: danes
@@ -198,7 +202,8 @@ sl:
     TEXT2: 'povezava za ponastavitev gesla'
     TEXT3: za
   Form:
-    FIELDISREQUIRED: 'Vpišite %s (obvezen podatek).'
+    CSRF_FAILED_MESSAGE: 'There seems to have been a technical problem. Please click the back button, refresh your browser, and try again.'
+    FIELDISREQUIRED: '{name} is required'
     SubmitBtnLabel: Naprej
     VALIDATIONCREDITNUMBER: 'Prosim, preverite, da ste vnesli številko kreditne kartice {number} pravilno.'
     VALIDATIONNOTUNIQUE: 'Vpisana vrednost ni unikatna'
@@ -208,6 +213,7 @@ sl:
     VALIDATOR: Preverjanje
     VALIDCURRENCY: 'Prosim, vnesite pravo valuto.'
   FormField:
+    Example: 'e.g. %s'
     NONE: brez
   GridAction:
     DELETE_DESCRIPTION: Izbriši
@@ -230,6 +236,7 @@ sl:
     ResetFilter: Ponastavi
   GridFieldAction_Delete:
     DeletePermissionsFailure: 'Ni dovoljenja za brisanje'
+    EditPermissionsFailure: 'No permission to unlink record'
   GridFieldDetailForm:
     CancelBtn: Prekliči
     Create: Ustvari
@@ -237,7 +244,9 @@ sl:
     DeletePermissionsFailure: 'Ni dovoljenja za brisanje'
     Deleted: 'Deleted %s %s'
     Save: Shrani
-    Saved: 'Saved %s %s'
+    Saved: 'Saved {name} {link}'
+  GridFieldEditButton.ss:
+    EDIT: Edit
   GridFieldItemEditView.ss: null
   Group:
     AddRole: 'Dodaj vlogo za to skupino.'
@@ -267,6 +276,7 @@ sl:
     ADDURL: 'Dodaj URL'
     ADJUSTDETAILSDIMENSIONS: 'Details &amp; dimensions'
     ANCHORVALUE: Sidro
+    BUTTONADDURL: 'Add url'
     BUTTONINSERT: Vstavi
     BUTTONINSERTLINK: 'Vstavi povezavo'
     BUTTONREMOVELINK: 'Odstrani povezavo'
@@ -291,9 +301,9 @@ sl:
     IMAGEDIMENSIONS: Velikosti
     IMAGEHEIGHTPX: Višina
     IMAGETITLE: 'Naslov (tooltip)  bo izpisan kot dopolnitev k vsebini slike'
-    IMAGETITLETEXT: 'Title text (tooltip)'
-    IMAGETITLETEXTDESC: 'For additional information about the image'
-    IMAGEWIDTHPX: Širina
+    IMAGETITLETEXT: 'Naslov (tooltip)'
+    IMAGETITLETEXTDESC: 'Za dodatne informacije o sliki'
+    IMAGEWIDTHPX: 'Širina'
     INSERTMEDIA: 'Insert Media'
     LINK: Povezava
     LINKANCHOR: 'Sidro na tej strani'
@@ -331,7 +341,10 @@ sl:
     PreviewButton: Predogled
     REORGANISATIONSUCCESSFUL: 'Struktura spletnega mesta je bila uspešno spremenjena.'
     SAVEDUP: Shranjeno.
-    VersionUnknown: neznano
+    ShowAsList: 'show as list'
+    TooManyPages: 'Too many pages'
+    ValidationError: 'Validation error'
+    VersionUnknown: Unknown
   LeftAndMain_Menu.ss:
     Hello: 'Pozdravljeni,'
     LOGOUT: Odjava
@@ -407,6 +420,7 @@ sl:
     TWODIGITMONTH: 'Dvomesten zapis meseca (01 = Januar)'
     TWODIGITSECOND: 'Dvomesten zapis sekund (od 00 do 59)'
     TWODIGITYEAR: 'Dvomestno število za letnico'
+    Toggle: 'Show formatting help'
   MemberImportForm:
     Help1: '<p>Uvoz uporabnikov v <em>formatu CSV</em> (comma-separated values). <small><a href="#" class="toggle-advanced">Prikaži možnosti za napredno urejanje.</a></small></p>'
     Help2: '<div class="advanced">	<h4>Advanced usage</h4>	<ul>	<li>Allowed columns: <em>%s</em></li>	<li>Existing users are matched by their unique <em>Code</em> property, and updated with any new values from	the imported file.</li>	<li>Groups can be assigned by the <em>Groups</em> column. Groups are identified by their <em>Code</em> property,	multiple groups can be separated by comma. Existing group memberships are not cleared.</li>	</ul></div>'
@@ -421,7 +435,7 @@ sl:
   ModelAdmin:
     DELETE: Izbriši
     DELETEDRECORDS: 'Deleted {count} records.'
-    EMPTYBEFOREIMPORT: 'Clear Database before import'
+    EMPTYBEFOREIMPORT: 'Replace data'
     IMPORT: 'Uvozi CSV-datoteko'
     IMPORTEDRECORDS: 'Imported {count} records.'
     NOCSVFILE: 'Poiščite CSV-datoteko za uvoz'
@@ -515,7 +529,20 @@ sl:
     BtnImport: Uvozi
     FileFieldLabel: 'CSV-datoteka <small>(Samo končnica: *.csv)</small>'
   SilverStripeNavigator:
+    Auto: Auto
+    ChangeViewMode: 'Change view mode'
+    Desktop: Desktop
+    DualWindowView: 'Dual Window'
     Edit: Uredi
+    EditView: 'Edit mode'
+    Mobile: Mobile
+    PreviewState: 'Preview State'
+    PreviewView: 'Preview mode'
+    Responsive: Responsive
+    SplitView: 'Split mode'
+    Tablet: Tablet
+    ViewDeviceWidth: 'Select a preview width'
+    Width: width
   SimpleImageField:
     NOUPLOAD: 'Slika ni naložena'
   SiteTree:
@@ -551,6 +578,8 @@ sl:
     ATTACHFILE: 'Pripni datoteko'
     ATTACHFILES: 'Pripni datoteke'
     AttachFile: 'Pripni datoteke'
+    CHOOSEANOTHERFILE: 'Choose another file'
+    CHOOSEANOTHERINFO: 'Replace this file with another one from the file store'
     DELETE: 'Izbriši iz zbirke naloženih datotek'
     DELETEINFO: 'Dokončno izbriši datoteko iz knjižnjice datotek'
     DOEDIT: Shrani
@@ -565,12 +594,15 @@ sl:
     FROMFILES: 'Iz zbirke naloženih datotek'
     HOTLINKINFO: 'Info: Ta slika bo dostopna prek povezave. Prosim, preverite, da imate dovoljenje avtorja za tako uporabo.'
     MAXNUMBEROFFILES: 'Doseženo je največje možno število datotek: {count}'
+    MAXNUMBEROFFILESONE: 'Can only upload one file'
     MAXNUMBEROFFILESSHORT: 'Naložite lahko največ {count} datotek'
+    OVERWRITEWARNING: 'File with the same name already exists'
     REMOVE: Odstrani
     REMOVEERROR: 'Napaka pri brisanju datoteke'
     REMOVEINFO: 'Odstrani datoteko, vendar je ne izbriši iz knjižnjice datotek'
     STARTALL: 'Start all'
     STARTALLINFO: 'Start all uploads'
     Saved: Shranjeno
+    UPLOADSINTO: 'saves into /{path}'
   Versioned:
     has_many_Versions: Verzije
