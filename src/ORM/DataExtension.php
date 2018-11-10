@@ -16,6 +16,11 @@ use Exception;
 abstract class DataExtension extends Extension
 {
 
+    /**
+     * @param $class
+     * @param $extension
+     * @throws Exception
+     */
     public static function unload_extra_statics($class, $extension)
     {
         throw new Exception('unload_extra_statics gone');
@@ -60,26 +65,46 @@ abstract class DataExtension extends Extension
     {
     }
 
+    /**
+     * @see DataObject::onBeforeWrite()
+     */
     public function onBeforeWrite()
     {
     }
 
+    /**
+     * @see DataObject::onAfterWrite()
+     */
     public function onAfterWrite()
     {
     }
 
+    /**
+     * @see DataObject::onBeforeDelete()
+     */
     public function onBeforeDelete()
     {
     }
 
+    /**
+     * @see DataObject::onAfterDelete()
+     */
     public function onAfterDelete()
     {
     }
 
+    /**
+     * Add default records to database
+     *
+     * @see DataObject::requireDefaultRecords()
+     */
     public function requireDefaultRecords()
     {
     }
 
+    /**
+     * Update the owner's default values. Get's called by the owner's constructor when creating new records.
+     */
     public function populateDefaults()
     {
     }
@@ -214,20 +239,20 @@ abstract class DataExtension extends Extension
      * Update the owner's default searchable fields
      *
      * @param array $fields
-     * @return array Array of field names
      */
     public function updateSearchableFields($fields)
     {
     }
 
+    /**
+     * @param RelationList $list
+     */
     public function updateManyManyComponents(RelationList $list)
     {
-
     }
 
     /**
      * @param array $params
-     * @return array
      */
     public function updateInheritableQueryParams($params)
     {
@@ -236,7 +261,7 @@ abstract class DataExtension extends Extension
     /**
      * Return a piece of text to keep DataObject cache keys appropriately specific.
      *
-     * @see Versioned->cacheKeyComponent()
+     * @see Versioned::cacheKeyComponent()
      *
      * @return string
      */
