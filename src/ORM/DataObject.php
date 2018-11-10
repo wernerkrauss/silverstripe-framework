@@ -1154,6 +1154,8 @@ class DataObject extends ViewableData implements DataObjectInterface, i18nEntity
      *
      * @see {@link ValidationResult}
      * @return ValidationResult
+     *
+     * @uses DataExtension->validate()
      */
     public function validate()
     {
@@ -1242,6 +1244,13 @@ class DataObject extends ViewableData implements DataObjectInterface, i18nEntity
         }
     }
 
+    /**
+     * Event handler called after deleting from the database.
+     * You can overload this to clean up or otherwise process data after delete this
+     * record.
+     *
+     * @uses DataExtension->onAfterDelete()
+     */
     protected function onAfterDelete()
     {
         $this->extend('onAfterDelete');
@@ -1589,7 +1598,8 @@ class DataObject extends ViewableData implements DataObjectInterface, i18nEntity
      * Delete this data object.
      * $this->onBeforeDelete() gets called.
      * Note that in Versioned objects, both Stage and Live will be deleted.
-     * @uses DataExtension->augmentSQL()
+     *  @uses DataExtension->updateDeleteTables()
+     *  @uses DataExtension->updateDeleteTable()
      */
     public function delete()
     {
@@ -1905,6 +1915,8 @@ class DataObject extends ViewableData implements DataObjectInterface, i18nEntity
      * @return DataList|DataObject The component, either as a list or single object
      * @throws BadMethodCallException
      * @throws InvalidArgumentException
+     *
+     * @uses DataExtension->updateManyManyComponents()
      */
     public function inferReciprocalComponent($remoteClass, $remoteRelation)
     {
@@ -2009,6 +2021,8 @@ class DataObject extends ViewableData implements DataObjectInterface, i18nEntity
      * @param string $componentName Name of the many-many component
      * @param int|array $id Optional ID for parent of this relation, if not the current record
      * @return ManyManyList|UnsavedRelationList The set of components
+     *
+     * @uses DataExtension->updateManyManyComponents()
      */
     public function getManyManyComponents($componentName, $id = null)
     {
@@ -2321,6 +2335,8 @@ class DataObject extends ViewableData implements DataObjectInterface, i18nEntity
      * @see Good example of complex FormField building: SiteTree::getCMSFields()
      *
      * @return FieldList Returns a TabSet for usage within the CMS - don't use for frontend forms.
+     *
+     * @uses DataExtension->updateCMSFields()
      */
     public function getCMSFields()
     {
@@ -2341,6 +2357,8 @@ class DataObject extends ViewableData implements DataObjectInterface, i18nEntity
      * including that dataobject's extensions customised actions could be added to the EditForm.
      *
      * @return FieldList an Empty FieldList(); need to be overload by solid subclass
+     *
+     * @uses DataExtension->updateCMSActions()
      */
     public function getCMSActions()
     {
@@ -2360,6 +2378,8 @@ class DataObject extends ViewableData implements DataObjectInterface, i18nEntity
      *
      * @param array $params See {@link scaffoldFormFields()}
      * @return FieldList Always returns a simple field collection without TabSet.
+     *
+     * @uses DataExtension->updateFrontEndFields()
      */
     public function getFrontEndFields($params = null)
     {
@@ -2414,6 +2434,9 @@ class DataObject extends ViewableData implements DataObjectInterface, i18nEntity
      * @param string $class Class to load the values from. Others are joined as required.
      * Not specifying a tableClass will load all lazy fields from all tables.
      * @return bool Flag if lazy loading succeeded
+     *
+     * @uses DataExtension->AugmentSQL()
+     * @uses DataExtension->AugmentLoadLazyFields()
      */
     protected function loadLazyFields($class = null)
     {
@@ -3116,6 +3139,8 @@ class DataObject extends ViewableData implements DataObjectInterface, i18nEntity
      * @param string $orderby A sort expression to be inserted into the ORDER BY clause.
      *
      * @return DataObject|null The first item matching the query
+     *
+     * @uses DataExtension->cacheKeyComponent()
      */
     public static function get_one($callerClass, $filter = "", $cache = true, $orderby = "")
     {
@@ -3151,6 +3176,8 @@ class DataObject extends ViewableData implements DataObjectInterface, i18nEntity
      * @param boolean $persistent When true will also clear persistent data stored in the Cache system.
      *                            When false will just clear session-local cached data
      * @return DataObject $this
+     *
+     * @uses DataExtension->flushCache()
      */
     public function flushCache($persistent = true)
     {
@@ -3273,6 +3300,8 @@ class DataObject extends ViewableData implements DataObjectInterface, i18nEntity
      * Get list of parameters that should be inherited to relations on this object
      *
      * @return array
+     *
+     * @uses DataExtension->updateInheritableQueryParams()
      */
     public function getInheritableQueryParams()
     {
@@ -3428,6 +3457,8 @@ class DataObject extends ViewableData implements DataObjectInterface, i18nEntity
      * data object, uses a default selection of summary fields.
      *
      * @return array
+     *
+     * @uses DataExtension->updateSearchableFields()
      */
     public function searchableFields()
     {
@@ -3524,6 +3555,7 @@ class DataObject extends ViewableData implements DataObjectInterface, i18nEntity
      *
      * @uses $field_labels
      * @uses FormField::name_to_label()
+     * @uses DataExtension->updateFieldLabels()
      *
      * @param boolean $includerelations a boolean value to indicate if the labels returned include relation fields
      *
@@ -3607,6 +3639,8 @@ class DataObject extends ViewableData implements DataObjectInterface, i18nEntity
      * @todo use the translation apparatus to return a default field selection for the language
      *
      * @return array
+     *
+     * @uses DataExtension->updateSummaryFields()
      */
     public function summaryFields()
     {
