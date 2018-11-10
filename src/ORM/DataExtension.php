@@ -84,18 +84,34 @@ abstract class DataExtension extends Extension
     {
     }
 
+    /**
+     * @param Member|int $member
+     * @return bool
+     */
     public function can($member)
     {
     }
 
+    /**
+     * @param Member|int $member
+     * @return bool
+     */
     public function canEdit($member)
     {
     }
 
+    /**
+     * @param Member|int $member
+     * @return bool
+     */
     public function canDelete($member)
     {
     }
 
+    /**
+     * @param Member|int $member
+     * @return bool
+     */
     public function canCreate($member)
     {
     }
@@ -156,7 +172,7 @@ abstract class DataExtension extends Extension
     }
 
     /**
-     * this function is used to provide modifications to the summary fields in CMS
+     * This function is used to provide modifications to the summary fields in CMS
      * by the extension
      * By default, the summaryField() of its owner will merge more fields defined in the extension's
      * $extra_fields['summary_fields']
@@ -179,7 +195,7 @@ abstract class DataExtension extends Extension
     }
 
     /**
-     * this function is used to provide modifications to the fields labels in CMS
+     * This function is used to provide modifications to the fields labels in CMS
      * by the extension
      * By default, the fieldLabels() of its owner will merge more fields defined in the extension's
      * $extra_fields['field_labels']
@@ -192,5 +208,48 @@ abstract class DataExtension extends Extension
         if ($field_labels) {
             $labels = array_merge($labels, $field_labels);
         }
+    }
+
+    /**
+     * Update the owner's default searchable fields
+     *
+     * @param array $fields
+     * @return array Array of field names
+     */
+    public function updateSearchableFields($fields)
+    {
+    }
+
+    public function updateManyManyComponents(RelationList $list)
+    {
+
+    }
+
+    /**
+     * @param array $params
+     * @return array
+     */
+    public function updateInheritableQueryParams($params)
+    {
+    }
+
+    /**
+     * Return a piece of text to keep DataObject cache keys appropriately specific.
+     *
+     * @see Versioned->cacheKeyComponent()
+     *
+     * @return string
+     */
+    public function cacheKeyComponent()
+    {
+    }
+
+    /**
+     * flush owner's caches
+     *
+     * @return void
+     */
+    public function flushCache()
+    {
     }
 }
